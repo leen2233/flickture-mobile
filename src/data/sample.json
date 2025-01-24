@@ -10,7 +10,201 @@
       "moviesWatched": 142,
       "following": 234,
       "followers": 567
-    }
+    },
+    "following": ["user1", "user2", "user3", "user4"],
+    "followersList": [
+      {
+        "id": "user1",
+        "firstName": "John",
+        "lastName": "Doe",
+        "username": "johndoe",
+        "avatar": "https://i.pravatar.cc/150?img=1"
+      },
+      {
+        "id": "user2",
+        "firstName": "Sarah",
+        "lastName": "Wilson",
+        "username": "sarahw",
+        "avatar": "https://i.pravatar.cc/150?img=2"
+      },
+      {
+        "id": "user3",
+        "firstName": "Michael",
+        "lastName": "Brown",
+        "username": "mikeb",
+        "avatar": "https://i.pravatar.cc/150?img=3"
+      },
+      {
+        "id": "user4",
+        "firstName": "Emma",
+        "lastName": "Davis",
+        "username": "emmad",
+        "avatar": "https://i.pravatar.cc/150?img=4"
+      },
+      {
+        "id": "user5",
+        "firstName": "James",
+        "lastName": "Smith",
+        "username": "jamess",
+        "avatar": "https://i.pravatar.cc/150?img=5"
+      },
+      {
+        "id": "user6",
+        "firstName": "Olivia",
+        "lastName": "Johnson",
+        "username": "oliviaj",
+        "avatar": "https://i.pravatar.cc/150?img=6"
+      },
+      {
+        "id": "user7",
+        "firstName": "William",
+        "lastName": "Jones",
+        "username": "williamj",
+        "avatar": "https://i.pravatar.cc/150?img=7"
+      },
+      {
+        "id": "user8",
+        "firstName": "Sophia",
+        "lastName": "Garcia",
+        "username": "sophiag",
+        "avatar": "https://i.pravatar.cc/150?img=8"
+      },
+      {
+        "id": "user9",
+        "firstName": "Liam",
+        "lastName": "Martinez",
+        "username": "liamm",
+        "avatar": "https://i.pravatar.cc/150?img=9"
+      },
+      {
+        "id": "user10",
+        "firstName": "Isabella",
+        "lastName": "Rodriguez",
+        "username": "isabellar",
+        "avatar": "https://i.pravatar.cc/150?img=10"
+      },
+      {
+        "id": "user11",
+        "firstName": "Noah",
+        "lastName": "Lee",
+        "username": "noahl",
+        "avatar": "https://i.pravatar.cc/150?img=11"
+      },
+      {
+        "id": "user12",
+        "firstName": "Mia",
+        "lastName": "Walker",
+        "username": "miaw",
+        "avatar": "https://i.pravatar.cc/150?img=12"
+      },
+      {
+        "id": "user13",
+        "firstName": "Lucas",
+        "lastName": "Hall",
+        "username": "lucash",
+        "avatar": "https://i.pravatar.cc/150?img=13"
+      },
+      {
+        "id": "user14",
+        "firstName": "Amelia",
+        "lastName": "Allen",
+        "username": "ameliaa",
+        "avatar": "https://i.pravatar.cc/150?img=14"
+      },
+      {
+        "id": "user15",
+        "firstName": "Mason",
+        "lastName": "Young",
+        "username": "masony",
+        "avatar": "https://i.pravatar.cc/150?img=15"
+      },
+      {
+        "id": "user16",
+        "firstName": "Charlotte",
+        "lastName": "King",
+        "username": "charlottek",
+        "avatar": "https://i.pravatar.cc/150?img=16"
+      },
+      {
+        "id": "user17",
+        "firstName": "Ethan",
+        "lastName": "Wright",
+        "username": "ethanw",
+        "avatar": "https://i.pravatar.cc/150?img=17"
+      },
+      {
+        "id": "user18",
+        "firstName": "Ava",
+        "lastName": "Scott",
+        "username": "avas",
+        "avatar": "https://i.pravatar.cc/150?img=18"
+      },
+      {
+        "id": "user19",
+        "firstName": "Alexander",
+        "lastName": "Green",
+        "username": "alexanderg",
+        "avatar": "https://i.pravatar.cc/150?img=19"
+      },
+      {
+        "id": "user20",
+        "firstName": "Sophia",
+        "lastName": "Baker",
+        "username": "sophiab",
+        "avatar": "https://i.pravatar.cc/150?img=20"
+      },
+      {
+        "id": "user21",
+        "firstName": "Michael",
+        "lastName": "Harris",
+        "username": "michaelh",
+        "avatar": "https://i.pravatar.cc/150?img=21"
+      },
+      {
+        "id": "user22",
+        "firstName": "Emily",
+        "lastName": "Nelson",
+        "username": "emilyn",
+        "avatar": "https://i.pravatar.cc/150?img=22"
+      },
+      {
+        "id": "user23",
+        "firstName": "Daniel",
+        "lastName": "Carter",
+        "username": "danielc",
+        "avatar": "https://i.pravatar.cc/150?img=23"
+      },
+      {
+        "id": "user24",
+        "firstName": "Grace",
+        "lastName": "Mitchell",
+        "username": "gracem",
+        "avatar": "https://i.pravatar.cc/150?img=24"
+      }
+    ],
+    "followingList": [
+      {
+        "id": "user5",
+        "firstName": "James",
+        "lastName": "Taylor",
+        "username": "jamest",
+        "avatar": "https://i.pravatar.cc/150?img=5"
+      },
+      {
+        "id": "user6",
+        "firstName": "Olivia",
+        "lastName": "Miller",
+        "username": "oliviam",
+        "avatar": "https://i.pravatar.cc/150?img=6"
+      },
+      {
+        "id": "user7",
+        "firstName": "William",
+        "lastName": "Anderson",
+        "username": "willa",
+        "avatar": "https://i.pravatar.cc/150?img=7"
+      }
+    ]
   },
   "artists": {
     "leonardo-dicaprio": {
