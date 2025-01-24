@@ -4,49 +4,12 @@ import {
   Input,
   InputField,
   Icon,
-  VStack,
   Text,
-  Image,
-  Pressable,
   FlatList,
 } from '@gluestack-ui/themed';
 import {Search} from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
-
-const MovieCard = ({movie}) => {
-  const navigation = useNavigation();
-  
-  return (
-    <Pressable onPress={() => navigation.navigate('MovieDetail', { movie })}>
-      <Box
-        flexDirection="row"
-        backgroundColor="#270a39"
-        padding={12}
-        borderRadius={12}
-        marginBottom={12}>
-        <Image
-          source={{uri: movie.poster}}
-          alt={movie.title}
-          width={80}
-          height={120}
-          borderRadius={8}
-        />
-        <VStack marginLeft={12} flex={1} justifyContent="center">
-          <Text color="white" fontSize={16} fontWeight="600" marginBottom={4}>
-            {movie.title}
-          </Text>
-          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} marginBottom={4}>
-            {movie.year}
-          </Text>
-          <Text color="#dc3f72" fontSize={14}>
-            Rating: {movie.rating}
-          </Text>
-        </VStack>
-      </Box>
-    </Pressable>
-  );
-};
+import MovieCard from '../components/MovieCard';
 
 const MovieListScreen = ({route}) => {
   const {listType} = route.params;
@@ -81,6 +44,32 @@ const MovieListScreen = ({route}) => {
     setFilteredMovies(filtered);
   }, [searchQuery, movies]);
 
+  const handleUpdateStatus = (movieId, action) => {
+    switch (action) {
+      case 'markAsWatched':
+        // Add to recently watched and remove from watchlist
+        // You would typically make an API call here
+        console.log('Marked as watched:', movieId);
+        break;
+      case 'remove':
+        // Remove from current list
+        const updatedMovies = movies.filter(movie => movie.id !== movieId);
+        setMovies(updatedMovies);
+        setFilteredMovies(
+          updatedMovies.filter(movie =>
+            movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
+        );
+        break;
+      case 'unfavorite':
+        // Remove from favorites
+        console.log('Removed from favorites:', movieId);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Box flex={1} backgroundColor="#040b1c" padding={16}>
       {/* Header */}
@@ -114,7 +103,13 @@ const MovieListScreen = ({route}) => {
       {/* Movie List */}
       <FlatList
         data={filteredMovies}
-        renderItem={({item}) => <MovieCard movie={item} />}
+        renderItem={({item}) => (
+          <MovieCard
+            movie={item}
+            listType={listType}
+            onUpdateStatus={handleUpdateStatus}
+          />
+        )}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
       />
@@ -122,4 +117,4 @@ const MovieListScreen = ({route}) => {
   );
 };
 
-export default MovieListScreen; 
+export default MovieListScreen;

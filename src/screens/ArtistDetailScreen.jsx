@@ -37,6 +37,9 @@ import {
   StatusBar,
 } from 'react-native';
 import sampleData from '../data/sample.json';
+import ArtistHeader from '../components/ArtistHeader';
+import ArtistStats from '../components/ArtistStats';
+import ArtistPersonalInfo from '../components/ArtistPersonalInfo';
 
 const StatItem = ({icon, label, value}) => (
   <VStack alignItems="center" space="xs" flex={1}>
@@ -115,60 +118,12 @@ const ArtistDetailScreen = ({route}) => {
       </Modal>
 
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        {/* Header Section */}
-        <Box height={400}>
-          <Box
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundColor="#270a39"
-          />
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => setIsImageModalVisible(true)}>
-            <Image
-              source={{uri: artist.image}}
-              alt={artist.name}
-              style={styles.headerImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-          <Box
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            bg={{
-              linearGradient: {
-                colors: ['rgba(39, 10, 57, 0.5)', '#040b1c'],
-                start: [0, 0],
-                end: [0, 1],
-              },
-            }}
-          />
-          <HStack
-            position="absolute"
-            top={Platform.OS === 'ios' ? 60 : 20}
-            width="100%"
-            justifyContent="space-between"
-            paddingHorizontal={16}>
-            <Button variant="link" onPress={() => navigation.goBack()}>
-              <ButtonIcon as={ArrowLeft} color="white" />
-            </Button>
-            <Button
-              variant="link"
-              onPress={() => {
-                /* Handle share */
-              }}>
-              <ButtonIcon as={Share2} color="white" />
-            </Button>
-          </HStack>
-        </Box>
+        <ArtistHeader
+          artist={artist}
+          navigation={navigation}
+          onImagePress={() => setIsImageModalVisible(true)}
+        />
 
-        {/* Content Section */}
         <VStack space="xl" padding={16} marginTop={-60}>
           {/* Artist Name and Follow Button */}
           <VStack space="md">
@@ -190,60 +145,7 @@ const ArtistDetailScreen = ({route}) => {
             </HStack>
           </VStack>
 
-          {/* Stats Cards */}
-          <HStack space="md">
-            <Pressable
-              flex={1}
-              backgroundColor="#270a39"
-              padding={16}
-              borderRadius={16}
-              borderWidth={1}
-              borderColor="rgba(220, 63, 114, 0.1)">
-              <VStack alignItems="center" space="xs">
-                <Award size={24} color="#dc3f72" />
-                <Text color="white" fontSize={20} fontWeight="600">
-                  {artist.stats?.awards || 0}
-                </Text>
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                  Awards
-                </Text>
-              </VStack>
-            </Pressable>
-            <Pressable
-              flex={1}
-              backgroundColor="#270a39"
-              padding={16}
-              borderRadius={16}
-              borderWidth={1}
-              borderColor="rgba(220, 63, 114, 0.1)">
-              <VStack alignItems="center" space="xs">
-                <Star size={24} color="#dc3f72" />
-                <Text color="white" fontSize={20} fontWeight="600">
-                  {artist.stats?.nominations || 0}
-                </Text>
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                  Nominations
-                </Text>
-              </VStack>
-            </Pressable>
-            <Pressable
-              flex={1}
-              backgroundColor="#270a39"
-              padding={16}
-              borderRadius={16}
-              borderWidth={1}
-              borderColor="rgba(220, 63, 114, 0.1)">
-              <VStack alignItems="center" space="xs">
-                <Film size={24} color="#dc3f72" />
-                <Text color="white" fontSize={20} fontWeight="600">
-                  {artist.stats?.totalMovies || 0}
-                </Text>
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                  Movies
-                </Text>
-              </VStack>
-            </Pressable>
-          </HStack>
+          <ArtistStats stats={artist.stats} />
 
           {/* Biography */}
           {artist.biography && (
@@ -260,76 +162,7 @@ const ArtistDetailScreen = ({route}) => {
             </VStack>
           )}
 
-          {/* Info Container */}
-          <VStack
-            space="md"
-            backgroundColor="#270a39"
-            padding={16}
-            borderRadius={16}
-            borderWidth={1}
-            borderColor="rgba(220, 63, 114, 0.1)">
-            <Text color="white" fontSize={20} fontWeight="600">
-              Personal Info
-            </Text>
-            <VStack space="md">
-              {artist.birthPlace && (
-                <HStack space="xs">
-                  <MapPin size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    Born in {artist.birthPlace}
-                  </Text>
-                </HStack>
-              )}
-              {artist.birthDate && (
-                <HStack space="xs">
-                  <Calendar size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    Born on {artist.birthDate}
-                  </Text>
-                </HStack>
-              )}
-              {artist.nationality && (
-                <HStack space="xs">
-                  <Globe size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {artist.nationality}
-                  </Text>
-                </HStack>
-              )}
-              {artist.height && (
-                <HStack space="xs">
-                  <Ruler size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    Height: {artist.height}
-                  </Text>
-                </HStack>
-              )}
-              {artist.occupation && (
-                <HStack space="xs" alignItems="flex-start">
-                  <Briefcase size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {artist.occupation.join(', ')}
-                  </Text>
-                </HStack>
-              )}
-              {artist.education && (
-                <HStack space="xs">
-                  <GraduationCap size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {artist.education}
-                  </Text>
-                </HStack>
-              )}
-              {artist.spouseName && (
-                <HStack space="xs">
-                  <Heart size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    Married to {artist.spouseName}
-                  </Text>
-                </HStack>
-              )}
-            </VStack>
-          </VStack>
+          <ArtistPersonalInfo artist={artist} />
 
           {/* Social Media */}
           {artist.socialMedia && (
