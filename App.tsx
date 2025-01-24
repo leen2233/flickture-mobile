@@ -17,6 +17,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import MovieListScreen from './src/screens/MovieListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import MovieDetailScreen from './src/screens/MovieDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ function App(): React.JSX.Element {
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="MovieList" component={MovieListScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GluestackUIProvider>

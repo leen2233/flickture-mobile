@@ -14,9 +14,103 @@
   },
   "movies": {
     "recentlyWatched": [
-      { "id": 1, "title": "Inception", "poster": "https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg", "year": 2010, "rating": 8.8 },
-      { "id": 2, "title": "The Matrix", "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg", "year": 1999, "rating": 8.7 },
-      { "id": 3, "title": "Interstellar", "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg", "year": 2014, "rating": 8.6 },
+      {
+        "id": 1,
+        "title": "Inception",
+        "originalTitle": "Inception",
+        "poster": "https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+        "year": 2010,
+        "rating": 8.8,
+        "duration": "148 min",
+        "overview": "Cobb, a skilled thief who commits corporate espionage by infiltrating the subconscious of his targets is offered a chance to regain his old life as payment for a task considered to be impossible: inception, the implantation of another person's idea into a target's subconscious.",
+        "director": "Christopher Nolan",
+        "cast": [
+          {
+            "name": "Leonardo DiCaprio",
+            "character": "Cobb",
+            "image": "https://image.tmdb.org/t/p/w500/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg"
+          },
+          {
+            "name": "Joseph Gordon-Levitt",
+            "character": "Arthur",
+            "image": "https://image.tmdb.org/t/p/w500/4U9G4YwTlIEbAymBaseltS8uqOp.jpg"
+          },
+          {
+            "name": "Ellen Page",
+            "character": "Ariadne",
+            "image": "https://image.tmdb.org/t/p/w500/uGqHJZxNZ0jMEYbvXorZshAhkHl.jpg"
+          },
+          {
+            "name": "Tom Hardy",
+            "character": "Eames",
+            "image": "https://image.tmdb.org/t/p/w500/yVGF9FvDxTDPhGimTbZNfghpllA.jpg"
+          },
+          {
+            "name": "Ken Watanabe",
+            "character": "Saito",
+            "image": "https://image.tmdb.org/t/p/w500/o6yDzj6OyKZ6Wine9QRaduYw3ck.jpg"
+          },
+          {
+            "name": "Michael Caine",
+            "character": "Miles",
+            "image": "https://image.tmdb.org/t/p/w500/hZruclwEPCKw3e83rnQf7K9Jp8p.jpg"
+          }
+        ],
+        "genres": ["Action", "Science Fiction", "Adventure"],
+        "comments": 324
+      },
+      {
+        "id": 2,
+        "title": "The Matrix",
+        "originalTitle": "The Matrix",
+        "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+        "year": 1999,
+        "rating": 8.7,
+        "duration": "136 min",
+        "overview": "Set in the 22nd century, The Matrix tells the story of a computer programmer who joins a rebellion against intelligent machines that humans created in the past.",
+        "director": "Lana Wachowski",
+        "cast": [
+          {
+            "name": "Keanu Reeves",
+            "character": "Neo",
+            "image": "https://image.tmdb.org/t/p/w500/rRdru6REr9i3WIHv2mntpcgxnoY.jpg"
+          },
+          {
+            "name": "Laurence Fishburne",
+            "character": "Morpheus",
+            "image": "https://image.tmdb.org/t/p/w500/8suOhUuWBXUYRu0bVyvHlHGBZtH.jpg"
+          },
+          {
+            "name": "Carrie-Anne Moss",
+            "character": "Trinity",
+            "image": "https://image.tmdb.org/t/p/w500/xD4jTA3KmVp5Rq3aHcymL9DUGjD.jpg"
+          },
+          {
+            "name": "Hugo Weaving",
+            "character": "Agent Smith",
+            "image": "https://image.tmdb.org/t/p/w500/dW5U5yrIIPmMjRThR9KT2xH6nTz.jpg"
+          }
+        ],
+        "genres": ["Action", "Science Fiction"],
+        "comments": 456
+      },
+      {
+        "id": 3,
+        "title": "Interstellar",
+        "originalTitle": "Interstellar",
+        "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
+        "year": 2014,
+        "rating": 8.6,
+        "duration": "169 min",
+        "overview": "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+        "director": "Christopher Nolan",
+        "cast": ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain", "Michael Caine"],
+        "genres": ["Adventure", "Drama", "Science Fiction"],
+        "comments": 289
+      },
       { "id": 4, "title": "Pulp Fiction", "poster": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg", "year": 1994, "rating": 8.9 },
       { "id": 5, "title": "Fight Club", "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", "year": 1999, "rating": 8.8 },
       { "id": 6, "title": "The Godfather", "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg", "year": 1972, "rating": 9.2 },
@@ -26,15 +120,71 @@
       { "id": 10, "title": "The Shawshank Redemption", "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg", "year": 1994, "rating": 9.3 }
     ],
     "watchlist": [
-      { "id": 11, "title": "The Godfather: Part II", "poster": "https://image.tmdb.org/t/p/w500/hek3koDUyRQk7FIhPXsa6mWWxmc.jpg", "year": 1974, "rating": 9.0 },
-      { "id": 12, "title": "Schindler's List", "poster": "https://image.tmdb.org/t/p/w500/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg", "year": 1993, "rating": 9.0 },
+      {
+        "id": 11,
+        "title": "The Godfather: Part II",
+        "originalTitle": "The Godfather: Part II",
+        "poster": "https://image.tmdb.org/t/p/w500/hek3koDUyRQk7FIhPXsa6mWWxmc.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/kGzFbGhp99zva6oZODW5atUtnqi.jpg",
+        "year": 1974,
+        "rating": 9.0,
+        "duration": "202 min",
+        "overview": "In the continuing saga of the Corleone crime family, a young Vito Corleone grows up in Sicily and in 1910s New York. In the 1950s, Michael Corleone attempts to expand the family business into Las Vegas, Hollywood and Cuba.",
+        "director": "Francis Ford Coppola",
+        "cast": ["Al Pacino", "Robert Duvall", "Diane Keaton", "Robert De Niro"],
+        "genres": ["Crime", "Drama"],
+        "comments": 198
+      },
+      {
+        "id": 12,
+        "title": "Schindler's List",
+        "originalTitle": "Schindler's List",
+        "poster": "https://image.tmdb.org/t/p/w500/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/loRmRzQXZeqG78TqZuyvSlEQfZb.jpg",
+        "year": 1993,
+        "rating": 9.0,
+        "duration": "195 min",
+        "overview": "The true story of how businessman Oskar Schindler saved over a thousand Jewish lives from the Nazis while they worked as slaves in his factory during World War II.",
+        "director": "Steven Spielberg",
+        "cast": ["Liam Neeson", "Ben Kingsley", "Ralph Fiennes"],
+        "genres": ["Drama", "History", "War"],
+        "comments": 167
+      },
       { "id": 13, "title": "12 Angry Men", "poster": "https://image.tmdb.org/t/p/w500/ppd84D2i9W8jXmsyInGyihiSyqz.jpg", "year": 1957, "rating": 9.0 },
       { "id": 14, "title": "The Lord of the Rings", "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg", "year": 2001, "rating": 8.9 },
       { "id": 15, "title": "Gladiator", "poster": "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg", "year": 2000, "rating": 8.5 }
     ],
     "favorites": [
-      { "id": 16, "title": "The Silence of the Lambs", "poster": "https://image.tmdb.org/t/p/w500/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg", "year": 1991, "rating": 8.6 },
-      { "id": 17, "title": "Saving Private Ryan", "poster": "https://image.tmdb.org/t/p/w500/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg", "year": 1998, "rating": 8.6 },
+      {
+        "id": 16,
+        "title": "The Silence of the Lambs",
+        "originalTitle": "The Silence of the Lambs",
+        "poster": "https://image.tmdb.org/t/p/w500/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/mfwq2nMBzArzQ7Y9RKE8SKeeTkg.jpg",
+        "year": 1991,
+        "rating": 8.6,
+        "duration": "118 min",
+        "overview": "Clarice Starling, a young FBI trainee, seeks help from imprisoned psychopath Dr. Hannibal Lecter to catch another serial killer, a madman known as 'Buffalo Bill'.",
+        "director": "Jonathan Demme",
+        "cast": ["Jodie Foster", "Anthony Hopkins", "Scott Glenn"],
+        "genres": ["Crime", "Drama", "Thriller"],
+        "comments": 245
+      },
+      {
+        "id": 17,
+        "title": "Saving Private Ryan",
+        "originalTitle": "Saving Private Ryan",
+        "poster": "https://image.tmdb.org/t/p/w500/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w500/bdD39MpSVhKjxarTxLSfX6baoMP.jpg",
+        "year": 1998,
+        "rating": 8.6,
+        "duration": "169 min",
+        "overview": "As U.S. troops storm the beaches of Normandy, three brothers lie dead on the battlefield, with a fourth trapped behind enemy lines. Ranger captain John Miller and seven men are tasked with penetrating German-held territory and bringing the boy home.",
+        "director": "Steven Spielberg",
+        "cast": ["Tom Hanks", "Tom Sizemore", "Edward Burns", "Matt Damon"],
+        "genres": ["Drama", "History", "War"],
+        "comments": 278
+      },
       { "id": 18, "title": "Jurassic Park", "poster": "https://image.tmdb.org/t/p/w500/oU7Oq2kFAAlGqbU4VoAE36g4hoI.jpg", "year": 1993, "rating": 8.2 },
       { "id": 19, "title": "The Green Mile", "poster": "https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg", "year": 1999, "rating": 8.6 },
       { "id": 20, "title": "Back to the Future", "poster": "https://image.tmdb.org/t/p/w500/fNOH9f1aA7XRTzl1sAOx9iF553Q.jpg", "year": 1985, "rating": 8.5 }

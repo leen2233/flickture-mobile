@@ -11,6 +11,7 @@ import {
   FlatList,
 } from '@gluestack-ui/themed';
 import {Search} from 'lucide-react-native';
+import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 
 type Movie = {
@@ -25,35 +26,39 @@ type RouteParams = {
   listType: string;
 };
 
-const MovieCard = ({movie}: {movie: Movie}) => (
-  <Pressable>
-    <Box
-      flexDirection="row"
-      backgroundColor="#270a39"
-      padding={12}
-      borderRadius={12}
-      marginBottom={12}>
-      <Image
-        source={{uri: movie.poster}}
-        alt={movie.title}
-        width={80}
-        height={120}
-        borderRadius={8}
-      />
-      <VStack marginLeft={12} flex={1} justifyContent="center">
-        <Text color="white" fontSize={16} fontWeight="600" marginBottom={4}>
-          {movie.title}
-        </Text>
-        <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} marginBottom={4}>
-          {movie.year}
-        </Text>
-        <Text color="#dc3f72" fontSize={14}>
-          Rating: {movie.rating}
-        </Text>
-      </VStack>
-    </Box>
-  </Pressable>
-);
+const MovieCard = ({movie}: {movie: Movie}) => {
+  const navigation = useNavigation<any>();
+  
+  return (
+    <Pressable onPress={() => navigation.navigate('MovieDetail', { movie })}>
+      <Box
+        flexDirection="row"
+        backgroundColor="#270a39"
+        padding={12}
+        borderRadius={12}
+        marginBottom={12}>
+        <Image
+          source={{uri: movie.poster}}
+          alt={movie.title}
+          width={80}
+          height={120}
+          borderRadius={8}
+        />
+        <VStack marginLeft={12} flex={1} justifyContent="center">
+          <Text color="white" fontSize={16} fontWeight="600" marginBottom={4}>
+            {movie.title}
+          </Text>
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} marginBottom={4}>
+            {movie.year}
+          </Text>
+          <Text color="#dc3f72" fontSize={14}>
+            Rating: {movie.rating}
+          </Text>
+        </VStack>
+      </Box>
+    </Pressable>
+  );
+};
 
 const MovieListScreen = ({route}: {route: {params: RouteParams}}) => {
   const {listType} = route.params;
