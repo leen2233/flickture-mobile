@@ -41,56 +41,6 @@ const StatBox = ({label, value, onPress}) => (
   </TouchableOpacity>
 );
 
-const UserListItem = ({user, isFollowing, onToggleFollow}) => {
-  console.log('Rendering UserListItem:', user, 'isFollowing:', isFollowing);
-  return (
-    <Box
-      width="100%"
-      backgroundColor="#270a39"
-      padding={16}
-      marginBottom={8}
-      borderRadius={12}
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)">
-      <HStack justifyContent="space-between" alignItems="center">
-        <HStack space="md" alignItems="center">
-          <Image
-            source={{uri: user.avatar}}
-            alt={user.username}
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              borderWidth: 2,
-              borderColor: '#dc3f72',
-            }}
-          />
-          <VStack space="xs">
-            <Text color="white" fontSize={16} fontWeight="600">
-              {user.firstName} {user.lastName}
-            </Text>
-            <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-              @{user.username}
-            </Text>
-          </VStack>
-        </HStack>
-        <Button
-          variant={isFollowing ? 'outline' : 'solid'}
-          backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}
-          borderColor={isFollowing ? '#dc3f72' : 'transparent'}
-          onPress={() => onToggleFollow(user.id)}
-          paddingHorizontal={16}
-          height={36}
-          borderRadius={8}>
-          <ButtonText color={isFollowing ? '#dc3f72' : 'white'}>
-            {isFollowing ? 'Unfollow' : 'Follow'}
-          </ButtonText>
-        </Button>
-      </HStack>
-    </Box>
-  );
-};
-
 const MovieList = ({title, count, movies, onSeeAll}) => {
   const navigation = useNavigation();
 

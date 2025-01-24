@@ -413,7 +413,24 @@
           }
         ],
         "genres": ["Action", "Science Fiction", "Adventure"],
-        "comments": 324
+        "comments": 324,
+        "collection": null,
+        "appearsIn": [
+          {
+            "id": "nolan-best",
+            "name": "Christopher Nolan's Best",
+            "thumbnail": "https://image.tmdb.org/t/p/w500/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+            "moviesCount": 8,
+            "creator": "CinematicDreams"
+          },
+          {
+            "id": "mind-bending",
+            "name": "Mind-Bending Masterpieces",
+            "thumbnail": "https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg",
+            "moviesCount": 15,
+            "creator": "FilmBuff42"
+          }
+        ]
       },
       {
         "id": 2,
@@ -449,7 +466,46 @@
           }
         ],
         "genres": ["Action", "Science Fiction"],
-        "comments": 456
+        "comments": 456,
+        "collection": {
+          "id": "matrix-collection",
+          "name": "The Matrix Collection",
+          "movies": [
+            {
+              "id": "2",
+              "title": "The Matrix",
+              "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+              "year": 1999
+            },
+            {
+              "id": "matrix2",
+              "title": "The Matrix Reloaded",
+              "poster": "https://image.tmdb.org/t/p/w500/9TGHDvWrqKBzwDxDodHYXEmOE6J.jpg",
+              "year": 2003
+            },
+            {
+              "id": "matrix3",
+              "title": "The Matrix Revolutions",
+              "poster": "https://image.tmdb.org/t/p/w500/fgm8OZ7o4G1G1I9EeGcb85Noe6L.jpg",
+              "year": 2003
+            },
+            {
+              "id": "matrix4",
+              "title": "The Matrix Resurrections",
+              "poster": "https://image.tmdb.org/t/p/w500/8c4a8kE7PizaGQQnditMmI1xbRp.jpg",
+              "year": 2021
+            }
+          ]
+        },
+        "appearsIn": [
+          {
+            "id": "sci-fi-classics",
+            "name": "Science Fiction Classics",
+            "thumbnail": "https://image.tmdb.org/t/p/w500/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+            "moviesCount": 25,
+            "creator": "SciFiLover"
+          }
+        ]
       },
       {
         "id": 3,
@@ -569,7 +625,47 @@
         "title": "The Lord of the Rings",
         "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
         "year": 2001,
-        "rating": 8.9
+        "rating": 8.9,
+        "collection": {
+          "id": "lotr-collection",
+          "name": "The Lord of the Rings Collection",
+          "movies": [
+            {
+              "id": "14",
+              "title": "The Fellowship of the Ring",
+              "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+              "year": 2001
+            },
+            {
+              "id": "lotr2",
+              "title": "The Two Towers",
+              "poster": "https://image.tmdb.org/t/p/w500/5VTN0pR8gcqV3EPUHHfMGnJYN9L.jpg",
+              "year": 2002
+            },
+            {
+              "id": "lotr3",
+              "title": "The Return of the King",
+              "poster": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+              "year": 2003
+            }
+          ]
+        },
+        "appearsIn": [
+          {
+            "id": "fantasy-epics",
+            "name": "Greatest Fantasy Epics",
+            "thumbnail": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+            "moviesCount": 12,
+            "creator": "FantasyFanatic"
+          },
+          {
+            "id": "oscar-winners",
+            "name": "Oscar Best Picture Winners",
+            "thumbnail": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+            "moviesCount": 45,
+            "creator": "AcademyExpert"
+          }
+        ]
       },
       {
         "id": 15,

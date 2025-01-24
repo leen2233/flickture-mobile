@@ -8,18 +8,13 @@ import {
 } from '@gluestack-ui/themed';
 import {Home, Search, User} from 'lucide-react-native';
 import ProfileScreen from './ProfileScreen';
+import SearchScreen from './SearchScreen';
 
 const Tab = createBottomTabNavigator();
 
 const HomeTab = () => (
   <Center flex={1} backgroundColor="#040b1c">
     <Text color="#dc3f72" fontSize={24}>Home</Text>
-  </Center>
-);
-
-const SearchTab = () => (
-  <Center flex={1} backgroundColor="#040b1c">
-    <Text color="#dc3f72" fontSize={24}>Search</Text>
   </Center>
 );
 
@@ -49,7 +44,7 @@ const HomeScreen = () => {
       />
       <Tab.Screen
         name="SearchTab"
-        component={SearchTab}
+        component={SearchScreen}
         options={{
           tabBarLabel: 'Search',
           tabBarIcon: ({color}) => (
