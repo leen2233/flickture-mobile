@@ -21,6 +21,11 @@ import {
   MapPin,
   Calendar,
   Share2,
+  Globe,
+  Ruler,
+  Briefcase,
+  GraduationCap,
+  Heart,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -49,17 +54,24 @@ const ArtistDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const [artist, setArtist] = useState(null);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const {artistId} = route.params;
     const artistData = sampleData.artists[artistId];
     if (artistData) {
       setArtist(artistData);
+      setIsFollowing(artistData.isFollowing);
     }
   }, [route.params]);
 
   const handleSocialMediaPress = url => {
     Linking.openURL(url);
+  };
+
+  const handleFollowPress = () => {
+    setIsFollowing(!isFollowing);
+    // Here you would typically make an API call to update the follow status
   };
 
   if (!artist) {
@@ -158,28 +170,23 @@ const ArtistDetailScreen = ({route}) => {
 
         {/* Content Section */}
         <VStack space="xl" padding={16} marginTop={-60}>
-          {/* Artist Name and Quick Stats */}
+          {/* Artist Name and Follow Button */}
           <VStack space="md">
-            <Text color="white" fontSize={32} fontWeight="600">
-              {artist.name}
-            </Text>
-            <HStack space="md" alignItems="center">
-              {artist.birthPlace && (
-                <HStack space="xs" alignItems="center">
-                  <MapPin size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {artist.birthPlace}
-                  </Text>
-                </HStack>
-              )}
-              {artist.birthDate && (
-                <HStack space="xs" alignItems="center">
-                  <Calendar size={16} color="#dc3f72" />
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {artist.birthDate}
-                  </Text>
-                </HStack>
-              )}
+            <HStack justifyContent="space-between" alignItems="center">
+              <Text color="white" fontSize={32} fontWeight="600">
+                {artist.name}
+              </Text>
+              <Button
+                backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}
+                borderColor="#dc3f72"
+                borderWidth={1}
+                borderRadius={12}
+                height={36}
+                onPress={handleFollowPress}>
+                <Text color="white" fontSize={14}>
+                  {isFollowing ? 'Following' : 'Follow'}
+                </Text>
+              </Button>
             </HStack>
           </VStack>
 
@@ -252,6 +259,77 @@ const ArtistDetailScreen = ({route}) => {
               </Text>
             </VStack>
           )}
+
+          {/* Info Container */}
+          <VStack
+            space="md"
+            backgroundColor="#270a39"
+            padding={16}
+            borderRadius={16}
+            borderWidth={1}
+            borderColor="rgba(220, 63, 114, 0.1)">
+            <Text color="white" fontSize={20} fontWeight="600">
+              Personal Info
+            </Text>
+            <VStack space="md">
+              {artist.birthPlace && (
+                <HStack space="xs">
+                  <MapPin size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Born in {artist.birthPlace}
+                  </Text>
+                </HStack>
+              )}
+              {artist.birthDate && (
+                <HStack space="xs">
+                  <Calendar size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Born on {artist.birthDate}
+                  </Text>
+                </HStack>
+              )}
+              {artist.nationality && (
+                <HStack space="xs">
+                  <Globe size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    {artist.nationality}
+                  </Text>
+                </HStack>
+              )}
+              {artist.height && (
+                <HStack space="xs">
+                  <Ruler size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Height: {artist.height}
+                  </Text>
+                </HStack>
+              )}
+              {artist.occupation && (
+                <HStack space="xs" alignItems="flex-start">
+                  <Briefcase size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    {artist.occupation.join(', ')}
+                  </Text>
+                </HStack>
+              )}
+              {artist.education && (
+                <HStack space="xs">
+                  <GraduationCap size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    {artist.education}
+                  </Text>
+                </HStack>
+              )}
+              {artist.spouseName && (
+                <HStack space="xs">
+                  <Heart size={16} color="#dc3f72" />
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Married to {artist.spouseName}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
+          </VStack>
 
           {/* Social Media */}
           {artist.socialMedia && (

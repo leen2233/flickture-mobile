@@ -4,7 +4,7 @@
     "firstName": "John",
     "lastName": "Doe",
     "username": "johndoe",
-    "avatar": "https://ui-avatars.com/api/?name=John+Doe&background=dc3f72&color=fff",
+    "avatar": "https://i.pravatar.cc/300",
     "bio": "",
     "stats": {
       "moviesWatched": 142,
@@ -58,7 +58,13 @@
           "year": 1997,
           "rating": 8.9
         }
-      ]
+      ],
+      "height": "183 cm",
+      "nationality": "American",
+      "occupation": ["Actor", "Film Producer", "Environmentalist"],
+      "education": "Los Angeles Center for Enriched Studies",
+      "spouseName": null,
+      "isFollowing": true
     },
     "tom-hanks": {
       "id": "tom-hanks",
@@ -105,7 +111,13 @@
           "year": 2000,
           "rating": 7.8
         }
-      ]
+      ],
+      "height": "183 cm",
+      "nationality": "American",
+      "occupation": ["Actor", "Filmmaker"],
+      "education": "California State University",
+      "spouseName": "Rita Wilson",
+      "isFollowing": false
     },
     "keanu-reeves": {
       "id": "keanu-reeves",
@@ -152,7 +164,13 @@
           "year": 2005,
           "rating": 7.0
         }
-      ]
+      ],
+      "height": "186 cm",
+      "nationality": "Canadian",
+      "occupation": ["Actor", "Musician"],
+      "education": "De La Salle College",
+      "spouseName": null,
+      "isFollowing": true
     }
   },
   "movies": {
@@ -250,17 +268,64 @@
         "duration": "169 min",
         "overview": "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
         "director": "Christopher Nolan",
-        "cast": ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain", "Michael Caine"],
+        "cast": [
+          "Matthew McConaughey",
+          "Anne Hathaway",
+          "Jessica Chastain",
+          "Michael Caine"
+        ],
         "genres": ["Adventure", "Drama", "Science Fiction"],
         "comments": 289
       },
-      { "id": 4, "title": "Pulp Fiction", "poster": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg", "year": 1994, "rating": 8.9 },
-      { "id": 5, "title": "Fight Club", "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", "year": 1999, "rating": 8.8 },
-      { "id": 6, "title": "The Godfather", "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg", "year": 1972, "rating": 9.2 },
-      { "id": 7, "title": "Goodfellas", "poster": "https://image.tmdb.org/t/p/w500/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg", "year": 1990, "rating": 8.7 },
-      { "id": 8, "title": "The Dark Knight", "poster": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg", "year": 2008, "rating": 9.0 },
-      { "id": 9, "title": "Forrest Gump", "poster": "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg", "year": 1994, "rating": 8.8 },
-      { "id": 10, "title": "The Shawshank Redemption", "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg", "year": 1994, "rating": 9.3 }
+      {
+        "id": 4,
+        "title": "Pulp Fiction",
+        "poster": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+        "year": 1994,
+        "rating": 8.9
+      },
+      {
+        "id": 5,
+        "title": "Fight Club",
+        "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+        "year": 1999,
+        "rating": 8.8
+      },
+      {
+        "id": 6,
+        "title": "The Godfather",
+        "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+        "year": 1972,
+        "rating": 9.2
+      },
+      {
+        "id": 7,
+        "title": "Goodfellas",
+        "poster": "https://image.tmdb.org/t/p/w500/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg",
+        "year": 1990,
+        "rating": 8.7
+      },
+      {
+        "id": 8,
+        "title": "The Dark Knight",
+        "poster": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+        "year": 2008,
+        "rating": 9.0
+      },
+      {
+        "id": 9,
+        "title": "Forrest Gump",
+        "poster": "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",
+        "year": 1994,
+        "rating": 8.8
+      },
+      {
+        "id": 10,
+        "title": "The Shawshank Redemption",
+        "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+        "year": 1994,
+        "rating": 9.3
+      }
     ],
     "watchlist": [
       {
@@ -274,7 +339,12 @@
         "duration": "202 min",
         "overview": "In the continuing saga of the Corleone crime family, a young Vito Corleone grows up in Sicily and in 1910s New York. In the 1950s, Michael Corleone attempts to expand the family business into Las Vegas, Hollywood and Cuba.",
         "director": "Francis Ford Coppola",
-        "cast": ["Al Pacino", "Robert Duvall", "Diane Keaton", "Robert De Niro"],
+        "cast": [
+          "Al Pacino",
+          "Robert Duvall",
+          "Diane Keaton",
+          "Robert De Niro"
+        ],
         "genres": ["Crime", "Drama"],
         "comments": 198
       },
@@ -293,9 +363,27 @@
         "genres": ["Drama", "History", "War"],
         "comments": 167
       },
-      { "id": 13, "title": "12 Angry Men", "poster": "https://image.tmdb.org/t/p/w500/ppd84D2i9W8jXmsyInGyihiSyqz.jpg", "year": 1957, "rating": 9.0 },
-      { "id": 14, "title": "The Lord of the Rings", "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg", "year": 2001, "rating": 8.9 },
-      { "id": 15, "title": "Gladiator", "poster": "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg", "year": 2000, "rating": 8.5 }
+      {
+        "id": 13,
+        "title": "12 Angry Men",
+        "poster": "https://image.tmdb.org/t/p/w500/ppd84D2i9W8jXmsyInGyihiSyqz.jpg",
+        "year": 1957,
+        "rating": 9.0
+      },
+      {
+        "id": 14,
+        "title": "The Lord of the Rings",
+        "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+        "year": 2001,
+        "rating": 8.9
+      },
+      {
+        "id": 15,
+        "title": "Gladiator",
+        "poster": "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg",
+        "year": 2000,
+        "rating": 8.5
+      }
     ],
     "favorites": [
       {
@@ -328,9 +416,27 @@
         "genres": ["Drama", "History", "War"],
         "comments": 278
       },
-      { "id": 18, "title": "Jurassic Park", "poster": "https://image.tmdb.org/t/p/w500/oU7Oq2kFAAlGqbU4VoAE36g4hoI.jpg", "year": 1993, "rating": 8.2 },
-      { "id": 19, "title": "The Green Mile", "poster": "https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg", "year": 1999, "rating": 8.6 },
-      { "id": 20, "title": "Back to the Future", "poster": "https://image.tmdb.org/t/p/w500/fNOH9f1aA7XRTzl1sAOx9iF553Q.jpg", "year": 1985, "rating": 8.5 }
+      {
+        "id": 18,
+        "title": "Jurassic Park",
+        "poster": "https://image.tmdb.org/t/p/w500/oU7Oq2kFAAlGqbU4VoAE36g4hoI.jpg",
+        "year": 1993,
+        "rating": 8.2
+      },
+      {
+        "id": 19,
+        "title": "The Green Mile",
+        "poster": "https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg",
+        "year": 1999,
+        "rating": 8.6
+      },
+      {
+        "id": 20,
+        "title": "Back to the Future",
+        "poster": "https://image.tmdb.org/t/p/w500/fNOH9f1aA7XRTzl1sAOx9iF553Q.jpg",
+        "year": 1985,
+        "rating": 8.5
+      }
     ]
   }
-} 
+}
