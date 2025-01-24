@@ -11,7 +11,7 @@ import {
   Pressable,
   ScrollView,
 } from '@gluestack-ui/themed';
-import {Edit2, ChevronRight} from 'lucide-react-native';
+import {Edit2, ChevronRight, Settings} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 
@@ -98,21 +98,25 @@ const ProfileScreen = () => {
     <ScrollView flex={1} backgroundColor="#040b1c">
       <Box padding={16}>
         {/* Header with Edit Button */}
-        <HStack justifyContent="flex-end" marginBottom={16}>
+        <HStack justifyContent="flex-end" marginBottom={16} space="sm">
           <Button
             variant="outline"
             borderColor="#dc3f72"
             padding={8}
             onPress={() => navigation.navigate('EditProfile')}>
-            <HStack space="sm" alignItems="center">
-              <Edit2 color="#dc3f72" size={16} />
-              <ButtonText color="#dc3f72">Edit Profile</ButtonText>
-            </HStack>
+            <Edit2 color="#dc3f72" size={16} />
+          </Button>
+          <Button
+            variant="outline"
+            borderColor="#dc3f72"
+            padding={8}
+            onPress={() => navigation.navigate('Settings')}>
+            <Settings color="#dc3f72" size={16} />
           </Button>
         </HStack>
 
         {/* Profile Info */}
-        <HStack space="md" marginBottom={12} alignItems="center">
+        <HStack space="md" marginTop={32} marginBottom={12} alignItems="center">
           <Image
             source={{uri: user.avatar}}
             alt="Profile Picture"
