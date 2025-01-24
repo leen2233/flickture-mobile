@@ -18,7 +18,7 @@ import {
 } from '@gluestack-ui/themed';
 import {Camera} from 'lucide-react-native';
 
-const EditProfileScreen = ({navigation}: any) => {
+const EditProfileScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('John');
   const [lastName, setLastName] = useState('Doe');
   const [username, setUsername] = useState('johndoe');

@@ -15,15 +15,7 @@ import {Edit2, ChevronRight, Settings} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 
-type Movie = {
-  id: number;
-  title: string;
-  poster: string;
-  year: number;
-  rating: number;
-};
-
-const StatBox = ({label, value}: {label: string; value: string | number}) => (
+const StatBox = ({label, value}) => (
   <Box alignItems="center" flex={1}>
     <Text color="#dc3f72" fontSize={24} fontWeight="600">
       {value}
@@ -34,18 +26,8 @@ const StatBox = ({label, value}: {label: string; value: string | number}) => (
   </Box>
 );
 
-const MovieList = ({
-  title,
-  count,
-  movies,
-  onSeeAll,
-}: {
-  title: string;
-  count: number;
-  movies: Movie[];
-  onSeeAll: () => void;
-}) => {
-  const navigation = useNavigation<any>();
+const MovieList = ({title, count, movies, onSeeAll}) => {
+  const navigation = useNavigation();
 
   return (
     <Box marginBottom={24}>
@@ -93,10 +75,10 @@ const MovieList = ({
 };
 
 const ProfileScreen = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const {user, movies} = sampleData;
 
-  const navigateToList = (listType: string) => {
+  const navigateToList = (listType) => {
     navigation.navigate('MovieList', {listType});
   };
 
@@ -176,4 +158,4 @@ const ProfileScreen = () => {
   );
 };
 
-export default ProfileScreen;
+export default ProfileScreen; 

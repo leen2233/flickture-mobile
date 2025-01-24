@@ -14,20 +14,8 @@ import {Search} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 
-type Movie = {
-  id: number;
-  title: string;
-  poster: string;
-  year: number;
-  rating: number;
-};
-
-type RouteParams = {
-  listType: string;
-};
-
-const MovieCard = ({movie}: {movie: Movie}) => {
-  const navigation = useNavigation<any>();
+const MovieCard = ({movie}) => {
+  const navigation = useNavigation();
   
   return (
     <Pressable onPress={() => navigation.navigate('MovieDetail', { movie })}>
@@ -60,15 +48,15 @@ const MovieCard = ({movie}: {movie: Movie}) => {
   );
 };
 
-const MovieListScreen = ({route}: {route: {params: RouteParams}}) => {
+const MovieListScreen = ({route}) => {
   const {listType} = route.params;
   const [searchQuery, setSearchQuery] = useState('');
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
 
   useEffect(() => {
     // Get the appropriate movie list based on listType
-    let movieList: Movie[] = [];
+    let movieList = [];
     switch (listType) {
       case 'Recently Watched':
         movieList = sampleData.movies.recentlyWatched;
@@ -126,7 +114,7 @@ const MovieListScreen = ({route}: {route: {params: RouteParams}}) => {
       {/* Movie List */}
       <FlatList
         data={filteredMovies}
-        renderItem={({item}: {item: Movie}) => <MovieCard movie={item} />}
+        renderItem={({item}) => <MovieCard movie={item} />}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
       />

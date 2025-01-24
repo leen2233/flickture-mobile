@@ -6,10 +6,10 @@
  */
 
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { GluestackUIProvider } from '@gluestack-ui/themed';
-import { config } from '@gluestack-ui/config';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {GluestackUIProvider} from '@gluestack-ui/themed';
+import {config} from '@gluestack-ui/config';
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -18,10 +18,11 @@ import EditProfileScreen from './src/screens/EditProfileScreen';
 import MovieListScreen from './src/screens/MovieListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import MovieDetailScreen from './src/screens/MovieDetailScreen';
+import ArtistDetailScreen from './src/screens/ArtistDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
-function App(): React.JSX.Element {
+function App() {
   return (
     <GluestackUIProvider config={config}>
       <NavigationContainer>
@@ -30,13 +31,14 @@ function App(): React.JSX.Element {
           screenOptions={{
             headerShown: false,
           }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="MovieList" component={MovieListScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
           <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
+          <Stack.Screen name="ArtistDetailScreen" component={ArtistDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GluestackUIProvider>

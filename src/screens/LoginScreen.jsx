@@ -5,61 +5,39 @@ import {
   ButtonText,
   Center,
   FormControl,
-  Heading,
   Input,
   InputField,
   VStack,
   Text,
   Link,
   LinkText,
+  Image,
 } from '@gluestack-ui/themed';
 
-const RegisterScreen = ({navigation}: any) => {
-  const [name, setName] = useState('');
+const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleRegister = () => {
-    // Implement registration logic here
-    console.log('Register pressed', {name, email, password, confirmPassword});
+  const handleLogin = () => {
+    navigation.navigate('Home');
   };
 
   return (
     <Center flex={1} padding={16} backgroundColor="#040b1c">
       <VStack space="xl" width="100%">
-        <Box alignItems="center" marginBottom={30}>
-          <Heading size="2xl" color="#dc3f72">
-            Create{'  Account'}
-          </Heading>
-          <Text size="sm" color="rgba(255, 255, 255, 0.7)">
-            Sign up to get started
-          </Text>
+        <Box alignItems="center" marginBottom={32}>
+          <Image
+            source={require('../assets/logo.png')}
+            alt="Flickture Logo"
+            size="xl"
+            marginBottom={12}
+            resizeMode="contain"
+          />
         </Box>
 
-        <FormControl>
+        <FormControl marginBottom={0}>
           <Input
             size="xl"
-            marginBottom={0}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Full Name"
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
-
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={0}
             borderRadius="$xl"
             borderColor="#341251"
             borderWidth={1}
@@ -76,10 +54,9 @@ const RegisterScreen = ({navigation}: any) => {
           </Input>
         </FormControl>
 
-        <FormControl>
+        <FormControl marginBottom={25}>
           <Input
             size="xl"
-            marginBottom={0}
             borderRadius="$xl"
             borderColor="#341251"
             borderWidth={1}
@@ -95,46 +72,27 @@ const RegisterScreen = ({navigation}: any) => {
           </Input>
         </FormControl>
 
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={20}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
-
         <Button
           size="lg"
           backgroundColor="#dc3f72"
           borderRadius="$xl"
-          onPress={handleRegister}
+          onPress={handleLogin}
           marginBottom={0}
           $hover={{
             backgroundColor: '#f16b33',
           }}>
           <ButtonText fontSize={16} fontWeight="600" color="white">
-            Sign Up
+            Sign In
           </ButtonText>
         </Button>
 
         <Center flexDirection="row">
           <Text size="sm" color="rgba(255, 255, 255, 0.7)">
-            Already have an account?{' '}
+            New to Flickture?{' '}
           </Text>
-          <Link onPress={() => navigation?.navigate('Login')}>
+          <Link onPress={() => navigation?.navigate('Register')}>
             <LinkText color="#dc3f72" fontWeight="600">
-              Sign In
+              Join now
             </LinkText>
           </Link>
         </Center>
@@ -143,4 +101,4 @@ const RegisterScreen = ({navigation}: any) => {
   );
 };
 
-export default RegisterScreen;
+export default LoginScreen; 

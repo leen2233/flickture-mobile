@@ -12,6 +12,149 @@
       "followers": 567
     }
   },
+  "artists": {
+    "leonardo-dicaprio": {
+      "id": "leonardo-dicaprio",
+      "name": "Leonardo DiCaprio",
+      "image": "https://image.tmdb.org/t/p/w500/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg",
+      "biography": "Leonardo Wilhelm DiCaprio is an American actor and film producer. Known for his work in biographical and period films, he is the recipient of numerous accolades, including an Academy Award, a British Academy Film Award, and three Golden Globe Awards. His films have earned over $7.2 billion worldwide. Born in Los Angeles, DiCaprio began his career in the late 1980s by appearing in television commercials. In the early 1990s, he had recurring roles in various television series and went on to receive critical acclaim for his performance in This Boy's Life (1993).",
+      "birthDate": "November 11, 1974",
+      "birthPlace": "Los Angeles, California, USA",
+      "stats": {
+        "awards": 98,
+        "nominations": 252,
+        "totalMovies": 46
+      },
+      "socialMedia": {
+        "instagram": "@leonardodicaprio",
+        "twitter": "@LeoDiCaprio"
+      },
+      "knownFor": [
+        {
+          "id": 1,
+          "title": "Inception",
+          "poster": "https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg",
+          "year": 2010,
+          "rating": 8.8
+        },
+        {
+          "id": 21,
+          "title": "The Wolf of Wall Street",
+          "poster": "https://image.tmdb.org/t/p/w500/34m2tygAYBGqA9MXKhRDtzYd4MR.jpg",
+          "year": 2013,
+          "rating": 8.2
+        },
+        {
+          "id": 22,
+          "title": "The Revenant",
+          "poster": "https://image.tmdb.org/t/p/w500/ji3ecJphATlVgWNY0B0RVXZizdf.jpg",
+          "year": 2015,
+          "rating": 8.0
+        },
+        {
+          "id": 25,
+          "title": "Titanic",
+          "poster": "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
+          "year": 1997,
+          "rating": 8.9
+        }
+      ]
+    },
+    "tom-hanks": {
+      "id": "tom-hanks",
+      "name": "Tom Hanks",
+      "image": "https://image.tmdb.org/t/p/w500/xndWFsBlClOJFRdhSt4NBwiPq2o.jpg",
+      "biography": "Thomas Jeffrey Hanks is an American actor and filmmaker, known for both his comedic and dramatic roles. He is one of the most popular and recognizable film stars worldwide and is regarded as an American cultural icon. Hanks has starred in numerous acclaimed films including Forrest Gump, Saving Private Ryan, Cast Away, and The Da Vinci Code. He has won two consecutive Academy Awards for Best Actor for his roles in Philadelphia and Forrest Gump.",
+      "birthDate": "July 9, 1956",
+      "birthPlace": "Concord, California, USA",
+      "stats": {
+        "awards": 126,
+        "nominations": 214,
+        "totalMovies": 89
+      },
+      "socialMedia": {
+        "instagram": "@tomhanks",
+        "twitter": "@tomhanks"
+      },
+      "knownFor": [
+        {
+          "id": 17,
+          "title": "Saving Private Ryan",
+          "poster": "https://image.tmdb.org/t/p/w500/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg",
+          "year": 1998,
+          "rating": 8.6
+        },
+        {
+          "id": 19,
+          "title": "The Green Mile",
+          "poster": "https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg",
+          "year": 1999,
+          "rating": 8.6
+        },
+        {
+          "id": 23,
+          "title": "Forrest Gump",
+          "poster": "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",
+          "year": 1994,
+          "rating": 8.8
+        },
+        {
+          "id": 26,
+          "title": "Cast Away",
+          "poster": "https://image.tmdb.org/t/p/w500/6iGXmAhpbQyhxQhcxBJiy7tXuNC.jpg",
+          "year": 2000,
+          "rating": 7.8
+        }
+      ]
+    },
+    "keanu-reeves": {
+      "id": "keanu-reeves",
+      "name": "Keanu Reeves",
+      "image": "https://image.tmdb.org/t/p/w500/rRdru6REr9i3WIHv2mntpcgxnoY.jpg",
+      "biography": "Keanu Charles Reeves is a Canadian actor. Born in Beirut and raised in Toronto, Reeves began acting in theatre productions and television films before making his feature film debut in Youngblood (1986). He had his breakthrough role in the science fiction comedy Bill & Ted's Excellent Adventure (1989). He gained praise for playing a hustler in the independent drama My Own Private Idaho (1991) and established himself as an action hero with leading roles in Point Break (1991) and Speed (1994).",
+      "birthDate": "September 2, 1964",
+      "birthPlace": "Beirut, Lebanon",
+      "stats": {
+        "awards": 12,
+        "nominations": 39,
+        "totalMovies": 71
+      },
+      "socialMedia": {
+        "instagram": null,
+        "twitter": null
+      },
+      "knownFor": [
+        {
+          "id": 2,
+          "title": "The Matrix",
+          "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+          "year": 1999,
+          "rating": 8.7
+        },
+        {
+          "id": 24,
+          "title": "John Wick",
+          "poster": "https://image.tmdb.org/t/p/w500/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg",
+          "year": 2014,
+          "rating": 7.4
+        },
+        {
+          "id": 27,
+          "title": "Speed",
+          "poster": "https://image.tmdb.org/t/p/w500/o1Zs7VyS5PLPZvqgX8LNRQxLHFE.jpg",
+          "year": 1994,
+          "rating": 7.2
+        },
+        {
+          "id": 28,
+          "title": "Constantine",
+          "poster": "https://image.tmdb.org/t/p/w500/vPYgvd2MwHlxTamAOjwVQp4qs1W.jpg",
+          "year": 2005,
+          "rating": 7.0
+        }
+      ]
+    }
+  },
   "movies": {
     "recentlyWatched": [
       {

@@ -34,30 +34,10 @@ import {
   View,
   StyleSheet,
 } from 'react-native';
+import { RootStackParamList } from '../types/navigation';
+import { CastMember } from '../types';
 
-type CastMember = {
-  name: string;
-  character: string;
-  image: string;
-};
-
-type Movie = {
-  id: number;
-  title: string;
-  originalTitle?: string;
-  year: number;
-  duration?: string;
-  rating: number;
-  poster: string;
-  backdrop?: string;
-  overview?: string;
-  director?: string;
-  cast?: CastMember[];
-  genres?: string[];
-  comments?: number;
-};
-
-const TouchableItem = ({onPress, children, style}: any) => {
+const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
     return (
       <TouchableNativeFeedback
@@ -80,15 +60,7 @@ const TouchableItem = ({onPress, children, style}: any) => {
   );
 };
 
-const MetadataItem = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: any;
-  label: string;
-  value: string;
-}) => (
+const MetadataItem = ({icon, label, value}) => (
   <VStack alignItems="center" space="xs">
     {icon}
     <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
@@ -100,9 +72,14 @@ const MetadataItem = ({
   </VStack>
 );
 
-const CastList = ({cast}: {cast: CastMember[]}) => {
+const CastList = ({cast}) => {
   const navigation = useNavigation();
   const displayCast = cast.slice(0, 10);
+
+  const handleArtistPress = (artist) => {
+    const artistId = artist.name.toLowerCase().replace(/\s+/g, '-');
+    navigation.navigate('ArtistDetailScreen', { artistId });
+  };
 
   return (
     <VStack space="md">
@@ -111,7 +88,7 @@ const CastList = ({cast}: {cast: CastMember[]}) => {
           Cast
         </Text>
         {cast.length > 10 && (
-          <Pressable onPress={() => navigation.navigate('CastList', { cast })}>
+          <Pressable onPress={() => navigation.navigate('CastListScreen', { cast })}>
             <HStack space="sm" alignItems="center">
               <Text color="#dc3f72" fontSize={14}>
                 See all {cast.length}
@@ -124,41 +101,43 @@ const CastList = ({cast}: {cast: CastMember[]}) => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingVertical={8}>
           {displayCast.map((actor, index) => (
-            <VStack key={index} alignItems="center" space="sm" width={100}>
-              <Box
-                width={100}
-                height={150}
-                borderRadius={12}
-                overflow="hidden"
-                backgroundColor="#270a39">
-                <Image
-                  source={{uri: actor.image}}
-                  alt={actor.name}
+            <Pressable key={index} onPress={() => handleArtistPress(actor)}>
+              <VStack alignItems="center" space="sm" width={100}>
+                <Box
                   width={100}
                   height={150}
-                  style={styles.castImage}
-                />
-              </Box>
-              <VStack alignItems="center" space="xs">
-                <Text
-                  color="white"
-                  fontSize={14}
-                  fontWeight="600"
-                  textAlign="center"
-                  numberOfLines={1}
-                  width={100}>
-                  {actor.name}
-                </Text>
-                <Text
-                  color="rgba(255, 255, 255, 0.7)"
-                  fontSize={12}
-                  textAlign="center"
-                  numberOfLines={1}
-                  width={100}>
-                  {actor.character}
-                </Text>
+                  borderRadius={12}
+                  overflow="hidden"
+                  backgroundColor="#270a39">
+                  <Image
+                    source={{uri: actor.image}}
+                    alt={actor.name}
+                    width={100}
+                    height={150}
+                    style={styles.castImage}
+                  />
+                </Box>
+                <VStack alignItems="center" space="xs">
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    fontWeight="600"
+                    textAlign="center"
+                    numberOfLines={1}
+                    width={100}>
+                    {actor.name}
+                  </Text>
+                  <Text
+                    color="rgba(255, 255, 255, 0.7)"
+                    fontSize={12}
+                    textAlign="center"
+                    numberOfLines={1}
+                    width={100}>
+                    {actor.character}
+                  </Text>
+                </VStack>
               </VStack>
-            </VStack>
+            </Pressable>
           ))}
         </HStack>
       </ScrollView>
@@ -166,7 +145,7 @@ const CastList = ({cast}: {cast: CastMember[]}) => {
   );
 };
 
-const MovieDetailScreen = ({route}: {route: {params: {movie: Movie}}}) => {
+const MovieDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [isWatched, setIsWatched] = useState(false);
@@ -244,7 +223,7 @@ const MovieDetailScreen = ({route}: {route: {params: {movie: Movie}}}) => {
             )}
             {movie.genres && (
               <HStack space="sm" flexWrap="wrap" marginTop={8}>
-                {movie.genres.map((genre: string) => (
+                {movie.genres.map((genre) => (
                   <Box
                     key={genre}
                     backgroundColor="#270a39"

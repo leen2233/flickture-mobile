@@ -33,7 +33,7 @@ import {
   TouchableNativeFeedback,
 } from 'react-native';
 
-const TouchableItem = ({onPress, children, style}: any) => {
+const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
     return (
       <TouchableNativeFeedback
@@ -55,19 +55,7 @@ const TouchableItem = ({onPress, children, style}: any) => {
   );
 };
 
-const SettingItem = ({
-  icon,
-  title,
-  onPress,
-  value,
-  type = 'navigate',
-}: {
-  icon: React.ReactNode;
-  title: string;
-  onPress?: () => void;
-  value?: boolean | string;
-  type?: 'navigate' | 'switch' | 'select';
-}) => (
+const SettingItem = ({icon, title, onPress, value, type = 'navigate'}) => (
   <TouchableItem onPress={onPress} style={styles.settingItem}>
     <HStack
       space="md"
@@ -84,7 +72,7 @@ const SettingItem = ({
       {type === 'switch' && (
         <Switch
           size="md"
-          value={value as boolean}
+          value={value}
           onToggle={onPress}
           trackColor={{true: '#dc3f72', false: 'gray'}}
         />
@@ -92,7 +80,7 @@ const SettingItem = ({
       {type === 'select' && (
         <HStack space="sm" alignItems="center">
           <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-            {value as string}
+            {value}
           </Text>
           <ChevronRight size={16} color="rgba(255, 255, 255, 0.7)" />
         </HStack>
@@ -116,21 +104,7 @@ const themes = [
   {label: 'System', value: 'system'},
 ];
 
-const CustomBottomSheet = ({
-  isVisible,
-  onClose,
-  title,
-  items,
-  selectedValue,
-  onSelect,
-}: {
-  isVisible: boolean;
-  onClose: () => void;
-  title: string;
-  items: {label: string; value: string}[];
-  selectedValue: string;
-  onSelect: (value: string) => void;
-}) => (
+const CustomBottomSheet = ({isVisible, onClose, title, items, selectedValue, onSelect}) => (
   <Modal
     visible={isVisible}
     transparent
