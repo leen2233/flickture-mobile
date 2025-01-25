@@ -35,6 +35,7 @@ import {
   Modal,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import sampleData from '../data/sample.json';
 import ArtistHeader from '../components/ArtistHeader';
@@ -53,19 +54,141 @@ const StatItem = ({icon, label, value}) => (
   </VStack>
 );
 
+const ArtistDetailSkeleton = () => (
+  <Box flex={1} backgroundColor="#040b1c">
+    {/* Header Image Skeleton */}
+    <Box height={400} width="100%" backgroundColor="#270a39">
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        height={200}
+        style={{
+          backgroundColor: '#040b1c',
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
+        }}
+      />
+    </Box>
+
+    {/* Content */}
+    <VStack space="xl" padding={16} marginTop={-60}>
+      {/* Name and Follow Button Skeleton */}
+      <HStack justifyContent="space-between" alignItems="center">
+        <Box
+          width={200}
+          height={32}
+          backgroundColor="#270a39"
+          borderRadius={8}
+        />
+        <Box
+          width={100}
+          height={36}
+          backgroundColor="#270a39"
+          borderRadius={12}
+        />
+      </HStack>
+
+      {/* Stats Skeleton */}
+      <Box
+        backgroundColor="#270a39"
+        padding={16}
+        borderRadius={16}
+        marginBottom={24}>
+        <HStack justifyContent="space-around">
+          {[1, 2, 3].map(i => (
+            <VStack key={i} alignItems="center" space="xs">
+              <Box
+                width={20}
+                height={20}
+                borderRadius={10}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+              <Box
+                width={40}
+                height={12}
+                borderRadius={6}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+              <Box
+                width={30}
+                height={14}
+                borderRadius={7}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+            </VStack>
+          ))}
+        </HStack>
+      </Box>
+
+      {/* Biography Skeleton */}
+      <VStack space="md">
+        <Box
+          width={120}
+          height={24}
+          backgroundColor="#270a39"
+          borderRadius={8}
+        />
+        <Box height={100} backgroundColor="#270a39" borderRadius={12} />
+      </VStack>
+
+      {/* Personal Info Skeleton */}
+      <VStack space="md">
+        <Box
+          width={150}
+          height={24}
+          backgroundColor="#270a39"
+          borderRadius={8}
+        />
+        <VStack space="sm">
+          {[1, 2, 3].map(i => (
+            <HStack key={i} space="md" alignItems="center">
+              <Box
+                width={24}
+                height={24}
+                borderRadius={12}
+                backgroundColor="#270a39"
+              />
+              <Box
+                flex={1}
+                height={20}
+                backgroundColor="#270a39"
+                borderRadius={8}
+              />
+            </HStack>
+          ))}
+        </VStack>
+      </VStack>
+    </VStack>
+  </Box>
+);
+
 const ArtistDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const [artist, setArtist] = useState(null);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const {artistId} = route.params;
-    const artistData = sampleData.artists[artistId];
-    if (artistData) {
-      setArtist(artistData);
-      setIsFollowing(artistData.isFollowing);
-    }
+    const loadArtistData = async () => {
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        const {artistId} = route.params;
+        const artistData = sampleData.artists[artistId];
+        if (artistData) {
+          setArtist(artistData);
+          setIsFollowing(artistData.isFollowing);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadArtistData();
   }, [route.params]);
 
   const handleSocialMediaPress = url => {
@@ -77,6 +200,10 @@ const ArtistDetailScreen = ({route}) => {
     // Here you would typically make an API call to update the follow status
   };
 
+  if (isLoading) {
+    return <ArtistDetailSkeleton />;
+  }
+
   if (!artist) {
     return (
       <Box
@@ -84,7 +211,9 @@ const ArtistDetailScreen = ({route}) => {
         backgroundColor="#040b1c"
         justifyContent="center"
         alignItems="center">
-        <Text color="white">Loading...</Text>
+        <Text color="white" fontSize={16} marginBottom={16}>
+          Artist not found
+        </Text>
       </Box>
     );
   }

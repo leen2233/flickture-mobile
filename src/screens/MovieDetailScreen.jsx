@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Box,
   ScrollView,
@@ -25,6 +25,9 @@ import {
   MessageCircle,
   User,
   ChevronRight,
+  Heart,
+  ListPlus,
+  Trash2,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -34,6 +37,9 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  Share,
+  Modal,
+  StatusBar,
 } from 'react-native';
 import RatingModal from '../components/RatingModal';
 
@@ -74,9 +80,9 @@ const MetadataItem = ({icon, label, value, onPress}) => (
   </TouchableOpacity>
 );
 
-const CastList = ({cast}) => {
+const CastList = ({cast, director, crew}) => {
   const navigation = useNavigation();
-  const displayCast = cast.slice(0, 10);
+  const displayCast = cast.slice(0, 8);
 
   const handleArtistPress = artist => {
     const artistId = artist.name.toLowerCase().replace(/\s+/g, '-');
@@ -85,21 +91,24 @@ const CastList = ({cast}) => {
 
   return (
     <VStack space="md">
-      <HStack justifyContent="space-between" alignItems="center">
+      <HStack
+        justifyContent="space-between"
+        alignItems="center"
+        marginBottom={12}>
         <Text color="white" fontSize={20} fontWeight="600">
           Cast
         </Text>
-        {cast.length > 10 && (
-          <Pressable
-            onPress={() => navigation.navigate('CastListScreen', {cast})}>
-            <HStack space="sm" alignItems="center">
-              <Text color="#dc3f72" fontSize={14}>
-                See all {cast.length}
-              </Text>
-              <ChevronRight color="#dc3f72" size={16} />
-            </HStack>
-          </Pressable>
-        )}
+        <Pressable
+          onPress={() =>
+            navigation.navigate('CastDetails', {cast, director, crew})
+          }>
+          <HStack space="sm" alignItems="center">
+            <Text color="#dc3f72" fontSize={14}>
+              See all {cast.length}
+            </Text>
+            <ChevronRight color="#dc3f72" size={16} />
+          </HStack>
+        </Pressable>
       </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingVertical={8}>
@@ -148,47 +157,40 @@ const CastList = ({cast}) => {
   );
 };
 
-const MovieDetailScreen = ({route}) => {
+const CollectionSection = ({collection}) => {
   const navigation = useNavigation();
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [isWatched, setIsWatched] = useState(false);
-  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
 
-  const movie = {
-    ...route.params.movie,
-    backdrop: route.params.movie.backdrop?.replace('/w500/', '/original/'),
-  };
-
-  const handleWatchlistToggle = () => {
-    setIsInWatchlist(!isInWatchlist);
-    if (isWatched) setIsWatched(false);
-  };
-
-  const handleWatchedToggle = () => {
-    if (!isWatched) {
-      setIsRatingModalVisible(true);
-    } else {
-      setIsWatched(false);
-    }
-  };
-
-  const handleRatingSubmit = ({rating, comment}) => {
-    console.log('Rating:', rating, 'Comment:', comment);
-    setIsWatched(true);
-    if (!isInWatchlist) setIsInWatchlist(true);
-  };
-
-  const CollectionSection = ({collection}) => (
+  return (
     <VStack space="md" marginBottom={24}>
-      <Text color="white" fontSize={20} fontWeight="600">
-        Part of: {collection.name}
-      </Text>
+      <HStack
+        justifyContent="space-between"
+        alignItems="flex-start"
+        marginBottom={12}>
+        <VStack flex={1} marginRight={8}>
+          <Text color="white" fontSize={20} fontWeight="600" numberOfLines={2}>
+            Part of: {collection.name}
+          </Text>
+        </VStack>
+        <Pressable
+          onPress={() =>
+            navigation.navigate('CollectionDetails', {
+              collectionId: collection.id,
+            })
+          }>
+          <HStack space="sm" alignItems="center" minWidth={100}>
+            <Text color="#dc3f72" fontSize={14}>
+              See collection
+            </Text>
+            <ChevronRight color="#dc3f72" size={16} />
+          </HStack>
+        </Pressable>
+      </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingVertical={8}>
-          {collection.movies.map(movie => (
+          {collection.movies.slice(0, 4).map(movie => (
             <Pressable
               key={movie.id}
-              onPress={() => navigation.push('MovieDetailScreen', {movie})}>
+              onPress={() => navigation.push('MovieDetail', {movie})}>
               <VStack alignItems="center" space="sm" width={100}>
                 <Box
                   width={100}
@@ -228,81 +230,282 @@ const MovieDetailScreen = ({route}) => {
       </ScrollView>
     </VStack>
   );
+};
 
-  const ListsSection = ({lists}) => (
-    <VStack space="md" marginBottom={24}>
-      <Text color="white" fontSize={20} fontWeight="600">
-        Appears in Lists
-      </Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <HStack space="md" paddingVertical={8}>
-          {lists.map(list => (
-            <Pressable
-              key={list.id}
-              onPress={() =>
-                navigation.navigate('MovieListScreen', {listId: list.id})
-              }>
-              <VStack alignItems="center" space="sm" width={150}>
-                <Box
+const ListsSection = ({lists}) => (
+  <VStack space="md" marginBottom={24}>
+    <Text color="white" fontSize={20} fontWeight="600">
+      Appears in Lists
+    </Text>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <HStack space="md" paddingVertical={8}>
+        {lists.map(list => (
+          <Pressable
+            key={list.id}
+            onPress={() =>
+              navigation.navigate('MovieListScreen', {listId: list.id})
+            }>
+            <VStack alignItems="center" space="sm" width={150}>
+              <Box
+                width={150}
+                height={100}
+                borderRadius={12}
+                overflow="hidden"
+                backgroundColor="#270a39">
+                <Image
+                  source={{uri: list.thumbnail}}
+                  alt={list.name}
                   width={150}
                   height={100}
-                  borderRadius={12}
-                  overflow="hidden"
-                  backgroundColor="#270a39">
-                  <Image
-                    source={{uri: list.thumbnail}}
-                    alt={list.name}
-                    width={150}
-                    height={100}
-                    style={styles.listThumbnail}
-                  />
-                  <Box
-                    position="absolute"
-                    bottom={0}
-                    left={0}
-                    right={0}
-                    padding={8}
-                    backgroundColor="rgba(0, 0, 0, 0.7)">
-                    <Text color="white" fontSize={12} fontWeight="600">
-                      by {list.creator}
-                    </Text>
-                  </Box>
+                  style={styles.listThumbnail}
+                />
+                <Box
+                  position="absolute"
+                  bottom={0}
+                  left={0}
+                  right={0}
+                  padding={8}
+                  backgroundColor="rgba(0, 0, 0, 0.7)">
+                  <Text color="white" fontSize={12} fontWeight="600">
+                    by {list.creator}
+                  </Text>
                 </Box>
-                <VStack alignItems="center" space="xs">
-                  <Text
-                    color="white"
-                    fontSize={14}
-                    fontWeight="600"
-                    textAlign="center"
-                    numberOfLines={2}
-                    width={150}>
-                    {list.name}
-                  </Text>
-                  <Text
-                    color="rgba(255, 255, 255, 0.7)"
-                    fontSize={12}
-                    textAlign="center">
-                    {list.moviesCount} movies
-                  </Text>
-                </VStack>
+              </Box>
+              <VStack alignItems="center" space="xs">
+                <Text
+                  color="white"
+                  fontSize={14}
+                  fontWeight="600"
+                  textAlign="center"
+                  numberOfLines={2}
+                  width={150}>
+                  {list.name}
+                </Text>
+                <Text
+                  color="rgba(255, 255, 255, 0.7)"
+                  fontSize={12}
+                  textAlign="center">
+                  {list.moviesCount} movies
+                </Text>
               </VStack>
-            </Pressable>
+            </VStack>
+          </Pressable>
+        ))}
+      </HStack>
+    </ScrollView>
+  </VStack>
+);
+
+const MovieDetailSkeleton = () => (
+  <Box flex={1} backgroundColor="#040b1c">
+    {/* Backdrop Skeleton */}
+    <Box height={250} width="100%" backgroundColor="#270a39" />
+
+    {/* Content Skeleton */}
+    <Box padding={16} marginTop={-40}>
+      <HStack space="md" marginBottom={24}>
+        {/* Poster Skeleton */}
+        <Box
+          width={120}
+          height={180}
+          borderRadius={12}
+          backgroundColor="#270a39"
+        />
+
+        <VStack flex={1} space="xs">
+          {/* Title Skeleton */}
+          <Box
+            width="80%"
+            height={24}
+            borderRadius={8}
+            backgroundColor="#270a39"
+          />
+          <Box
+            width="60%"
+            height={16}
+            borderRadius={8}
+            backgroundColor="#270a39"
+            marginTop={4}
+          />
+
+          {/* Overview Skeleton */}
+          <Box
+            width="100%"
+            height={60}
+            borderRadius={8}
+            backgroundColor="#270a39"
+            marginTop={8}
+          />
+
+          {/* Genres Skeleton */}
+          <HStack space="sm" marginTop={8}>
+            {[1, 2, 3].map(i => (
+              <Box
+                key={i}
+                width={60}
+                height={24}
+                borderRadius={16}
+                backgroundColor="#270a39"
+              />
+            ))}
+          </HStack>
+        </VStack>
+      </HStack>
+
+      {/* Metadata Skeleton */}
+      <Box
+        backgroundColor="#270a39"
+        padding={16}
+        borderRadius={16}
+        marginBottom={24}>
+        <HStack justifyContent="space-around">
+          {[1, 2, 3, 4].map(i => (
+            <VStack key={i} alignItems="center" space="xs">
+              <Box
+                width={20}
+                height={20}
+                borderRadius={10}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+              <Box
+                width={40}
+                height={12}
+                borderRadius={6}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+              <Box
+                width={30}
+                height={14}
+                borderRadius={7}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+              />
+            </VStack>
           ))}
         </HStack>
-      </ScrollView>
-    </VStack>
-  );
+      </Box>
+
+      {/* Action Buttons Skeleton */}
+      <HStack space="md" marginBottom={24}>
+        {[1, 2].map(i => (
+          <Box
+            key={i}
+            flex={1}
+            height={44}
+            borderRadius={12}
+            backgroundColor="#270a39"
+          />
+        ))}
+      </HStack>
+    </Box>
+  </Box>
+);
+
+const MovieDetailScreen = ({route}) => {
+  const navigation = useNavigation();
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isWatched, setIsWatched] = useState(false);
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [movieData, setMovieData] = useState(null);
+  const [isInFavorites, setIsInFavorites] = useState(false);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
+
+  useEffect(() => {
+    const loadMovieData = async () => {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const movie = {
+        ...route.params.movie,
+        backdrop: route.params.movie.backdrop?.replace('/w500/', '/original/'),
+      };
+
+      setMovieData(movie);
+      setIsLoading(false);
+    };
+
+    loadMovieData();
+  }, [route.params.movie]);
+
+  const handleWatchlistToggle = () => {
+    setIsInWatchlist(!isInWatchlist);
+    if (isWatched) setIsWatched(false);
+  };
+
+  const handleWatchedToggle = () => {
+    if (!isWatched) {
+      setIsRatingModalVisible(true);
+    } else {
+      setIsWatched(false);
+    }
+  };
+
+  const handleFavoriteToggle = () => {
+    setIsInFavorites(!isInFavorites);
+  };
+
+  const handleRemoveFromWatchlist = () => {
+    setIsInWatchlist(false);
+  };
+
+  const handleRatingSubmit = ({rating, comment}) => {
+    console.log('Rating:', rating, 'Comment:', comment);
+    setIsWatched(true);
+    if (!isInWatchlist) setIsInWatchlist(true);
+  };
+
+  const handleImagePress = imageUrl => {
+    setModalImage(imageUrl);
+    setIsImageModalVisible(true);
+  };
+
+  if (isLoading) {
+    return <MovieDetailSkeleton />;
+  }
 
   return (
     <>
+      <Modal
+        visible={isImageModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsImageModalVisible(false)}>
+        <StatusBar backgroundColor="#000000" barStyle="light-content" />
+        <TouchableOpacity
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPress={() => setIsImageModalVisible(false)}>
+          <Image
+            source={{uri: modalImage}}
+            alt="Full screen image"
+            style={styles.fullScreenImage}
+            resizeMode="contain"
+          />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setIsImageModalVisible(false)}>
+            <Text style={styles.closeButtonText} color="white">
+              ×
+            </Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
       <ScrollView flex={1} backgroundColor="#040b1c">
         {/* Backdrop Image */}
         <Box height={250} width="100%">
-          <Image
-            source={{uri: movie.backdrop || movie.poster}}
-            alt={movie.title}
-            style={styles.backdropImage}
-          />
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() =>
+              handleImagePress(movieData.backdrop || movieData.poster)
+            }>
+            <Image
+              source={{uri: movieData.backdrop || movieData.poster}}
+              alt={movieData.title}
+              style={styles.backdropImage}
+            />
+          </TouchableOpacity>
           <Box
             position="absolute"
             top={0}
@@ -319,40 +522,58 @@ const MovieDetailScreen = ({route}) => {
             onPress={() => navigation.goBack()}>
             <ButtonIcon as={ArrowLeft} color="white" />
           </Button>
+          <Button
+            position="absolute"
+            top={Platform.OS === 'ios' ? 60 : 20}
+            right={16}
+            variant="link"
+            onPress={() => {
+              Share.share({
+                message: `Check out ${movieData.title} on Flickture!`,
+                url: `https://flickture.com/movie/${movieData.id}`,
+              });
+            }}>
+            <ButtonIcon as={Share2} color="white" />
+          </Button>
         </Box>
 
         {/* Content */}
         <Box padding={16} marginTop={-40}>
           {/* Poster and Title */}
           <HStack space="md" marginBottom={24}>
-            <Image
-              source={{uri: movie.poster}}
-              alt={movie.title}
-              width={120}
-              height={180}
-              borderRadius={12}
-            />
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handleImagePress(movieData.poster)}>
+              <Image
+                source={{uri: movieData.poster}}
+                alt={movieData.title}
+                width={120}
+                height={180}
+                borderRadius={12}
+              />
+            </TouchableOpacity>
             <VStack flex={1} space="xs">
               <Text color="white" fontSize={24} fontWeight="600">
-                {movie.title}
+                {movieData.title}
               </Text>
-              {movie.originalTitle && movie.originalTitle !== movie.title && (
-                <Text color="rgba(255, 255, 255, 0.5)" fontSize={16}>
-                  {movie.originalTitle}
-                </Text>
-              )}
-              {movie.overview && (
+              {movieData.originalTitle &&
+                movieData.originalTitle !== movieData.title && (
+                  <Text color="rgba(255, 255, 255, 0.5)" fontSize={16}>
+                    {movieData.originalTitle}
+                  </Text>
+                )}
+              {movieData.overview && (
                 <Text
                   color="rgba(255, 255, 255, 0.7)"
                   fontSize={14}
                   numberOfLines={3}
                   marginTop={4}>
-                  {movie.overview}
+                  {movieData.overview}
                 </Text>
               )}
-              {movie.genres && (
+              {movieData.genres && (
                 <HStack space="sm" flexWrap="wrap" marginTop={8}>
-                  {movie.genres.map(genre => (
+                  {movieData.genres.map(genre => (
                     <Box
                       key={genre}
                       backgroundColor="#270a39"
@@ -381,74 +602,124 @@ const MovieDetailScreen = ({route}) => {
             <MetadataItem
               icon={<Calendar size={20} color="#dc3f72" />}
               label="Year"
-              value={movie.year.toString()}
-              onPress={() => navigation.navigate('YearScreen', {year: movie.year})}
+              value={movieData.year.toString()}
+              onPress={() =>
+                navigation.navigate('YearScreen', {year: movieData.year})
+              }
             />
-            {movie.duration && (
+            {movieData.duration && (
               <MetadataItem
                 icon={<Clock size={20} color="#dc3f72" />}
                 label="Duration"
-                value={movie.duration}
-                onPress={() => navigation.navigate('DurationScreen', {duration: movie.duration})}
+                value={movieData.duration}
+                onPress={() =>
+                  navigation.navigate('DurationScreen', {
+                    duration: movieData.duration,
+                  })
+                }
               />
             )}
             <MetadataItem
               icon={<Star size={20} color="#dc3f72" />}
               label="Rating"
-              value={movie.rating.toString()}
-              onPress={() => navigation.navigate('RatingScreen', {rating: movie.rating})}
+              value={movieData.rating.toString()}
+              onPress={() =>
+                navigation.navigate('RatingScreen', {rating: movieData.rating})
+              }
             />
             <MetadataItem
               icon={<MessageCircle size={20} color="#dc3f72" />}
               label="Comments"
-              value={(movie.comments || 0).toString()}
-              onPress={() => navigation.navigate('CommentsScreen', {movieId: movie.id})}
+              value={(movieData.comments || 0).toString()}
+              onPress={() =>
+                navigation.navigate('CommentsScreen', {movieId: movieData.id})
+              }
             />
           </HStack>
 
           {/* Action Buttons */}
-          <HStack space="md" marginBottom={24}>
-            <TouchableItem
-              style={[styles.actionButton, isWatched && styles.activeButton]}
-              onPress={handleWatchedToggle}>
-              <HStack space="sm" alignItems="center" padding={12}>
-                {isWatched ? (
-                  <Check size={20} color={isWatched ? 'white' : '#dc3f72'} />
-                ) : (
-                  <Plus size={20} color={isWatched ? 'white' : '#dc3f72'} />
-                )}
-                <Text color={isWatched ? 'white' : '#dc3f72'}>
-                  {isWatched ? 'Watched' : 'Mark as Watched'}
-                </Text>
-              </HStack>
-            </TouchableItem>
-            <TouchableItem
-              style={[
-                styles.actionButton,
-                isInWatchlist && styles.activeButton,
-              ]}
-              onPress={handleWatchlistToggle}>
-              <HStack space="sm" alignItems="center" padding={12}>
-                {isInWatchlist ? (
-                  <BookmarkCheck
+          <VStack space="md" marginBottom={24}>
+            <HStack space="md">
+              {!isWatched ? (
+                <>
+                  {!isInWatchlist ? (
+                    <TouchableItem
+                      style={styles.actionButton}
+                      onPress={handleWatchlistToggle}>
+                      <HStack space="sm" alignItems="center" padding={12}>
+                        <BookmarkPlus size={20} color="#dc3f72" />
+                        <Text color="#dc3f72">Add to Watchlist</Text>
+                      </HStack>
+                    </TouchableItem>
+                  ) : (
+                    <TouchableItem
+                      style={[styles.actionButton, styles.activeButton]}
+                      onPress={handleWatchedToggle}>
+                      <HStack space="sm" alignItems="center" padding={12}>
+                        <Plus size={20} color="white" />
+                        <Text color="white">Mark as Watched</Text>
+                      </HStack>
+                    </TouchableItem>
+                  )}
+                </>
+              ) : (
+                <TouchableItem
+                  style={[styles.actionButton, styles.activeButton]}
+                  onPress={handleWatchedToggle}>
+                  <HStack space="sm" alignItems="center" padding={12}>
+                    <Check size={20} color="white" />
+                    <Text color="white">Watched</Text>
+                  </HStack>
+                </TouchableItem>
+              )}
+            </HStack>
+
+            <HStack space="md">
+              <TouchableItem
+                style={[
+                  styles.actionButton,
+                  styles.secondaryButton,
+                  isInFavorites && styles.activeButton,
+                ]}
+                onPress={handleFavoriteToggle}>
+                <HStack space="sm" alignItems="center" padding={12}>
+                  <Heart
                     size={20}
-                    color={isInWatchlist ? 'white' : '#dc3f72'}
+                    fill={isInFavorites ? 'white' : 'none'}
+                    color={isInFavorites ? 'white' : '#dc3f72'}
                   />
-                ) : (
-                  <BookmarkPlus
-                    size={20}
-                    color={isInWatchlist ? 'white' : '#dc3f72'}
-                  />
-                )}
-                <Text color={isInWatchlist ? 'white' : '#dc3f72'}>
-                  {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
-                </Text>
-              </HStack>
-            </TouchableItem>
-          </HStack>
+                  <Text color={isInFavorites ? 'white' : '#dc3f72'}>
+                    {isInFavorites ? 'In Favorites' : 'Add to Favorites'}
+                  </Text>
+                </HStack>
+              </TouchableItem>
+
+              <TouchableItem
+                style={[styles.actionButton, styles.secondaryButton]}
+                onPress={() =>
+                  navigation.navigate('AddToList', {movieId: movieData.id})
+                }>
+                <HStack space="sm" alignItems="center" padding={12}>
+                  <ListPlus size={20} color="#dc3f72" />
+                  <Text color="#dc3f72">Add to List</Text>
+                </HStack>
+              </TouchableItem>
+            </HStack>
+
+            {isInWatchlist && !isWatched && (
+              <TouchableItem
+                style={[styles.actionButton, styles.dangerButton]}
+                onPress={handleRemoveFromWatchlist}>
+                <HStack space="sm" alignItems="center" padding={12}>
+                  <Trash2 size={20} color="#f44336" />
+                  <Text color="#f44336">Remove from Watchlist</Text>
+                </HStack>
+              </TouchableItem>
+            )}
+          </VStack>
 
           {/* Overview */}
-          {movie.overview && (
+          {movieData.overview && (
             <VStack space="md" marginBottom={24}>
               <Text color="white" fontSize={20} fontWeight="600">
                 Overview
@@ -457,14 +728,14 @@ const MovieDetailScreen = ({route}) => {
                 color="rgba(255, 255, 255, 0.7)"
                 fontSize={16}
                 lineHeight={24}>
-                {movie.overview}
+                {movieData.overview}
               </Text>
             </VStack>
           )}
 
           {/* Cast & Crew */}
-          <VStack space="xl">
-            {movie.director && (
+          <VStack space="xl" marginBottom={24}>
+            {movieData.director && (
               <HStack space="md" alignItems="center">
                 <User size={20} color="#dc3f72" />
                 <VStack>
@@ -472,27 +743,31 @@ const MovieDetailScreen = ({route}) => {
                     Director
                   </Text>
                   <Text color="white" fontSize={16}>
-                    {movie.director}
+                    {movieData.director}
                   </Text>
                 </VStack>
               </HStack>
             )}
 
-            {movie.cast && movie.cast.length > 0 && (
+            {movieData.cast && movieData.cast.length > 0 && (
               <Box marginTop={8}>
-                <CastList cast={movie.cast} />
+                <CastList
+                  cast={movieData.cast}
+                  director={movieData.director}
+                  crew={movieData.crew}
+                />
               </Box>
             )}
           </VStack>
 
           {/* Collection Section */}
-          {movie.collection && (
-            <CollectionSection collection={movie.collection} />
+          {movieData.collection && (
+            <CollectionSection collection={movieData.collection} />
           )}
 
           {/* Lists Section */}
-          {movie.appearsIn && movie.appearsIn.length > 0 && (
-            <ListsSection lists={movie.appearsIn} />
+          {movieData.appearsIn && movieData.appearsIn.length > 0 && (
+            <ListsSection lists={movieData.appearsIn} />
           )}
         </Box>
       </ScrollView>
@@ -524,14 +799,48 @@ const styles = StyleSheet.create({
     borderColor: '#dc3f72',
     overflow: 'hidden',
   },
+  secondaryButton: {
+    borderColor: '#dc3f72',
+    backgroundColor: 'transparent',
+  },
   activeButton: {
     backgroundColor: '#dc3f72',
     borderColor: '#dc3f72',
+  },
+  dangerButton: {
+    borderColor: '#f44336',
+    backgroundColor: 'transparent',
   },
   listThumbnail: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 20,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: 'bold',
   },
 });
 

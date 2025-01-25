@@ -728,5 +728,67 @@
         "rating": 8.5
       }
     ]
+  },
+  "collections": {
+    "matrix-collection": {
+      "id": "matrix-collection",
+      "name": "The Matrix Collection",
+      "overview": "The Matrix is a groundbreaking science fiction franchise that follows humanity's war against machines in a simulated reality. The series explores themes of reality, consciousness, and free will through stunning visual effects and philosophical storytelling.",
+      "backdrop": "https://image.tmdb.org/t/p/original/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+      "movies": [
+        {
+          "id": "2",
+          "title": "The Matrix",
+          "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+          "year": 1999
+        },
+        {
+          "id": "matrix2",
+          "title": "The Matrix Reloaded",
+          "poster": "https://image.tmdb.org/t/p/w500/9TGHDvWrqKBzwDxDodHYXEmOE6J.jpg",
+          "year": 2003
+        },
+        {
+          "id": "matrix3",
+          "title": "The Matrix Revolutions",
+          "poster": "https://image.tmdb.org/t/p/w500/fgm8OZ7o4G1G1I9EeGcb85Noe6L.jpg",
+          "year": 2003
+        },
+        {
+          "id": "matrix4",
+          "title": "The Matrix Resurrections",
+          "poster": "https://image.tmdb.org/t/p/w500/8c4a8kE7PizaGQQnditMmI1xbRp.jpg",
+          "year": 2021
+        }
+      ]
+    },
+    "lotr-collection": {
+      "id": "lotr-collection",
+      "name": "The Lord of the Rings Collection",
+      "overview": "Based on J.R.R. Tolkien's masterpiece, The Lord of the Rings trilogy follows the epic quest to destroy the One Ring and defeat the dark lord Sauron. This beloved fantasy series redefined the genre with its stunning visuals, compelling characters, and rich world-building.",
+      "backdrop": "https://image.tmdb.org/t/p/original/x9McE1WFKnAHxPfJxAcxe0Mg7oh.jpg",
+      "thumbnail": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+      "movies": [
+        {
+          "id": "14",
+          "title": "The Fellowship of the Ring",
+          "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+          "year": 2001
+        },
+        {
+          "id": "lotr2",
+          "title": "The Two Towers",
+          "poster": "https://image.tmdb.org/t/p/w500/5VTN0pR8gcqV3EPUHHfMGnJYN9L.jpg",
+          "year": 2002
+        },
+        {
+          "id": "lotr3",
+          "title": "The Return of the King",
+          "poster": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+          "year": 2003
+        }
+      ]
+    }
   }
 }

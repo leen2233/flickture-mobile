@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Button, ButtonIcon, HStack} from '@gluestack-ui/themed';
 import {ArrowLeft, Share2} from 'lucide-react-native';
-import {Platform, TouchableOpacity, StyleSheet} from 'react-native';
+import {Platform, TouchableOpacity, StyleSheet, Share} from 'react-native';
 import {Image} from '@gluestack-ui/themed';
 
 const ArtistHeader = ({artist, navigation, onImagePress}) => {
@@ -46,7 +46,14 @@ const ArtistHeader = ({artist, navigation, onImagePress}) => {
         <Button variant="link" onPress={() => navigation.goBack()}>
           <ButtonIcon as={ArrowLeft} color="white" />
         </Button>
-        <Button variant="link" onPress={() => {}}>
+        <Button
+          variant="link"
+          onPress={() => {
+            Share.share({
+              message: `Check out artist ${artist.name} on Flickture!`,
+              url: `https://flickture.com/artist/${artist.id}`,
+            });
+          }}>
           <ButtonIcon as={Share2} color="white" />
         </Button>
       </HStack>
@@ -63,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ArtistHeader; 
+export default ArtistHeader;
