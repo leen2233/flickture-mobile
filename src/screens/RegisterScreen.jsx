@@ -1,28 +1,63 @@
 import React, {useState} from 'react';
 import {
   Box,
-  Button,
-  ButtonText,
   Center,
-  FormControl,
   Heading,
-  Input,
-  InputField,
   VStack,
   Text,
-  Link,
-  LinkText,
+  Pressable,
 } from '@gluestack-ui/themed';
+import {PrimaryButton, FormInput} from '../elements';
 
 const RegisterScreen = ({navigation}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleRegister = () => {
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleRegister = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    // Simulate API call with 2 second delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     // Implement registration logic here
     console.log('Register pressed', {name, email, password, confirmPassword});
+
+    setIsLoading(false);
+    navigation.navigate('Verify');
   };
 
   return (
@@ -37,110 +72,72 @@ const RegisterScreen = ({navigation}) => {
           </Text>
         </Box>
 
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={0}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Full Name"
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
+        <FormInput
+          value={email}
+          onChangeText={text => {
+            setEmail(text);
+            if (errors.email) {
+              setErrors(prev => ({...prev, email: ''}));
+            }
+          }}
+          placeholder="Email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          error={errors.email}
+        />
 
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={0}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
+        <FormInput
+          value={password}
+          onChangeText={text => {
+            setPassword(text);
+            if (errors.password) {
+              setErrors(prev => ({...prev, password: ''}));
+            }
+          }}
+          placeholder="Password"
+          isPassword={true}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          error={errors.password}
+        />
 
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={0}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
+        <FormInput
+          value={confirmPassword}
+          onChangeText={text => {
+            setConfirmPassword(text);
+            if (errors.confirmPassword) {
+              setErrors(prev => ({...prev, confirmPassword: ''}));
+            }
+          }}
+          placeholder="Confirm Password"
+          isPassword={true}
+          showPassword={showConfirmPassword}
+          setShowPassword={setShowConfirmPassword}
+          marginBottom={20}
+          error={errors.confirmPassword}
+        />
 
-        <FormControl>
-          <Input
-            size="xl"
-            marginBottom={20}
-            borderRadius="$xl"
-            borderColor="#341251"
-            borderWidth={1}
-            backgroundColor="#270a39">
-            <InputField
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              color="#f16b33"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            />
-          </Input>
-        </FormControl>
-
-        <Button
-          size="lg"
-          backgroundColor="#dc3f72"
-          borderRadius="$xl"
-          onPress={handleRegister}
-          marginBottom={0}
-          $hover={{
-            backgroundColor: '#f16b33',
-          }}>
-          <ButtonText fontSize={16} fontWeight="600" color="white">
-            Sign Up
-          </ButtonText>
-        </Button>
+        <PrimaryButton onPress={handleRegister} isLoading={isLoading}>
+          Sign Up
+        </PrimaryButton>
 
         <Center flexDirection="row">
           <Text size="sm" color="rgba(255, 255, 255, 0.7)">
             Already have an account?{' '}
           </Text>
-          <Link onPress={() => navigation?.navigate('Login')}>
-            <LinkText color="#dc3f72" fontWeight="600">
+          <Pressable
+            onPress={() => navigation?.navigate('Login')}
+            $active={{
+              opacity: 0.7,
+            }}>
+            <Text color="#dc3f72" fontWeight="600">
               Sign In
-            </LinkText>
-          </Link>
+            </Text>
+          </Pressable>
         </Center>
       </VStack>
     </Center>
   );
 };
 
-export default RegisterScreen; 
+export default RegisterScreen;
