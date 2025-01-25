@@ -29,7 +29,7 @@ function App() {
     <GluestackUIProvider config={config}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Login"
+          initialRouteName="Home"
           screenOptions={{
             headerShown: false,
           }}>
