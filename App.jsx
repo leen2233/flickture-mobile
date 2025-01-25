@@ -23,6 +23,9 @@ import ArtistDetailScreen from './src/screens/ArtistDetailScreen';
 import CommentsScreen from './src/screens/CommentsScreen';
 import CastDetailsScreen from './src/screens/CastDetailsScreen';
 import CollectionDetailsScreen from './src/screens/CollectionDetailsScreen';
+import ArtistMoviesScreen from './src/screens/ArtistMoviesScreen';
+import ListDetailScreen from './src/screens/ListDetailScreen';
+import CreateListScreen from './src/screens/CreateListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +56,13 @@ function App() {
             name="CollectionDetails"
             component={CollectionDetailsScreen}
           />
+          <Stack.Screen name="ArtistMovies" component={ArtistMoviesScreen} />
+          <Stack.Screen
+            name="ListDetails"
+            component={ListDetailScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen name="CreateList" component={CreateListScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GluestackUIProvider>

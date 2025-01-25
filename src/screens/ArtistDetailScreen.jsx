@@ -26,6 +26,7 @@ import {
   Briefcase,
   GraduationCap,
   Heart,
+  ChevronRight,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -342,12 +343,28 @@ const ArtistDetailScreen = ({route}) => {
             </VStack>
           )}
 
-          {/* Known For Section */}
+          {/* Artist Films Section (previously Known For) */}
           {artist.knownFor && artist.knownFor.length > 0 && (
             <VStack space="md">
-              <Text color="white" fontSize={20} fontWeight="600">
-                Known For
-              </Text>
+              <HStack justifyContent="space-between" alignItems="center">
+                <Text color="white" fontSize={20} fontWeight="600">
+                  Artist Films
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('ArtistMovies', {
+                      movies: artist.knownFor,
+                      artistName: artist.name,
+                    })
+                  }>
+                  <HStack space="sm" alignItems="center">
+                    <Text color="#dc3f72" fontSize={14}>
+                      See all {artist.knownFor.length}
+                    </Text>
+                    <ChevronRight color="#dc3f72" size={16} />
+                  </HStack>
+                </Pressable>
+              </HStack>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

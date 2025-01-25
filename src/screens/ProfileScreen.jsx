@@ -22,7 +22,7 @@ import {
   TouchableWithoutFeedback,
   FlatList,
 } from 'react-native';
-import {Edit2, ChevronRight, Settings, Search} from 'lucide-react-native';
+import {Edit2, ChevronRight, Settings, Search, Plus} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 import MovieListModal from '../components/MovieListModal';
@@ -92,6 +92,35 @@ const MovieList = ({title, count, movies, onSeeAll}) => {
   );
 };
 
+const ListItem = ({list, onPress}) => (
+  <Pressable onPress={onPress}>
+    <HStack space="md" alignItems="center" marginBottom={16}>
+      <Image
+        source={{uri: list.thumbnail}}
+        alt={list.name}
+        width={80}
+        height={80}
+        borderRadius={12}
+      />
+      <VStack flex={1} space="xs">
+        <Text color="white" fontSize={16} fontWeight="600">
+          {list.name}
+        </Text>
+        <Text
+          color="rgba(255, 255, 255, 0.7)"
+          fontSize={14}
+          numberOfLines={2}
+          ellipsizeMode="tail">
+          {list.description}
+        </Text>
+        <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+          {list.moviesCount} movies
+        </Text>
+      </VStack>
+    </HStack>
+  </Pressable>
+);
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const {user, movies} = sampleData;
@@ -132,8 +161,8 @@ const ProfileScreen = () => {
     });
   };
 
-  const navigateToList = listType => {
-    navigation.navigate('MovieList', {listType});
+  const navigateToList = (listId, listName) => {
+    navigation.navigate('ListDetails', {listId, listName});
   };
 
   return (
@@ -214,7 +243,7 @@ const ProfileScreen = () => {
             borderTopRightRadius: 20,
             marginTop: -20,
           }}>
-          {/* Avatar and Info - positioned with negative margin to overlap banner */}
+          {/* Avatar and Info */}
           <Center marginTop={-60} marginBottom={12}>
             <Image
               source={{uri: user.avatar}}

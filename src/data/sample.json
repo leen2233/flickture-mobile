@@ -204,6 +204,35 @@
         "username": "willa",
         "avatar": "https://i.pravatar.cc/150?img=7"
       }
+    ],
+    "lists": [
+      {
+        "id": "nolan-best",
+        "name": "Christopher Nolan's Best",
+        "description": "A collection of mind-bending masterpieces from the visionary director",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+        "moviesCount": 8,
+        "creator": "You",
+        "likes": 2451
+      },
+      {
+        "id": "sci-fi-classics",
+        "name": "Science Fiction Classics",
+        "description": "Essential sci-fi films that defined the genre",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+        "moviesCount": 25,
+        "creator": "You",
+        "likes": 1832
+      },
+      {
+        "id": "oscar-winners",
+        "name": "Oscar Best Picture Winners",
+        "description": "A curated collection of Academy Award winning films",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+        "moviesCount": 45,
+        "creator": "You",
+        "likes": 1832
+      }
     ]
   },
   "artists": {
@@ -790,5 +819,100 @@
         }
       ]
     }
+  },
+  "featured": {
+    "trending": [
+      {
+        "id": "top-action-2024",
+        "name": "Best Action Movies of 2024",
+        "description": "A curated selection of the most thrilling action films released this year",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+        "moviesCount": 15,
+        "creator": "ActionFanatic",
+        "likes": 2451
+      },
+      {
+        "id": "oscar-nominees-2024",
+        "name": "Oscar Nominees 2024",
+        "description": "All the films nominated for the 96th Academy Awards",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+        "moviesCount": 24,
+        "creator": "CinemaExpert",
+        "likes": 1832
+      },
+      {
+        "id": "korean-gems",
+        "name": "Korean Cinema Masterpieces",
+        "description": "Must-watch Korean films that redefined storytelling",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+        "moviesCount": 20,
+        "creator": "WorldCinema"
+      }
+    ],
+    "staffPicks": [
+      {
+        "id": "hidden-gems-2023",
+        "name": "Hidden Gems of 2023",
+        "description": "Underrated movies you might have missed last year",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg",
+        "moviesCount": 12,
+        "creator": "FilmCritic",
+        "likes": 945
+      },
+      {
+        "id": "mind-bending",
+        "name": "Mind-Bending Masterpieces",
+        "description": "Films that will make you question reality",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+        "moviesCount": 18,
+        "creator": "CinematicDreams"
+      }
+    ]
+  },
+  "community": {
+    "popular": [
+      {
+        "id": "anime-essentials",
+        "name": "Anime Essentials",
+        "description": "Must-watch anime films for every movie lover",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+        "moviesCount": 25,
+        "creator": "AnimeExplorer"
+      },
+      {
+        "id": "true-crime-docs",
+        "name": "Best True Crime Documentaries",
+        "description": "Compelling documentaries that investigate real crimes",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+        "moviesCount": 16,
+        "creator": "DocLover"
+      },
+      {
+        "id": "romance-classics",
+        "name": "Timeless Romance Films",
+        "description": "Classic love stories that stand the test of time",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/9TGHDvWrqKBzwDxDodHYXEmOE6J.jpg",
+        "moviesCount": 22,
+        "creator": "RomanceFan"
+      }
+    ],
+    "recent": [
+      {
+        "id": "indie-2024",
+        "name": "Independent Films 2024",
+        "description": "The best independent films released this year",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/fgm8OZ7o4G1G1I9EeGcb85Noe6L.jpg",
+        "moviesCount": 8,
+        "creator": "IndieFilmBuff"
+      },
+      {
+        "id": "horror-gems",
+        "name": "Modern Horror Masterpieces",
+        "description": "Contemporary horror films that redefined the genre",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/8c4a8kE7PizaGQQnditMmI1xbRp.jpg",
+        "moviesCount": 14,
+        "creator": "HorrorFanatic"
+      }
+    ]
   }
 }
