@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Box,
   Text,
@@ -11,7 +11,14 @@ import {
   InputField,
   InputIcon,
 } from '@gluestack-ui/themed';
-import {Plus, Search, TrendingUp, Users, Bookmark} from 'lucide-react-native';
+import {
+  Plus,
+  Search,
+  TrendingUp,
+  Users,
+  Bookmark,
+  Heart,
+} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 
@@ -86,13 +93,128 @@ const SectionHeader = ({title, action}) => (
   </HStack>
 );
 
+// Add new ListsSkeleton component
+const ListsSkeleton = () => (
+  <Box padding={16}>
+    {[1, 2, 3].map(section => (
+      <Box key={section} marginBottom={24}>
+        {/* Section Header Skeleton */}
+        <Box
+          width={150}
+          height={24}
+          backgroundColor="#270a39"
+          borderRadius={8}
+          marginBottom={16}
+        />
+
+        <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+          {[1, 2, 3].map(item => (
+            <HStack key={item} space="md" alignItems="center" marginBottom={16}>
+              {/* Thumbnail Skeleton */}
+              <Box
+                width={80}
+                height={80}
+                borderRadius={12}
+                backgroundColor="rgba(255,255,255,0.1)"
+              />
+
+              <VStack flex={1} space="xs">
+                {/* Title Skeleton */}
+                <Box
+                  width="70%"
+                  height={16}
+                  backgroundColor="rgba(255,255,255,0.1)"
+                  borderRadius={8}
+                />
+
+                {/* Description Skeleton */}
+                <Box
+                  width="90%"
+                  height={12}
+                  backgroundColor="rgba(255,255,255,0.1)"
+                  borderRadius={6}
+                />
+
+                {/* Metadata Skeleton */}
+                <HStack space="sm">
+                  {[1, 2, 3].map(meta => (
+                    <Box
+                      key={meta}
+                      width={60}
+                      height={10}
+                      backgroundColor="rgba(255,255,255,0.1)"
+                      borderRadius={5}
+                    />
+                  ))}
+                </HStack>
+              </VStack>
+            </HStack>
+          ))}
+        </Box>
+      </Box>
+    ))}
+  </Box>
+);
+
 const ListsScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('featured');
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState({
+    trending: [],
+    staffPicks: [],
+    lists: [],
+    popular: [],
+    recent: [],
+    liked: [],
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Set data based on active tab
+      switch (activeTab) {
+        case 'featured':
+          setData({
+            ...data,
+            trending: sampleData.featured?.trending || [],
+            staffPicks: sampleData.featured?.staffPicks || [],
+          });
+          break;
+        case 'myLists':
+          setData({
+            ...data,
+            lists: sampleData.user?.lists || [],
+          });
+          break;
+        case 'liked':
+          setData({
+            ...data,
+            liked: sampleData.user?.likedLists || [],
+          });
+          break;
+        case 'community':
+          setData({
+            ...data,
+            popular: sampleData.community?.popular || [],
+            recent: sampleData.community?.recent || [],
+          });
+          break;
+      }
+
+      setIsLoading(false);
+    };
+
+    loadData();
+  }, [activeTab]);
 
   const tabs = [
     {id: 'featured', label: 'Featured', icon: TrendingUp},
     {id: 'myLists', label: 'My Lists', icon: Bookmark},
+    {id: 'liked', label: 'Liked', icon: Heart},
     {id: 'community', label: 'Community', icon: Users},
   ];
 
@@ -171,82 +293,128 @@ const ListsScreen = () => {
       </Box>
 
       <ScrollView flex={1}>
-        <Box padding={16}>
-          {activeTab === 'featured' && (
-            <>
-              {/* Trending Lists */}
-              <SectionHeader
-                title="Trending Lists"
-                action={
-                  <Text color="#dc3f72" fontSize={14}>
-                    See all
-                  </Text>
-                }
-              />
-              <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
-                {sampleData.featured.trending.map(list => (
-                  <ListItem
-                    key={list.id}
-                    list={list}
-                    onPress={() => navigateToList(list.id, list.name)}
-                  />
-                ))}
-              </Box>
-
-              {/* Staff Picks */}
-              <SectionHeader title="Staff Picks" />
-              <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
-                {sampleData.featured.staffPicks.map(list => (
-                  <ListItem
-                    key={list.id}
-                    list={list}
-                    onPress={() => navigateToList(list.id, list.name)}
-                  />
-                ))}
-              </Box>
-            </>
-          )}
-
-          {activeTab === 'myLists' && (
-            <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
-              {sampleData.user.lists.map(list => (
-                <ListItem
-                  key={list.id}
-                  list={list}
-                  onPress={() => navigateToList(list.id, list.name)}
+        {isLoading ? (
+          <ListsSkeleton />
+        ) : (
+          <Box padding={16}>
+            {activeTab === 'featured' && data && (
+              <>
+                {/* Trending Lists */}
+                <SectionHeader
+                  title="Trending Lists"
+                  action={
+                    <Text color="#dc3f72" fontSize={14}>
+                      See all
+                    </Text>
+                  }
                 />
-              ))}
-            </Box>
-          )}
+                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                  {(data?.trending || []).map(list => (
+                    <ListItem
+                      key={list.id}
+                      list={list}
+                      onPress={() => navigateToList(list.id, list.name)}
+                    />
+                  ))}
+                  {(!data?.trending || data.trending.length === 0) && (
+                    <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                      No trending lists found
+                    </Text>
+                  )}
+                </Box>
 
-          {activeTab === 'community' && (
-            <>
-              {/* Popular Lists */}
-              <SectionHeader title="Popular in Community" />
+                {/* Staff Picks */}
+                <SectionHeader title="Staff Picks" />
+                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                  {(data?.staffPicks || []).map(list => (
+                    <ListItem
+                      key={list.id}
+                      list={list}
+                      onPress={() => navigateToList(list.id, list.name)}
+                    />
+                  ))}
+                  {(!data?.staffPicks || data.staffPicks.length === 0) && (
+                    <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                      No staff picks found
+                    </Text>
+                  )}
+                </Box>
+              </>
+            )}
+
+            {activeTab === 'myLists' && data && (
               <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
-                {sampleData.community.popular.map(list => (
+                {(data?.lists || []).map(list => (
                   <ListItem
                     key={list.id}
                     list={list}
                     onPress={() => navigateToList(list.id, list.name)}
                   />
                 ))}
+                {(!data?.lists || data.lists.length === 0) && (
+                  <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                    You haven't created any lists yet
+                  </Text>
+                )}
               </Box>
+            )}
 
-              {/* Recent Lists */}
-              <SectionHeader title="Recently Created" />
+            {activeTab === 'liked' && data && (
               <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
-                {sampleData.community.recent.map(list => (
+                {(data?.liked || []).map(list => (
                   <ListItem
                     key={list.id}
                     list={list}
                     onPress={() => navigateToList(list.id, list.name)}
                   />
                 ))}
+                {(!data?.liked || data.liked.length === 0) && (
+                  <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                    You haven't liked any lists yet
+                  </Text>
+                )}
               </Box>
-            </>
-          )}
-        </Box>
+            )}
+
+            {activeTab === 'community' && data && (
+              <>
+                {/* Popular Lists */}
+                <SectionHeader title="Popular in Community" />
+                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                  {(data?.popular || []).map(list => (
+                    <ListItem
+                      key={list.id}
+                      list={list}
+                      onPress={() => navigateToList(list.id, list.name)}
+                    />
+                  ))}
+                  {(!data?.popular || data.popular.length === 0) && (
+                    <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                      No popular lists found
+                    </Text>
+                  )}
+                </Box>
+
+                {/* Recent Lists */}
+                <SectionHeader title="Recently Created" />
+                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                  {(data?.recent || []).map(list => (
+                    <ListItem
+                      key={list.id}
+                      list={list}
+                      onPress={() => navigateToList(list.id, list.name)}
+                    />
+                  ))}
+                  {(!data?.recent || data.recent.length === 0) && (
+                    <Text color="rgba(255, 255, 255, 0.7)" textAlign="center">
+                      No recent lists found
+                    </Text>
+                  )}
+                </Box>
+              </>
+            )}
+          </Box>
+        )}
       </ScrollView>
     </Box>
   );

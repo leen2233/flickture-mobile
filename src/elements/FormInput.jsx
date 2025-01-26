@@ -6,6 +6,10 @@ import {
   InputIcon,
   FormControl,
   Text,
+  FormControlLabel,
+  FormControlLabelText,
+  FormControlError,
+  FormControlErrorText,
 } from '@gluestack-ui/themed';
 import {EyeIcon, EyeOffIcon} from 'lucide-react-native';
 
@@ -48,7 +52,13 @@ const FormInput = ({
 
   return (
     <FormControl marginBottom={marginBottom} isInvalid={!!error}>
-      {label && <FormControl.Label>{label}</FormControl.Label>}
+      {label && (
+        <FormControl.Label>
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+            {label}
+          </Text>
+        </FormControl.Label>
+      )}
       <Input
         size="xl"
         borderRadius="$xl"
@@ -71,11 +81,9 @@ const FormInput = ({
         )}
       </Input>
       {error && (
-        <FormControl.Error>
-          <Text color="#f44336" fontSize={12} marginTop={4}>
-            {error}
-          </Text>
-        </FormControl.Error>
+        <FormControlError>
+          <FormControlErrorText>{error}</FormControlErrorText>
+        </FormControlError>
       )}
     </FormControl>
   );

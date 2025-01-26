@@ -73,12 +73,20 @@ const MovieItem = ({movie, onRemove}) => (
   </Box>
 );
 
-const SearchMovieModal = ({visible, onClose, onSelect}) => {
+const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = React.useRef(null);
 
-  // Simulate search with sample data
+  useEffect(() => {
+    if (visible) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [visible]);
+
   useEffect(() => {
     const searchMovies = async () => {
       if (!searchQuery.trim()) {
@@ -90,7 +98,8 @@ const SearchMovieModal = ({visible, onClose, onSelect}) => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Filter sample movies based on search query
+      // Import sample data and filter recentlyWatched movies
+      const sampleData = require('../data/sample.json');
       const results = sampleData.movies.recentlyWatched.filter(movie =>
         movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
       );
@@ -101,49 +110,66 @@ const SearchMovieModal = ({visible, onClose, onSelect}) => {
     searchMovies();
   }, [searchQuery]);
 
-  const MovieSearchItem = ({movie}) => (
-    <Box
-      backgroundColor="#270a39"
-      borderRadius={12}
-      padding={12}
-      marginBottom={12}
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)">
-      <HStack space="md" alignItems="center">
-        <Image
-          source={{uri: movie.poster}}
-          alt={movie.title}
-          width={60}
-          height={90}
-          borderRadius={8}
-        />
-        <VStack flex={1} space="xs">
-          <Text color="white" fontSize={16} fontWeight="600">
-            {movie.title}
-          </Text>
-          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-            {movie.year}
-          </Text>
-          {movie.rating && (
-            <HStack space="xs" alignItems="center">
-              <Star size={14} color="#dc3f72" fill="#dc3f72" />
-              <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                {movie.rating}
-              </Text>
-            </HStack>
-          )}
-        </VStack>
-        <TouchableOpacity
-          style={styles.selectButton}
-          onPress={() => {
-            onSelect(movie);
-            onClose();
-          }}>
-          <Text style={styles.selectButtonText}>Select</Text>
-        </TouchableOpacity>
-      </HStack>
-    </Box>
-  );
+  const handleSelect = movie => {
+    onSelect(movie);
+    setSearchQuery(''); // Clear search query
+    onClose();
+  };
+
+  const MovieSearchItem = ({movie}) => {
+    const isSelected = selectedMovies.some(m => m.id === movie.id);
+
+    return (
+      <Box
+        backgroundColor="#270a39"
+        borderRadius={12}
+        padding={12}
+        marginBottom={12}
+        borderWidth={1}
+        borderColor="rgba(255, 255, 255, 0.1)">
+        <HStack space="md" alignItems="center">
+          <Image
+            source={{uri: movie.poster}}
+            alt={movie.title}
+            width={60}
+            height={90}
+            borderRadius={8}
+          />
+          <VStack flex={1} space="xs">
+            <Text color="white" fontSize={16} fontWeight="600">
+              {movie.title}
+            </Text>
+            <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+              {movie.year}
+            </Text>
+            {movie.rating && (
+              <HStack space="xs" alignItems="center">
+                <Star size={14} color="#dc3f72" fill="#dc3f72" />
+                <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                  {movie.rating}
+                </Text>
+              </HStack>
+            )}
+          </VStack>
+          <TouchableOpacity
+            style={[
+              styles.selectButton,
+              isSelected && styles.selectButtonDisabled,
+            ]}
+            onPress={() => handleSelect(movie)}
+            disabled={isSelected}>
+            <Text
+              style={[
+                styles.selectButtonText,
+                isSelected && styles.selectButtonTextDisabled,
+              ]}>
+              {isSelected ? 'In List' : 'Select'}
+            </Text>
+          </TouchableOpacity>
+        </HStack>
+      </Box>
+    );
+  };
 
   return (
     <Modal
@@ -151,8 +177,8 @@ const SearchMovieModal = ({visible, onClose, onSelect}) => {
       transparent={true}
       animationType="slide"
       onRequestClose={onClose}>
-      <View style={styles.searchModalContainer}>
-        <View style={styles.searchModalContent}>
+      <View style={styles.searchModalContainer} pointerEvents="box-none">
+        <View style={styles.searchModalContent} pointerEvents="box-none">
           {/* Header */}
           <HStack
             justifyContent="space-between"
@@ -172,9 +198,15 @@ const SearchMovieModal = ({visible, onClose, onSelect}) => {
             borderRadius={12}
             marginBottom={16}
             padding={4}>
-            <Input variant="unstyled" size="md" height={48}>
+            <Input
+              variant="unstyled"
+              size="md"
+              height={48}
+              display="flex"
+              alignItems="center">
               <InputIcon as={Search} color="#dc3f72" marginLeft={8} />
               <InputField
+                ref={inputRef}
                 color="white"
                 placeholder="Search movies..."
                 placeholderTextColor="rgba(255, 255, 255, 0.5)"
@@ -185,7 +217,9 @@ const SearchMovieModal = ({visible, onClose, onSelect}) => {
           </Box>
 
           {/* Results */}
-          <ScrollView style={styles.searchResults}>
+          <ScrollView
+            style={styles.searchResults}
+            keyboardShouldPersistTaps="handled">
             {isLoading ? (
               <Box padding={20} alignItems="center">
                 <ActivityIndicator color="#dc3f72" />
@@ -460,7 +494,9 @@ const CreateListScreen = ({navigation}) => {
                   }
                 }}
                 label="List Name"
+                placeholder="Enter a name for your list..."
                 error={errors.name}
+                marginTop={8}
               />
 
               <FormTextArea
@@ -474,10 +510,11 @@ const CreateListScreen = ({navigation}) => {
                 label="Description"
                 placeholder="Write about your list..."
                 error={errors.description}
+                marginTop={4}
               />
 
               {/* Movies Section */}
-              <VStack space="md">
+              <VStack space="md" marginTop={8}>
                 <Text color="white" fontSize={16} fontWeight="600">
                   Movies
                 </Text>
@@ -492,7 +529,8 @@ const CreateListScreen = ({navigation}) => {
                   onPress={handleAddMovies}
                   variant="outline"
                   borderColor="#dc3f72"
-                  borderRadius={12}>
+                  borderRadius={12}
+                  marginTop={4}>
                   <ButtonIcon as={Plus} color="#dc3f72" marginRight={8} />
                   <ButtonText color="#dc3f72">Add Movie</ButtonText>
                 </Button>
@@ -504,7 +542,10 @@ const CreateListScreen = ({navigation}) => {
               </VStack>
 
               {/* Create Button */}
-              <PrimaryButton onPress={handleCreate} isLoading={isLoading}>
+              <PrimaryButton
+                onPress={handleCreate}
+                isLoading={isLoading}
+                marginTop={16}>
                 Create List
               </PrimaryButton>
             </VStack>
@@ -535,8 +576,8 @@ const CreateListScreen = ({navigation}) => {
             </View>
 
             <Text
-              color="rgba(255, 255, 255, 0.7)"
-              style={styles.modalDescription}>
+              style={styles.modalDescription}
+              color="rgba(255, 255, 255, 0.7)">
               Select where you want to pick the image from
             </Text>
 
@@ -560,6 +601,7 @@ const CreateListScreen = ({navigation}) => {
       <SearchMovieModal
         visible={showSearchModal}
         onClose={() => setShowSearchModal(false)}
+        selectedMovies={movies}
         onSelect={movie => {
           if (!movies.find(m => m.id === movie.id)) {
             setMovies(prev => [...prev, movie]);
@@ -660,6 +702,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
+  },
+  selectButtonDisabled: {
+    backgroundColor: 'rgba(220, 63, 114, 0.3)',
+  },
+  selectButtonTextDisabled: {
+    color: 'rgba(255, 255, 255, 0.5)',
   },
 });
 

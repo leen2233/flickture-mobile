@@ -233,6 +233,35 @@
         "creator": "You",
         "likes": 1832
       }
+    ],
+    "likedLists": [
+      {
+        "id": "mind-bending",
+        "name": "Mind-Bending Masterpieces",
+        "description": "Films that will make you question reality",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+        "moviesCount": 18,
+        "creator": "CinematicDreams",
+        "likes": 1245
+      },
+      {
+        "id": "korean-gems",
+        "name": "Korean Cinema Masterpieces",
+        "description": "Must-watch Korean films that redefined storytelling",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/l4QHerTSbMI7qgvasqxP36pqjN6.jpg",
+        "moviesCount": 20,
+        "creator": "WorldCinema",
+        "likes": 892
+      },
+      {
+        "id": "true-crime-docs",
+        "name": "Best True Crime Documentaries",
+        "description": "Compelling documentaries that investigate real crimes",
+        "thumbnail": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+        "moviesCount": 16,
+        "creator": "DocLover",
+        "likes": 756
+      }
     ]
   },
   "artists": {
