@@ -34,8 +34,8 @@ import {
   X,
   Star,
 } from 'lucide-react-native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 const MovieItem = ({movie, onRemove}) => (
   <Box
@@ -330,46 +330,56 @@ const CreateListScreen = ({navigation}) => {
   const handleImageSelection = async method => {
     setShowImagePicker(false);
 
-    if (method === 'camera') {
-      const hasPermission = await requestCameraPermission();
-      if (!hasPermission) {
-        return;
-      }
-    }
-
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-      saveToPhotos: false,
-      includeBase64: true,
-    };
-
     try {
-      const result =
-        method === 'camera'
-          ? await launchCamera(options)
-          : await launchImageLibrary(options);
+      let result;
+      const cropperOptions = {
+        width: activeImageType === 'thumbnail' ? 400 : 1200,
+        height: activeImageType === 'thumbnail' ? 600 : 675,
+        cropping: true,
+        cropperCircleOverlay: false,
+        mediaType: 'photo',
+        // Theme customization
+        cropperToolbarTitle:
+          activeImageType === 'thumbnail'
+            ? 'Crop List Thumbnail'
+            : 'Crop List Backdrop',
+        cropperToolbarColor: '#270a39',
+        cropperStatusBarColor: '#040b1c',
+        cropperToolbarWidgetColor: '#ffffff',
+        cropperActiveWidgetColor: '#dc3f72',
+        cropperTintColor: '#dc3f72',
+        loadingLabelText: 'Processing...',
+        enableRotationGesture: true,
+      };
 
-      if (result.didCancel || result.errorCode) {
-        return;
+      if (method === 'camera') {
+        const hasPermission = await requestCameraPermission();
+        if (!hasPermission) {
+          console.log('Camera permission denied');
+          return;
+        }
+        result = await ImageCropPicker.openCamera(cropperOptions);
+      } else {
+        result = await ImageCropPicker.openPicker(cropperOptions);
       }
 
-      if (result.assets && result.assets[0]) {
-        const imageUri = result.assets[0].uri;
+      if (result.path) {
         if (activeImageType === 'backdrop') {
-          setBackdrop(imageUri);
+          setBackdrop(result.path);
           if (errors.backdrop) {
             setErrors(prev => ({...prev, backdrop: ''}));
           }
         } else if (activeImageType === 'thumbnail') {
-          setThumbnail(imageUri);
+          setThumbnail(result.path);
           if (errors.thumbnail) {
             setErrors(prev => ({...prev, thumbnail: ''}));
           }
         }
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      if (error.message !== 'User cancelled image selection') {
+        console.error('Error picking image:', error);
+      }
     }
   };
 

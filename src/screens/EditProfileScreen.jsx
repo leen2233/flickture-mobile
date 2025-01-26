@@ -20,9 +20,9 @@ import {
 } from 'react-native';
 import {Camera, ArrowLeft, Calendar} from 'lucide-react-native';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import sampleData from '../data/sample.json';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 const EditProfileScreen = ({navigation}) => {
   // Initialize state with sample data
@@ -128,47 +128,50 @@ const EditProfileScreen = ({navigation}) => {
   const handleImageSelection = async method => {
     setShowImagePicker(false);
 
-    if (method === 'camera') {
-      const hasPermission = await requestCameraPermission();
-      if (!hasPermission) {
-        // You might want to show an error message to the user here
-        console.log('Camera permission denied');
-        return;
-      }
-    }
-
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-      saveToPhotos: false,
-      includeBase64: true,
-    };
-
     try {
-      const result =
-        method === 'camera'
-          ? await launchCamera(options)
-          : await launchImageLibrary(options);
+      let result;
+      const cropperOptions = {
+        width: activeImageType === 'avatar' ? 400 : 1200,
+        height: activeImageType === 'avatar' ? 400 : 675,
+        cropping: true,
+        cropperCircleOverlay: activeImageType === 'avatar',
+        mediaType: 'photo',
+        // Theme customization
+        cropperToolbarTitle:
+          activeImageType === 'avatar'
+            ? 'Crop Profile Picture'
+            : 'Crop Banner Image',
+        cropperToolbarColor: '#270a39',
+        cropperStatusBarColor: '#040b1c',
+        cropperToolbarWidgetColor: '#ffffff',
+        cropperActiveWidgetColor: '#dc3f72',
+        cropperTintColor: '#dc3f72',
+        loadingLabelText: 'Processing...',
+        enableRotationGesture: true,
+      };
 
-      if (result.didCancel) {
-        return;
+      if (method === 'camera') {
+        const hasPermission = await requestCameraPermission();
+        if (!hasPermission) {
+          console.log('Camera permission denied');
+          return;
+        }
+        result = await ImageCropPicker.openCamera(cropperOptions);
+      } else {
+        result = await ImageCropPicker.openPicker(cropperOptions);
       }
 
-      if (result.errorCode) {
-        console.error('ImagePicker Error:', result.errorMessage);
-        return;
-      }
-
-      if (result.assets && result.assets[0]) {
-        const imageUri = result.assets[0].uri;
+      if (result.path) {
         if (activeImageType === 'avatar') {
-          setAvatar(imageUri);
+          setAvatar(result.path);
         } else if (activeImageType === 'banner') {
-          setBanner(imageUri);
+          setBanner(result.path);
         }
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      if (error.message !== 'User cancelled image selection') {
+        console.error('Error picking image:', error);
+      }
     }
   };
 
