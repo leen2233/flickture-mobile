@@ -42,6 +42,7 @@ import {
   StatusBar,
 } from 'react-native';
 import RatingModal from '../components/RatingModal';
+import {useToast} from '../context/ToastContext';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -410,23 +411,38 @@ const MovieDetailScreen = ({route}) => {
   const [isInFavorites, setIsInFavorites] = useState(false);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [modalImage, setModalImage] = useState(null);
+  const {showError} = useToast();
 
   useEffect(() => {
     const loadMovieData = async () => {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const movie = {
-        ...route.params.movie,
-        backdrop: route.params.movie.backdrop?.replace('/w500/', '/original/'),
-      };
+        const movie = {
+          ...route.params.movie,
+          backdrop: route.params.movie.backdrop?.replace(
+            '/w500/',
+            '/original/',
+          ),
+        };
 
-      setMovieData(movie);
-      setIsLoading(false);
+        // Validate required movie data
+        if (!movie.title || !movie.year || !movie.poster) {
+          throw new Error('Missing required movie information');
+        }
+
+        setMovieData(movie);
+      } catch (error) {
+        showError('Failed to load movie details. Please try again later.');
+        console.error('Error loading movie:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadMovieData();
-  }, [route.params.movie]);
+  }, [route.params.movie, showError]);
 
   const handleWatchlistToggle = () => {
     setIsInWatchlist(!isInWatchlist);

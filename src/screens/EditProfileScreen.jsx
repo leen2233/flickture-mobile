@@ -23,6 +23,7 @@ import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import sampleData from '../data/sample.json';
 import ImageCropPicker from 'react-native-image-crop-picker';
+import {useToast} from '../context/ToastContext';
 
 const EditProfileScreen = ({navigation}) => {
   // Initialize state with sample data
@@ -41,6 +42,7 @@ const EditProfileScreen = ({navigation}) => {
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [activeImageType, setActiveImageType] = useState(null); // 'avatar' or 'banner'
   const [errors, setErrors] = useState({});
+  const {showSuccess, showError} = useToast();
 
   const validateForm = () => {
     const newErrors = {};
@@ -63,17 +65,32 @@ const EditProfileScreen = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Simulate API call
+      await new Promise((resolve, reject) => {
+        const shouldFail = false;
+        setTimeout(() => {
+          if (shouldFail) {
+            reject(new Error('Network error'));
+          } else {
+            resolve();
+          }
+        }, 2000);
+      });
+
+      showSuccess('Profile updated successfully!');
       navigation.goBack();
-    }, 2000);
+    } catch (err) {
+      showError('Failed to update profile. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const showDatePicker = () => {
@@ -176,205 +193,207 @@ const EditProfileScreen = ({navigation}) => {
   };
 
   return (
-    <ScrollView flex={1} backgroundColor="#040b1c">
-      <Box>
-        {/* Banner Section */}
-        <Box position="relative">
-          <Image
-            source={{uri: banner}}
-            alt="Profile Banner"
-            width="100%"
-            height={240}
-          />
-          <Pressable
-            position="absolute"
-            bottom={32}
-            right={16}
-            backgroundColor="rgba(4, 11, 28, 0.6)"
-            padding={12}
-            borderRadius={12}
-            borderWidth={1}
-            borderColor="#dc3f72"
-            onPress={() => handleImagePicker('banner')}>
-            <Camera color="#dc3f72" size={20} />
-          </Pressable>
-
-          {/* Back Button */}
-          <Pressable
-            position="absolute"
-            top={16}
-            left={16}
-            backgroundColor="rgba(4, 11, 28, 0.6)"
-            padding={12}
-            borderRadius={12}
-            onPress={() => navigation.goBack()}>
-            <ArrowLeft color="white" size={24} />
-          </Pressable>
-        </Box>
-
-        {/* Content */}
-        <Box
-          padding={16}
-          backgroundColor="#040b1c"
-          style={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            marginTop: -20,
-          }}>
-          {/* Avatar Section - positioned to overlap banner */}
-          <Center marginTop={-30} marginBottom={24}>
-            <Box position="relative">
-              <Image
-                source={{uri: avatar}}
-                alt="Profile Picture"
-                width={100}
-                height={100}
-                borderRadius={50}
-                borderWidth={4}
-                borderColor="#040b1c"
-              />
-              <Pressable
-                position="absolute"
-                bottom={0}
-                right={0}
-                backgroundColor="#270a39"
-                padding={8}
-                borderRadius={20}
-                borderWidth={2}
-                borderColor="#dc3f72"
-                onPress={() => handleImagePicker('avatar')}>
-                <Camera color="#dc3f72" size={20} />
-              </Pressable>
-            </Box>
-          </Center>
-
-          {/* Form */}
-          <VStack space="xl">
-            <FormInput
-              value={fullName}
-              onChangeText={text => {
-                setFullName(text);
-                if (errors.fullName) {
-                  setErrors(prev => ({...prev, fullName: ''}));
-                }
-              }}
-              label={
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                  Full Name
-                </Text>
-              }
-              error={errors.fullName}
+    <>
+      <ScrollView flex={1} backgroundColor="#040b1c">
+        <Box>
+          {/* Banner Section */}
+          <Box position="relative">
+            <Image
+              source={{uri: banner}}
+              alt="Profile Banner"
+              width="100%"
+              height={240}
             />
+            <Pressable
+              position="absolute"
+              bottom={32}
+              right={16}
+              backgroundColor="rgba(4, 11, 28, 0.6)"
+              padding={12}
+              borderRadius={12}
+              borderWidth={1}
+              borderColor="#dc3f72"
+              onPress={() => handleImagePicker('banner')}>
+              <Camera color="#dc3f72" size={20} />
+            </Pressable>
 
-            <FormInput
-              value={username}
-              onChangeText={text => {
-                setUsername(text);
-                if (errors.username) {
-                  setErrors(prev => ({...prev, username: ''}));
-                }
-              }}
-              label={
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                  Username
-                </Text>
-              }
-              autoCapitalize="none"
-              error={errors.username}
-            />
+            {/* Back Button */}
+            <Pressable
+              position="absolute"
+              top={16}
+              left={16}
+              backgroundColor="rgba(4, 11, 28, 0.6)"
+              padding={12}
+              borderRadius={12}
+              onPress={() => navigation.goBack()}>
+              <ArrowLeft color="white" size={24} />
+            </Pressable>
+          </Box>
 
-            <FormControl>
-              <FormControl.Label>
-                <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                  Birthday
-                </Text>
-              </FormControl.Label>
-              <Pressable onPress={showDatePicker}>
-                <Box
-                  borderRadius={12}
-                  borderColor="#341251"
-                  borderWidth={1}
+          {/* Content */}
+          <Box
+            padding={16}
+            backgroundColor="#040b1c"
+            style={{
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              marginTop: -20,
+            }}>
+            {/* Avatar Section - positioned to overlap banner */}
+            <Center marginTop={-30} marginBottom={24}>
+              <Box position="relative">
+                <Image
+                  source={{uri: avatar}}
+                  alt="Profile Picture"
+                  width={100}
+                  height={100}
+                  borderRadius={50}
+                  borderWidth={4}
+                  borderColor="#040b1c"
+                />
+                <Pressable
+                  position="absolute"
+                  bottom={0}
+                  right={0}
                   backgroundColor="#270a39"
-                  padding={16}
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="space-between">
-                  <Text color="white" fontSize={16}>
-                    {formatDate(birthday)}
+                  padding={8}
+                  borderRadius={20}
+                  borderWidth={2}
+                  borderColor="#dc3f72"
+                  onPress={() => handleImagePicker('avatar')}>
+                  <Camera color="#dc3f72" size={20} />
+                </Pressable>
+              </Box>
+            </Center>
+
+            {/* Form */}
+            <VStack space="xl">
+              <FormInput
+                value={fullName}
+                onChangeText={text => {
+                  setFullName(text);
+                  if (errors.fullName) {
+                    setErrors(prev => ({...prev, fullName: ''}));
+                  }
+                }}
+                label={
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Full Name
                   </Text>
-                  <Calendar color="#dc3f72" size={20} />
-                </Box>
-              </Pressable>
-            </FormControl>
-
-            <FormTextArea
-              value={bio}
-              onChangeText={text => {
-                setBio(text);
-                if (errors.bio) {
-                  setErrors(prev => ({...prev, bio: ''}));
                 }
-              }}
-              label="Biography"
-              placeholder="Write something about yourself..."
-              error={errors.bio}
-            />
+                error={errors.fullName}
+              />
 
-            {/* Save Button */}
-            <PrimaryButton
-              onPress={handleSave}
-              isLoading={isLoading}
-              marginTop={24}>
-              Save Changes
-            </PrimaryButton>
-          </VStack>
+              <FormInput
+                value={username}
+                onChangeText={text => {
+                  setUsername(text);
+                  if (errors.username) {
+                    setErrors(prev => ({...prev, username: ''}));
+                  }
+                }}
+                label={
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Username
+                  </Text>
+                }
+                autoCapitalize="none"
+                error={errors.username}
+              />
+
+              <FormControl>
+                <FormControl.Label>
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    Birthday
+                  </Text>
+                </FormControl.Label>
+                <Pressable onPress={showDatePicker}>
+                  <Box
+                    borderRadius={12}
+                    borderColor="#341251"
+                    borderWidth={1}
+                    backgroundColor="#270a39"
+                    padding={16}
+                    flexDirection="row"
+                    alignItems="center"
+                    justifyContent="space-between">
+                    <Text color="white" fontSize={16}>
+                      {formatDate(birthday)}
+                    </Text>
+                    <Calendar color="#dc3f72" size={20} />
+                  </Box>
+                </Pressable>
+              </FormControl>
+
+              <FormTextArea
+                value={bio}
+                onChangeText={text => {
+                  setBio(text);
+                  if (errors.bio) {
+                    setErrors(prev => ({...prev, bio: ''}));
+                  }
+                }}
+                label="Biography"
+                placeholder="Write something about yourself..."
+                error={errors.bio}
+              />
+
+              {/* Save Button */}
+              <PrimaryButton
+                onPress={handleSave}
+                isLoading={isLoading}
+                marginTop={24}>
+                Save Changes
+              </PrimaryButton>
+            </VStack>
+          </Box>
         </Box>
-      </Box>
 
-      {/* Image Picker Modal */}
-      <Modal
-        visible={showImagePicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowImagePicker(false)}>
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowImagePicker(false)}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text color="white" fontSize={20} fontWeight="600">
-                Choose Image Source
+        {/* Image Picker Modal */}
+        <Modal
+          visible={showImagePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowImagePicker(false)}>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowImagePicker(false)}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text color="white" fontSize={20} fontWeight="600">
+                  Choose Image Source
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowImagePicker(false)}
+                  style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>×</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text
+                style={styles.modalDescription}
+                color="rgba(255, 255, 255, 0.7)">
+                Select where you want to pick the image from
               </Text>
-              <TouchableOpacity
-                onPress={() => setShowImagePicker(false)}
-                style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
 
-            <Text
-              style={styles.modalDescription}
-              color="rgba(255, 255, 255, 0.7)">
-              Select where you want to pick the image from
-            </Text>
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.button, styles.outlineButton]}
-                onPress={() => handleImageSelection('camera')}>
-                <Text style={styles.outlineButtonText}>Camera</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.filledButton]}
-                onPress={() => handleImageSelection('gallery')}>
-                <Text style={styles.filledButtonText}>Gallery</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.outlineButton]}
+                  onPress={() => handleImageSelection('camera')}>
+                  <Text style={styles.outlineButtonText}>Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.filledButton]}
+                  onPress={() => handleImageSelection('gallery')}>
+                  <Text style={styles.filledButtonText}>Gallery</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    </ScrollView>
+          </TouchableOpacity>
+        </Modal>
+      </ScrollView>
+    </>
   );
 };
 

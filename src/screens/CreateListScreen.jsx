@@ -36,6 +36,7 @@ import {
 } from 'lucide-react-native';
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import ImageCropPicker from 'react-native-image-crop-picker';
+import {useToast} from '../context/ToastContext';
 
 const MovieItem = ({movie, onRemove}) => (
   <Box
@@ -259,6 +260,7 @@ const CreateListScreen = ({navigation}) => {
   const [activeImageType, setActiveImageType] = useState(null); // 'backdrop' or 'thumbnail'
   const [errors, setErrors] = useState({});
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const {showSuccess, showError} = useToast();
 
   const validateForm = () => {
     const newErrors = {};
@@ -287,17 +289,32 @@ const CreateListScreen = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Simulate API call
+      await new Promise((resolve, reject) => {
+        const shouldFail = false; // Changed to false for consistency
+        setTimeout(() => {
+          if (shouldFail) {
+            reject(new Error('Network error'));
+          } else {
+            resolve();
+          }
+        }, 2000);
+      });
+
+      showSuccess('List created successfully!');
       navigation.goBack();
-    }, 2000);
+    } catch (err) {
+      showError('Failed to create list. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImagePicker = type => {

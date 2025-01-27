@@ -28,7 +28,13 @@ import {
   Filter,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
-import {StyleSheet, Platform, Animated} from 'react-native';
+import {
+  StyleSheet,
+  Animated,
+  Platform,
+  Keyboard,
+  KeyboardAvoidingView,
+} from 'react-native';
 
 const RatingStars = ({rating}) => (
   <HStack space="xs">
@@ -100,17 +106,21 @@ const CommentItem = ({
   date,
   responses = [],
   initialLikes = 0,
+  scrollToInput,
 }) => {
   const [isLiked, setIsLiked] = React.useState(false);
   const [likes, setLikes] = React.useState(initialLikes);
   const [showResponses, setShowResponses] = React.useState(false);
-  const [showResponseInput, setShowResponseInput] = React.useState(false);
+  const [showMainInput, setShowMainInput] = React.useState(false);
   const [responseText, setResponseText] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [localResponses, setLocalResponses] = React.useState(responses);
   const [isLoadingResponses, setIsLoadingResponses] = React.useState(false);
   const slideAnim = React.useRef(new Animated.Value(0)).current;
   const inputRef = React.useRef(null);
+  const [activeResponseId, setActiveResponseId] = React.useState(null);
+  const responseInputRefs = React.useRef({});
+  const [inputKey, setInputKey] = React.useState(0);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -139,12 +149,39 @@ const CommentItem = ({
   };
 
   React.useEffect(() => {
-    if (showResponseInput && inputRef.current) {
+    if (showMainInput && inputRef.current) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [showResponseInput]);
+  }, [showMainInput]);
+
+  const handleResponseButtonClick = (username, responseId) => {
+    if (activeResponseId === responseId) {
+      setActiveResponseId(null);
+      setResponseText('');
+      Keyboard.dismiss();
+    } else {
+      setShowMainInput(false);
+      setActiveResponseId(responseId);
+      setResponseText(`@${username} `);
+      setInputKey(prev => prev + 1);
+      scrollToInput();
+    }
+  };
+
+  const handleMainResponseClick = () => {
+    if (showMainInput) {
+      setShowMainInput(false);
+      Keyboard.dismiss();
+    } else {
+      setShowMainInput(true);
+      setActiveResponseId(null);
+      setResponseText('');
+      setInputKey(prev => prev + 1);
+      scrollToInput();
+    }
+  };
 
   const handleSubmitResponse = async () => {
     if (!responseText.trim()) return;
@@ -156,8 +193,8 @@ const CommentItem = ({
     // Add the new response to the local state
     const newResponse = {
       user: {
-        username: 'You', // This would come from your auth context
-        avatar: 'https://i.pravatar.cc/300?img=5', // This would be the logged-in user's avatar
+        username: 'You',
+        avatar: 'https://i.pravatar.cc/300?img=5',
       },
       comment: responseText.trim(),
       date: new Date().toISOString().split('T')[0],
@@ -166,10 +203,11 @@ const CommentItem = ({
     setLocalResponses(prev => [...prev, newResponse]);
     setShowResponses(true);
 
-    // Reset the input state
+    // Reset all input states
     setIsSubmitting(false);
     setResponseText('');
-    setShowResponseInput(false);
+    setShowMainInput(false);
+    setActiveResponseId(null);
   };
 
   return (
@@ -203,7 +241,7 @@ const CommentItem = ({
       {/* Action Buttons */}
       <HStack
         space="sm"
-        marginBottom={showResponseInput ? 8 : 0}
+        marginBottom={showMainInput ? 8 : 0}
         alignItems="center"
         justifyContent="space-between">
         <ActionButton
@@ -237,15 +275,15 @@ const CommentItem = ({
         />
 
         <ActionButton
-          onPress={() => setShowResponseInput(!showResponseInput)}
+          onPress={handleMainResponseClick}
           icon={<MessageCircle size={18} color="#dc3f72" />}
-          text={showResponseInput ? 'Close' : 'Write Response'}
+          text={showMainInput ? 'Close' : 'Write Response'}
           color="#dc3f72"
         />
       </HStack>
 
-      {/* Response Input */}
-      {showResponseInput && (
+      {/* Main Response Input */}
+      {showMainInput && (
         <HStack
           space="sm"
           alignItems="center"
@@ -259,7 +297,8 @@ const CommentItem = ({
             backgroundColor="rgba(255, 255, 255, 0.1)"
             borderWidth={0}>
             <InputField
-              ref={inputRef}
+              key={inputKey}
+              autoFocus={true}
               color="white"
               placeholder="Write your response..."
               placeholderTextColor="rgba(255, 255, 255, 0.5)"
@@ -321,34 +360,94 @@ const CommentItem = ({
                 </Box>
               ) : (
                 localResponses.map((response, index) => (
-                  <VStack
-                    key={index}
-                    space="xs"
-                    padding={12}
-                    backgroundColor="#270a39"
-                    borderRadius={12}>
-                    <HStack space="sm" alignItems="center">
-                      <Image
-                        source={{uri: response.user.avatar}}
-                        alt={response.user.username}
-                        width={32}
-                        height={32}
-                        borderRadius={16}
-                        borderColor="#dc3f72"
-                        borderWidth={1}
-                      />
-                      <VStack>
-                        <Text color="white" fontSize={14} fontWeight="600">
-                          {response.user.username}
-                        </Text>
-                        <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
-                          {response.date}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                    <Text color="rgba(255, 255, 255, 0.7)" fontSize={13}>
-                      {response.comment}
-                    </Text>
+                  <VStack key={index}>
+                    <VStack
+                      space="xs"
+                      padding={12}
+                      backgroundColor="#270a39"
+                      borderRadius={12}>
+                      <HStack space="sm" alignItems="center">
+                        <Image
+                          source={{uri: response.user.avatar}}
+                          alt={response.user.username}
+                          width={32}
+                          height={32}
+                          borderRadius={16}
+                          borderColor="#dc3f72"
+                          borderWidth={1}
+                        />
+                        <VStack flex={1}>
+                          <Text color="white" fontSize={14} fontWeight="600">
+                            {response.user.username}
+                          </Text>
+                          <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
+                            {response.date}
+                          </Text>
+                        </VStack>
+                        <ActionButton
+                          onPress={() =>
+                            handleResponseButtonClick(
+                              response.user.username,
+                              index,
+                            )
+                          }
+                          icon={<MessageCircle size={16} color="#dc3f72" />}
+                          text={activeResponseId === index ? 'Close' : 'Reply'}
+                          color="#dc3f72"
+                        />
+                      </HStack>
+                      <Text color="rgba(255, 255, 255, 0.7)" fontSize={13}>
+                        {response.comment}
+                      </Text>
+                    </VStack>
+
+                    {/* Response Input for this specific response */}
+                    {activeResponseId === index && (
+                      <HStack
+                        space="sm"
+                        alignItems="center"
+                        backgroundColor="#270a39"
+                        padding={12}
+                        borderRadius={12}
+                        marginTop={8}>
+                        <Input
+                          flex={1}
+                          variant="rounded"
+                          size="md"
+                          backgroundColor="rgba(255, 255, 255, 0.1)"
+                          borderWidth={0}>
+                          <InputField
+                            key={inputKey}
+                            autoFocus={true}
+                            color="white"
+                            placeholder="Write your response..."
+                            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                            value={responseText}
+                            onChangeText={setResponseText}
+                            onSubmitEditing={handleSubmitResponse}
+                          />
+                        </Input>
+                        <Button
+                          variant="solid"
+                          backgroundColor={
+                            responseText.trim()
+                              ? '#dc3f72'
+                              : 'rgba(255, 255, 255, 0.1)'
+                          }
+                          borderRadius={20}
+                          onPress={handleSubmitResponse}
+                          disabled={!responseText.trim() || isSubmitting}
+                          padding={8}
+                          width={44}
+                          height={44}>
+                          {isSubmitting ? (
+                            <Spinner color="white" size="small" />
+                          ) : (
+                            <Send size={20} color="white" />
+                          )}
+                        </Button>
+                      </HStack>
+                    )}
                   </VStack>
                 ))
               )}
@@ -609,6 +708,7 @@ const CommentsScreen = ({route}) => {
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
   const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
+  const scrollViewRef = React.useRef(null);
 
   // This would normally come from an API, using sample data for now
   const movie = {
@@ -768,63 +868,83 @@ const CommentsScreen = ({route}) => {
     return filtered;
   }, [allComments, selectedRating, sortBy]);
 
+  const scrollToInput = (yOffset = 300) => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        y: yOffset,
+        animated: true,
+      });
+    }, 100);
+  };
+
   return (
-    <Box flex={1} backgroundColor="#040b1c">
-      <HStack
-        padding={16}
-        paddingTop={Platform.OS === 'ios' ? 60 : 20}
-        space="md"
-        alignItems="center"
-        backgroundColor="#270a39">
-        <Button
-          variant="link"
-          onPress={() => navigation.goBack()}
-          padding={0}
-          margin={0}>
-          <ButtonIcon as={ArrowLeft} color="white" />
-        </Button>
-        <Text color="white" fontSize={20} fontWeight="600">
-          Comments & Reviews
-        </Text>
-      </HStack>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+      <Box flex={1} backgroundColor="#040b1c">
+        <HStack
+          padding={16}
+          paddingTop={Platform.OS === 'ios' ? 60 : 20}
+          space="md"
+          alignItems="center"
+          backgroundColor="#270a39">
+          <Button
+            variant="link"
+            onPress={() => navigation.goBack()}
+            padding={0}
+            margin={0}>
+            <ButtonIcon as={ArrowLeft} color="white" />
+          </Button>
+          <Text color="white" fontSize={20} fontWeight="600">
+            Comments & Reviews
+          </Text>
+        </HStack>
 
-      {isLoading && <LoadingIndicator />}
+        {isLoading && <LoadingIndicator />}
 
-      <ScrollView
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 20}}>
-        <MovieHeader movie={movie} />
-        <FilterSection
-          selectedRating={selectedRating}
-          setSelectedRating={setSelectedRating}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
+        <ScrollView
+          ref={scrollViewRef}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{paddingBottom: 20}}>
+          <MovieHeader movie={movie} />
+          <FilterSection
+            selectedRating={selectedRating}
+            setSelectedRating={setSelectedRating}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+          />
 
-        {isInitialLoading ? (
-          <InitialLoadingState />
-        ) : (
-          <VStack space="sm">
-            {filteredAndSortedComments.map(comment => (
-              <React.Fragment key={comment.id}>
-                <CommentItem {...comment} initialLikes={comment.likes} />
-                <Divider bg="rgba(255, 255, 255, 0.1)" />
-              </React.Fragment>
-            ))}
-            {!hasMore && <EndMessage />}
-            {isLoading && (
-              <Box padding={16} alignItems="center">
-                <Spinner color="#dc3f72" size="small" />
-              </Box>
-            )}
-          </VStack>
-        )}
-      </ScrollView>
-    </Box>
+          {isInitialLoading ? (
+            <InitialLoadingState />
+          ) : (
+            <VStack space="sm">
+              {filteredAndSortedComments.map(comment => (
+                <React.Fragment key={comment.id}>
+                  <CommentItem
+                    {...comment}
+                    initialLikes={comment.likes}
+                    scrollToInput={scrollToInput}
+                  />
+                  <Divider bg="rgba(255, 255, 255, 0.1)" />
+                </React.Fragment>
+              ))}
+              {!hasMore && <EndMessage />}
+              {isLoading && (
+                <Box padding={16} alignItems="center">
+                  <Spinner color="#dc3f72" size="small" />
+                </Box>
+              )}
+            </VStack>
+          )}
+        </ScrollView>
+      </Box>
+    </KeyboardAvoidingView>
   );
 };
 
