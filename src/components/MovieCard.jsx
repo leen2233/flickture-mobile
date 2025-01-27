@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Box,
   Icon,
@@ -12,9 +12,12 @@ import {
 } from '@gluestack-ui/themed';
 import {Check, X} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
+import ImagePlaceholder from './ImagePlaceholder';
+import {StyleSheet} from 'react-native';
 
 const MovieCard = ({movie, listType, onUpdateStatus}) => {
   const navigation = useNavigation();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const renderStatusButtons = () => {
     switch (listType) {
@@ -81,13 +84,18 @@ const MovieCard = ({movie, listType, onUpdateStatus}) => {
         borderRadius={12}
         marginBottom={12}>
         <HStack space="md">
-          <Image
-            source={{uri: movie.poster}}
-            alt={movie.title}
-            width={80}
-            height={120}
-            borderRadius={8}
-          />
+          <Box width={80} height={120}>
+            {!imageLoaded && <ImagePlaceholder width={80} height={120} />}
+            <Image
+              source={{uri: movie.poster}}
+              alt={movie.title}
+              width={80}
+              height={120}
+              borderRadius={8}
+              onLoad={() => setImageLoaded(true)}
+              style={[!imageLoaded && styles.hiddenImage]}
+            />
+          </Box>
           <VStack flex={1} justifyContent="space-between">
             <VStack space="xs">
               <Text color="white" fontSize={16} fontWeight="600">
@@ -114,4 +122,11 @@ const MovieCard = ({movie, listType, onUpdateStatus}) => {
   );
 };
 
-export default MovieCard; 
+const styles = StyleSheet.create({
+  hiddenImage: {
+    opacity: 0,
+    position: 'absolute',
+  },
+});
+
+export default MovieCard;

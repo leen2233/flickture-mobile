@@ -7,12 +7,12 @@ import {
   Text,
   FlatList,
   Image,
-  StyleSheet,
 } from '@gluestack-ui/themed';
 import {Search} from 'lucide-react-native';
 import sampleData from '../data/sample.json';
 import MovieCard from '../components/MovieCard';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import {StyleSheet} from 'react-native';
 
 const MovieListScreen = ({route}) => {
   const {listType} = route.params;
@@ -108,24 +108,19 @@ const MovieListScreen = ({route}) => {
       <FlatList
         data={filteredMovies}
         renderItem={({item}) => (
-          <Box marginBottom={12}>
-            <Box width={100} height={150}>
-              {!loadedImages[item.id] && <ImagePlaceholder width={100} height={150} />}
-              <Image
-                source={{uri: item.poster}}
-                alt={item.title}
-                width={100}
-                height={150}
-                borderRadius={12}
-                onLoad={() => setLoadedImages(prev => ({...prev, [item.id]: true}))}
-                style={[!loadedImages[item.id] && styles.hiddenImage]}
+          <Box
+            flexDirection="row"
+            marginBottom={16}
+            backgroundColor="#270a39"
+            borderRadius={12}
+            padding={8}>
+            <Box flex={1}>
+              <MovieCard
+                movie={item}
+                listType={listType}
+                onUpdateStatus={handleUpdateStatus}
               />
             </Box>
-            <MovieCard
-              movie={item}
-              listType={listType}
-              onUpdateStatus={handleUpdateStatus}
-            />
           </Box>
         )}
         keyExtractor={item => item.id.toString()}

@@ -519,7 +519,10 @@ const MovieDetailScreen = ({route}) => {
             <Image
               source={{uri: movieData.backdrop || movieData.poster}}
               alt={movieData.title}
-              style={[styles.backdropImage, !isBackdropLoaded && styles.hiddenImage]}
+              style={[
+                styles.backdropImage,
+                !isBackdropLoaded && styles.hiddenImage,
+              ]}
               onLoad={() => setIsBackdropLoaded(true)}
             />
           </TouchableOpacity>

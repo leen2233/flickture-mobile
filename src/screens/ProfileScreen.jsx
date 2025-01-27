@@ -161,8 +161,8 @@ const ProfileScreen = () => {
     });
   };
 
-  const navigateToList = (listId, listName) => {
-    navigation.navigate('ListDetails', {listId, listName});
+  const navigateToList = listType => {
+    navigation.navigate('MovieList', {listType});
   };
 
   return (
