@@ -17,6 +17,7 @@ import {
 import {ArrowLeft, Search, Star} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Platform, StyleSheet, Dimensions} from 'react-native';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_SPACING = 12;
@@ -25,6 +26,7 @@ const ITEM_WIDTH =
   (SCREEN_WIDTH - (32 + GRID_SPACING * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
 
 const MovieCard = ({movie}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const navigation = useNavigation();
 
   return (
@@ -32,13 +34,20 @@ const MovieCard = ({movie}) => {
       onPress={() => navigation.navigate('MovieDetail', {movie})}
       width={ITEM_WIDTH}>
       <VStack space="sm">
-        <Image
-          source={{uri: movie.poster}}
-          alt={movie.title}
-          width={ITEM_WIDTH}
-          height={ITEM_WIDTH * 1.5}
-          borderRadius={12}
-        />
+        <Box width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5}>
+          {!isImageLoaded && (
+            <ImagePlaceholder width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5} />
+          )}
+          <Image
+            source={{uri: movie.poster}}
+            alt={movie.title}
+            width={ITEM_WIDTH}
+            height={ITEM_WIDTH * 1.5}
+            borderRadius={12}
+            onLoad={() => setIsImageLoaded(true)}
+            style={[!isImageLoaded && styles.hiddenImage]}
+          />
+        </Box>
         <VStack space="xs">
           <Text color="white" fontSize={14} fontWeight="600" numberOfLines={1}>
             {movie.title}
@@ -197,3 +206,9 @@ const ArtistMoviesScreen = ({route}) => {
 };
 
 export default ArtistMoviesScreen;
+
+const styles = StyleSheet.create({
+  hiddenImage: {
+    opacity: 0,
+  },
+});

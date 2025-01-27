@@ -21,63 +21,71 @@ import {
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
+import ImagePlaceholder from '../components/ImagePlaceholder';
+import {StyleSheet} from 'react-native';
 
 // List item with hover effect and modern styling
-const ListItem = ({list, onPress}) => (
-  <Pressable
-    onPress={onPress}
-    style={({pressed}) => [
-      {
-        transform: [{scale: pressed ? 0.98 : 1}],
-        opacity: pressed ? 0.9 : 1,
-      },
-    ]}>
-    <HStack space="md" alignItems="center" marginBottom={16}>
-      <Box width={80} height={80} borderRadius={12} overflow="hidden">
-        <Image
-          source={{uri: list.thumbnail}}
-          alt={list.name}
-          width="100%"
-          height="100%"
-          style={{opacity: 0.9}}
-        />
-        <Box
-          position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          height={40}
-          background="linear-gradient(transparent, rgba(0,0,0,0.8))"
-        />
-      </Box>
-      <VStack flex={1} space="xs">
-        <Text color="white" fontSize={16} fontWeight="600">
-          {list.name}
-        </Text>
-        <Text
-          color="rgba(255, 255, 255, 0.7)"
-          fontSize={14}
-          numberOfLines={2}
-          ellipsizeMode="tail">
-          {list.description}
-        </Text>
-        <HStack space="sm" alignItems="center">
-          <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-            {list.moviesCount} movies
+const ListItem = ({list, onPress}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({pressed}) => [
+        {
+          transform: [{scale: pressed ? 0.98 : 1}],
+          opacity: pressed ? 0.9 : 1,
+        },
+      ]}>
+      <HStack space="md" alignItems="center" marginBottom={16}>
+        <Box width={80} height={80} borderRadius={12} overflow="hidden">
+          {!isImageLoaded && <ImagePlaceholder width={80} height={80} />}
+          <Image
+            source={{uri: list.thumbnail}}
+            alt={list.name}
+            width="100%"
+            height="100%"
+            style={[{opacity: 0.9}, !isImageLoaded && styles.hiddenImage]}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+          <Box
+            position="absolute"
+            bottom={0}
+            left={0}
+            right={0}
+            height={40}
+            background="linear-gradient(transparent, rgba(0,0,0,0.8))"
+          />
+        </Box>
+        <VStack flex={1} space="xs">
+          <Text color="white" fontSize={16} fontWeight="600">
+            {list.name}
           </Text>
-          <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-            • by {list.creator}
+          <Text
+            color="rgba(255, 255, 255, 0.7)"
+            fontSize={14}
+            numberOfLines={2}
+            ellipsizeMode="tail">
+            {list.description}
           </Text>
-          {list.likes && (
+          <HStack space="sm" alignItems="center">
             <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-              • {list.likes.toLocaleString()} likes
+              {list.moviesCount} movies
             </Text>
-          )}
-        </HStack>
-      </VStack>
-    </HStack>
-  </Pressable>
-);
+            <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+              • by {list.creator}
+            </Text>
+            {list.likes && (
+              <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+                • {list.likes.toLocaleString()} likes
+              </Text>
+            )}
+          </HStack>
+        </VStack>
+      </HStack>
+    </Pressable>
+  );
+};
 
 // Section header component
 const SectionHeader = ({title, action}) => (
@@ -421,3 +429,9 @@ const ListsScreen = () => {
 };
 
 export default ListsScreen;
+
+const styles = StyleSheet.create({
+  hiddenImage: {
+    opacity: 0,
+  },
+});

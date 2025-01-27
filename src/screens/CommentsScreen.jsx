@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Box,
   ScrollView,
@@ -35,6 +35,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
 } from 'react-native';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const RatingStars = ({rating}) => (
   <HStack space="xs">
@@ -459,49 +460,55 @@ const CommentItem = ({
   );
 };
 
-const MovieHeader = ({movie}) => (
-  <VStack space="md" padding={16} backgroundColor="#270a39">
-    <HStack space="md">
-      <Image
-        source={{uri: movie.poster}}
-        alt={movie.title}
-        style={styles.poster}
-        borderRadius={12}
-      />
-      <VStack flex={1} space="xs">
-        <Text color="white" fontSize={20} fontWeight="600">
-          {movie.title}
-        </Text>
-        <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-          {movie.year}
-        </Text>
-        <HStack space="md" alignItems="center">
-          <HStack space="xs" alignItems="center">
-            <Star size={16} color="#dc3f72" fill="#dc3f72" />
-            <Text color="white" fontSize={14}>
-              {movie.rating}
-            </Text>
+const MovieHeader = ({movie}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  return (
+    <VStack space="md" padding={16} backgroundColor="#270a39">
+      <HStack space="md">
+        <Box width={100} height={150}>
+          {!isImageLoaded && <ImagePlaceholder width={100} height={150} />}
+          <Image
+            source={{uri: movie.poster}}
+            alt={movie.title}
+            style={[styles.poster, !isImageLoaded && styles.hiddenImage]}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+        </Box>
+        <VStack flex={1} space="xs">
+          <Text color="white" fontSize={20} fontWeight="600">
+            {movie.title}
+          </Text>
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+            {movie.year}
+          </Text>
+          <HStack space="md" alignItems="center">
+            <HStack space="xs" alignItems="center">
+              <Star size={16} color="#dc3f72" fill="#dc3f72" />
+              <Text color="white" fontSize={14}>
+                {movie.rating}
+              </Text>
+            </HStack>
+            <HStack space="xs" alignItems="center">
+              <Clock size={16} color="rgba(255, 255, 255, 0.7)" />
+              <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                {movie.duration}
+              </Text>
+            </HStack>
+            <HStack space="xs" alignItems="center">
+              <MessageCircle size={16} color="rgba(255, 255, 255, 0.7)" />
+              <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                {movie.comments}
+              </Text>
+            </HStack>
           </HStack>
-          <HStack space="xs" alignItems="center">
-            <Clock size={16} color="rgba(255, 255, 255, 0.7)" />
-            <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-              {movie.duration}
-            </Text>
-          </HStack>
-          <HStack space="xs" alignItems="center">
-            <MessageCircle size={16} color="rgba(255, 255, 255, 0.7)" />
-            <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-              {movie.comments}
-            </Text>
-          </HStack>
-        </HStack>
-      </VStack>
-    </HStack>
-    <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} numberOfLines={3}>
-      {movie.overview}
-    </Text>
-  </VStack>
-);
+        </VStack>
+      </HStack>
+      <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} numberOfLines={3}>
+        {movie.overview}
+      </Text>
+    </VStack>
+  );
+};
 
 const FilterSection = ({
   selectedRating,
@@ -952,6 +959,9 @@ const styles = StyleSheet.create({
   poster: {
     width: 100,
     height: 150,
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

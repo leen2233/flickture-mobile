@@ -37,42 +37,51 @@ import {
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useToast} from '../context/ToastContext';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
-const MovieItem = ({movie, onRemove}) => (
-  <Box
-    backgroundColor="#270a39"
-    borderRadius={12}
-    padding={12}
-    marginBottom={12}
-    borderWidth={1}
-    borderColor="rgba(255, 255, 255, 0.1)">
-    <HStack space="md" alignItems="center">
-      <Image
-        source={{uri: movie.poster}}
-        alt={movie.title}
-        width={60}
-        height={90}
-        borderRadius={8}
-      />
-      <VStack flex={1}>
-        <Text color="white" fontSize={16} fontWeight="600">
-          {movie.title}
-        </Text>
-        <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-          {movie.year}
-        </Text>
-      </VStack>
-      <TouchableOpacity onPress={() => onRemove(movie.id)}>
-        <Box
-          backgroundColor="rgba(244, 67, 54, 0.1)"
-          padding={8}
-          borderRadius={20}>
-          <X size={20} color="#f44336" />
+const MovieItem = ({movie, onRemove}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  return (
+    <Box
+      backgroundColor="#270a39"
+      borderRadius={12}
+      padding={12}
+      marginBottom={12}
+      borderWidth={1}
+      borderColor="rgba(255, 255, 255, 0.1)">
+      <HStack space="md" alignItems="center">
+        <Box width={60} height={90}>
+          {!isImageLoaded && <ImagePlaceholder width={60} height={90} />}
+          <Image
+            source={{uri: movie.poster}}
+            alt={movie.title}
+            width={60}
+            height={90}
+            borderRadius={8}
+            onLoad={() => setIsImageLoaded(true)}
+            style={[!isImageLoaded && styles.hiddenImage]}
+          />
         </Box>
-      </TouchableOpacity>
-    </HStack>
-  </Box>
-);
+        <VStack flex={1}>
+          <Text color="white" fontSize={16} fontWeight="600">
+            {movie.title}
+          </Text>
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+            {movie.year}
+          </Text>
+        </VStack>
+        <TouchableOpacity onPress={() => onRemove(movie.id)}>
+          <Box
+            backgroundColor="rgba(244, 67, 54, 0.1)"
+            padding={8}
+            borderRadius={20}>
+            <X size={20} color="#f44336" />
+          </Box>
+        </TouchableOpacity>
+      </HStack>
+    </Box>
+  );
+};
 
 const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -735,6 +744,9 @@ const styles = StyleSheet.create({
   },
   selectButtonTextDisabled: {
     color: 'rgba(255, 255, 255, 0.5)',
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

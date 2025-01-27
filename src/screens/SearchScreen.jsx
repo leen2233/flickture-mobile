@@ -14,6 +14,7 @@ import {
 import {Search, Clock, X, Image as ImageIcon} from 'lucide-react-native';
 import {Keyboard, ActivityIndicator, StyleSheet} from 'react-native';
 import sampleData from '../data/sample.json';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const genres = [
   {id: 1, name: 'Action', color: '#FF6B6B'},
@@ -76,19 +77,6 @@ const SearchSuggestions = ({
     </Box>
   );
 };
-
-// Update ImagePlaceholder component
-const ImagePlaceholder = ({width, height}) => (
-  <Box
-    width={width}
-    height={height}
-    backgroundColor="#270a39"
-    borderRadius="$lg"
-    justifyContent="center"
-    alignItems="center">
-    <ImageIcon size={24} color="rgba(255, 255, 255, 0.2)" />
-  </Box>
-);
 
 // Update SearchResults component to include loading state for images
 const SearchResults = ({results}) => {

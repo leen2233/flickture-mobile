@@ -31,6 +31,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import sampleData from '../data/sample.json';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -56,6 +57,7 @@ const TouchableItem = ({onPress, children, style}) => {
 };
 
 const MovieListItem = ({movie, onPress}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   // Randomly assign statuses for demo purposes
   const statuses = ['none', 'watchlist', 'watched'];
   const status = statuses[Math.floor(Math.random() * statuses.length)];
@@ -120,13 +122,18 @@ const MovieListItem = ({movie, onPress}) => {
           },
         ]}>
         <HStack space="md" padding={12}>
-          <Image
-            source={{uri: movie.poster}}
-            alt={movie.title}
-            width={100}
-            height={150}
-            borderRadius={12}
-          />
+          <Box width={100} height={150}>
+            {!isImageLoaded && <ImagePlaceholder width={100} height={150} />}
+            <Image
+              source={{uri: movie.poster}}
+              alt={movie.title}
+              width={100}
+              height={150}
+              borderRadius={12}
+              onLoad={() => setIsImageLoaded(true)}
+              style={[!isImageLoaded && styles.hiddenImage]}
+            />
+          </Box>
           <VStack flex={1} space="xs" justifyContent="space-between">
             <VStack space="xs">
               <Text color="white" fontSize={18} fontWeight="600">
@@ -479,6 +486,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#270a39',
     borderRadius: 12,
     marginBottom: 16,
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

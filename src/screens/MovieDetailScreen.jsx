@@ -43,6 +43,7 @@ import {
 } from 'react-native';
 import RatingModal from '../components/RatingModal';
 import {useToast} from '../context/ToastContext';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -81,6 +82,39 @@ const MetadataItem = ({icon, label, value, onPress}) => (
   </TouchableOpacity>
 );
 
+const CastMember = ({member}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const navigation = useNavigation();
+
+  return (
+    <Pressable
+      onPress={() =>
+        navigation.navigate('ArtistDetailScreen', {
+          artistId: member.name.toLowerCase().replace(/\s+/g, '-'),
+        })
+      }
+      style={{width: 100, marginRight: 12}}>
+      <Box width={100} height={150}>
+        {!isImageLoaded && <ImagePlaceholder width={100} height={150} />}
+        <Image
+          source={{uri: member.image}}
+          alt={member.name}
+          style={[styles.castImage, !isImageLoaded && styles.hiddenImage]}
+          onLoad={() => setIsImageLoaded(true)}
+        />
+      </Box>
+      <VStack space="xs" mt="$2">
+        <Text color="white" fontSize={14} fontWeight="600" numberOfLines={2}>
+          {member.name}
+        </Text>
+        <Text color="rgba(255, 255, 255, 0.7)" fontSize={12} numberOfLines={2}>
+          {member.character}
+        </Text>
+      </VStack>
+    </Pressable>
+  );
+};
+
 const CastList = ({cast, director, crew}) => {
   const navigation = useNavigation();
   const displayCast = cast.slice(0, 8);
@@ -114,43 +148,7 @@ const CastList = ({cast, director, crew}) => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingVertical={8}>
           {displayCast.map((actor, index) => (
-            <Pressable key={index} onPress={() => handleArtistPress(actor)}>
-              <VStack alignItems="center" space="sm" width={100}>
-                <Box
-                  width={100}
-                  height={150}
-                  borderRadius={12}
-                  overflow="hidden"
-                  backgroundColor="#270a39">
-                  <Image
-                    source={{uri: actor.image}}
-                    alt={actor.name}
-                    width={100}
-                    height={150}
-                    style={styles.castImage}
-                  />
-                </Box>
-                <VStack alignItems="center" space="xs">
-                  <Text
-                    color="white"
-                    fontSize={14}
-                    fontWeight="600"
-                    textAlign="center"
-                    numberOfLines={1}
-                    width={100}>
-                    {actor.name}
-                  </Text>
-                  <Text
-                    color="rgba(255, 255, 255, 0.7)"
-                    fontSize={12}
-                    textAlign="center"
-                    numberOfLines={1}
-                    width={100}>
-                    {actor.character}
-                  </Text>
-                </VStack>
-              </VStack>
-            </Pressable>
+            <CastMember key={index} member={actor} />
           ))}
         </HStack>
       </ScrollView>
@@ -412,6 +410,7 @@ const MovieDetailScreen = ({route}) => {
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [modalImage, setModalImage] = useState(null);
   const {showError} = useToast();
+  const [isBackdropLoaded, setIsBackdropLoaded] = useState(false);
 
   useEffect(() => {
     const loadMovieData = async () => {
@@ -510,7 +509,8 @@ const MovieDetailScreen = ({route}) => {
 
       <ScrollView flex={1} backgroundColor="#040b1c">
         {/* Backdrop Image */}
-        <Box height={250} width="100%">
+        <Box height={300}>
+          {!isBackdropLoaded && <ImagePlaceholder width="100%" height={300} />}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() =>
@@ -519,7 +519,8 @@ const MovieDetailScreen = ({route}) => {
             <Image
               source={{uri: movieData.backdrop || movieData.poster}}
               alt={movieData.title}
-              style={styles.backdropImage}
+              style={[styles.backdropImage, !isBackdropLoaded && styles.hiddenImage]}
+              onLoad={() => setIsBackdropLoaded(true)}
             />
           </TouchableOpacity>
           <Box
@@ -857,6 +858,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 28,
     fontWeight: 'bold',
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

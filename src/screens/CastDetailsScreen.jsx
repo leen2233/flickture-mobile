@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Box,
   ScrollView,
@@ -18,6 +18,7 @@ import {
 import {ArrowLeft, Search, User2} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Platform, StyleSheet, Dimensions, Animated} from 'react-native';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_SPACING = 12;
@@ -26,6 +27,7 @@ const ITEM_WIDTH =
   (SCREEN_WIDTH - (32 + GRID_SPACING * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
 
 const ArtistCard = ({artist, role, department}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const navigation = useNavigation();
 
   return (
@@ -41,13 +43,17 @@ const ArtistCard = ({artist, role, department}) => {
           borderRadius={12}
           overflow="hidden"
           backgroundColor="#270a39">
+          {!isImageLoaded && (
+            <ImagePlaceholder width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5} />
+          )}
           {artist.image ? (
             <Image
               source={{uri: artist.image}}
               alt={artist.name}
               width={ITEM_WIDTH}
               height={ITEM_WIDTH * 1.5}
-              style={styles.artistImage}
+              onLoad={() => setIsImageLoaded(true)}
+              style={[styles.artistImage, !isImageLoaded && styles.hiddenImage]}
             />
           ) : (
             <Box
@@ -366,6 +372,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

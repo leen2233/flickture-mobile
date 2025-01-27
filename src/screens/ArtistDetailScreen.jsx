@@ -42,6 +42,7 @@ import sampleData from '../data/sample.json';
 import ArtistHeader from '../components/ArtistHeader';
 import ArtistStats from '../components/ArtistStats';
 import ArtistPersonalInfo from '../components/ArtistPersonalInfo';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const StatItem = ({icon, label, value}) => (
   <VStack alignItems="center" space="xs" flex={1}>
@@ -164,6 +165,41 @@ const ArtistDetailSkeleton = () => (
     </VStack>
   </Box>
 );
+
+const MovieCard = ({movie}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  return (
+    <Pressable
+      key={movie.id}
+      onPress={() => navigation.navigate('MovieDetail', {movie})}
+      style={styles.movieCard}>
+      <Box width="100%" height={200}>
+        {!isImageLoaded && <ImagePlaceholder width="100%" height={200} />}
+        <Image
+          source={{uri: movie.poster}}
+          alt={movie.title}
+          style={[styles.moviePoster, !isImageLoaded && styles.hiddenImage]}
+          onLoad={() => setIsImageLoaded(true)}
+        />
+      </Box>
+      <VStack space="xs" padding={8}>
+        <Text color="white" fontSize={14} fontWeight="600" numberOfLines={1}>
+          {movie.title}
+        </Text>
+        <HStack space="xs" alignItems="center">
+          <Star size={12} color="#dc3f72" />
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+            {movie.rating}
+          </Text>
+          <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+            • {movie.year}
+          </Text>
+        </HStack>
+      </VStack>
+    </Pressable>
+  );
+};
 
 const ArtistDetailScreen = ({route}) => {
   const navigation = useNavigation();
@@ -370,34 +406,7 @@ const ArtistDetailScreen = ({route}) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.knownForContainer}>
                 {artist.knownFor.map(movie => (
-                  <Pressable
-                    key={movie.id}
-                    onPress={() => navigation.navigate('MovieDetail', {movie})}
-                    style={styles.movieCard}>
-                    <Image
-                      source={{uri: movie.poster}}
-                      alt={movie.title}
-                      style={styles.moviePoster}
-                    />
-                    <VStack space="xs" padding={8}>
-                      <Text
-                        color="white"
-                        fontSize={14}
-                        fontWeight="600"
-                        numberOfLines={1}>
-                        {movie.title}
-                      </Text>
-                      <HStack space="xs" alignItems="center">
-                        <Star size={12} color="#dc3f72" />
-                        <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                          {movie.rating}
-                        </Text>
-                        <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                          • {movie.year}
-                        </Text>
-                      </HStack>
-                    </VStack>
-                  </Pressable>
+                  <MovieCard key={movie.id} movie={movie} />
                 ))}
               </ScrollView>
             </VStack>
@@ -457,6 +466,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 28,
     fontWeight: 'bold',
+  },
+  hiddenImage: {
+    opacity: 0,
   },
 });
 

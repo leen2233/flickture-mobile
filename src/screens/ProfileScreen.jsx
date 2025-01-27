@@ -1,8 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Box,
-  Button,
-  ButtonText,
   Center,
   HStack,
   VStack,
@@ -10,23 +8,14 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Input,
-  InputField,
-  InputIcon,
-  InputSlot,
 } from '@gluestack-ui/themed';
-import {
-  Modal,
-  View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  FlatList,
-} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, FlatList} from 'react-native';
 import {Edit2, ChevronRight, Settings, Search, Plus} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 import MovieListModal from '../components/MovieListModal';
 import UserListModal from '../components/UserListModal';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const StatBox = ({label, value, onPress}) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{flex: 1}}>
@@ -64,28 +53,39 @@ const MovieList = ({title, count, movies, onSeeAll}) => {
       </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingBottom={8}>
-          {movies.map(movie => (
-            <Pressable
-              key={movie.id}
-              onPress={() => navigation.navigate('MovieDetail', {movie})}>
-              <VStack space="sm" width={120}>
-                <Image
-                  source={{uri: movie.poster}}
-                  alt={movie.title}
-                  width={120}
-                  height={180}
-                  borderRadius={12}
-                />
-                <Text
-                  color="white"
-                  fontSize={14}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {movie.title}
-                </Text>
-              </VStack>
-            </Pressable>
-          ))}
+          {movies.map(movie => {
+            const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+            return (
+              <Pressable
+                key={movie.id}
+                onPress={() => navigation.navigate('MovieDetail', {movie})}>
+                <VStack space="sm" width={120}>
+                  <Box width={120} height={180}>
+                    {!isImageLoaded && (
+                      <ImagePlaceholder width={120} height={180} />
+                    )}
+                    <Image
+                      source={{uri: movie.poster}}
+                      alt={movie.title}
+                      width={120}
+                      height={180}
+                      borderRadius={12}
+                      onLoad={() => setIsImageLoaded(true)}
+                      style={[!isImageLoaded && styles.hiddenImage]}
+                    />
+                  </Box>
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {movie.title}
+                  </Text>
+                </VStack>
+              </Pressable>
+            );
+          })}
         </HStack>
       </ScrollView>
     </Box>
@@ -330,3 +330,9 @@ const ProfileScreen = () => {
 };
 
 export default ProfileScreen;
+
+const styles = StyleSheet.create({
+  hiddenImage: {
+    opacity: 0,
+  },
+});

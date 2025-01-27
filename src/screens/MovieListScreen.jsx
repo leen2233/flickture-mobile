@@ -6,16 +6,20 @@ import {
   Icon,
   Text,
   FlatList,
+  Image,
+  StyleSheet,
 } from '@gluestack-ui/themed';
 import {Search} from 'lucide-react-native';
 import sampleData from '../data/sample.json';
 import MovieCard from '../components/MovieCard';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const MovieListScreen = ({route}) => {
   const {listType} = route.params;
   const [searchQuery, setSearchQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
+  const [loadedImages, setLoadedImages] = useState({});
 
   useEffect(() => {
     // Get the appropriate movie list based on listType
@@ -104,11 +108,25 @@ const MovieListScreen = ({route}) => {
       <FlatList
         data={filteredMovies}
         renderItem={({item}) => (
-          <MovieCard
-            movie={item}
-            listType={listType}
-            onUpdateStatus={handleUpdateStatus}
-          />
+          <Box marginBottom={12}>
+            <Box width={100} height={150}>
+              {!loadedImages[item.id] && <ImagePlaceholder width={100} height={150} />}
+              <Image
+                source={{uri: item.poster}}
+                alt={item.title}
+                width={100}
+                height={150}
+                borderRadius={12}
+                onLoad={() => setLoadedImages(prev => ({...prev, [item.id]: true}))}
+                style={[!loadedImages[item.id] && styles.hiddenImage]}
+              />
+            </Box>
+            <MovieCard
+              movie={item}
+              listType={listType}
+              onUpdateStatus={handleUpdateStatus}
+            />
+          </Box>
         )}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
@@ -116,5 +134,11 @@ const MovieListScreen = ({route}) => {
     </Box>
   );
 };
+
+const styles = StyleSheet.create({
+  hiddenImage: {
+    opacity: 0,
+  },
+});
 
 export default MovieListScreen;
