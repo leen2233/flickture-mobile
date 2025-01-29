@@ -5,6 +5,7 @@ import {Home, Search, User, List} from 'lucide-react-native';
 import ProfileScreen from './ProfileScreen';
 import SearchScreen from './SearchScreen';
 import ListsScreen from './ListsScreen';
+import MainHomeScreen from './MainHomeScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,7 +33,7 @@ const HomeScreen = () => {
       }}>
       <Tab.Screen
         name="HomeTab"
-        component={HomeTab}
+        component={MainHomeScreen}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({color}) => <Icon as={Home} color={color} size="lg" />,
