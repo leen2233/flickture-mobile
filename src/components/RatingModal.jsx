@@ -21,6 +21,10 @@ const RatingModal = ({visible, onClose, onSubmit}) => {
     onClose();
   };
 
+  const handleSkip = () => {
+    onClose();
+  };
+
   return (
     <Modal
       visible={visible}
@@ -30,6 +34,9 @@ const RatingModal = ({visible, onClose, onSubmit}) => {
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>Rate this movie</Text>
+          <Text style={styles.subtitle}>
+            Rating is optional, you can skip it
+          </Text>
 
           {/* Star Rating */}
           <View style={styles.starsContainer}>
@@ -52,7 +59,7 @@ const RatingModal = ({visible, onClose, onSubmit}) => {
           {/* Comment Input */}
           <TextInput
             style={styles.commentInput}
-            placeholder="Write your thoughts about the movie..."
+            placeholder="Write your thoughts about the movie... (optional)"
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={comment}
             onChangeText={setComment}
@@ -65,7 +72,16 @@ const RatingModal = ({visible, onClose, onSubmit}) => {
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={onClose}>
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.skipButton]}
+              onPress={handleSkip}>
+              <Text style={[styles.buttonText, styles.skipButtonText]}>
+                Skip Rating
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.submitButton]}
@@ -97,6 +113,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -131,6 +153,11 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  skipButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
     borderColor: '#dc3f72',
   },
   submitButton: {
@@ -140,6 +167,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  cancelButtonText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  skipButtonText: {
+    color: '#dc3f72',
   },
 });
 

@@ -45,6 +45,8 @@ import RatingModal from '../components/RatingModal';
 import {useToast} from '../context/ToastContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import {getMovieDetails} from '../lib/api';
+import {useAuth} from '../context/AuthContext';
+import api from '../lib/api';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -407,16 +409,16 @@ const MovieDetailSkeleton = () => (
 
 const MovieDetailScreen = ({route}) => {
   const navigation = useNavigation();
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [isWatched, setIsWatched] = useState(false);
   const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [movieData, setMovieData] = useState(null);
-  const [isInFavorites, setIsInFavorites] = useState(false);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [modalImage, setModalImage] = useState(null);
-  const {showError} = useToast();
   const [isBackdropLoaded, setIsBackdropLoaded] = useState(false);
+  const [isLoadingWatchlist, setIsLoadingWatchlist] = useState(false);
+  const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+  const {user, showError} = useAuth();
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
 
   useEffect(() => {
     const loadMovieData = async () => {
@@ -446,9 +448,6 @@ const MovieDetailScreen = ({route}) => {
         }
         console.log('Movie data:', movie);
         setMovieData(movie);
-        setIsInFavorites(movieDetails.is_favorite);
-        setIsInWatchlist(movieDetails.watchlist_status === 'watchlist');
-        setIsWatched(movieDetails.watchlist_status === 'watched');
       } catch (error) {
         showError('Failed to load movie details. Please try again later.');
         console.error('Error loading movie:', error);
@@ -460,31 +459,249 @@ const MovieDetailScreen = ({route}) => {
     loadMovieData();
   }, [route.params, showError]);
 
-  const handleWatchlistToggle = () => {
-    setIsInWatchlist(!isInWatchlist);
-    if (isWatched) setIsWatched(false);
-  };
+  const handleWatchlistToggle = async () => {
+    console.log('[MovieDetail] Attempting watchlist toggle');
+    if (isLoadingWatchlist) {
+      console.log(
+        '[MovieDetail] Watchlist action in progress, ignoring request',
+      );
+      return;
+    }
 
-  const handleWatchedToggle = () => {
-    if (!isWatched) {
-      setIsRatingModalVisible(true);
-    } else {
-      setIsWatched(false);
+    if (!user) {
+      console.log('[MovieDetail] No user found, showing auth popup');
+      setShowAuthPopup(true);
+      return;
+    }
+
+    try {
+      setIsLoadingWatchlist(true);
+      console.log(
+        '[MovieDetail] Current watchlist status:',
+        movieData.watchlist_status,
+      );
+
+      if (!movieData.watchlist_status) {
+        console.log('[MovieDetail] Adding to watchlist:', {
+          tmdb_id: route.params.tmdbId,
+          type: movieData.type,
+          status: 'watchlist',
+        });
+
+        const response = await api.post('/watchlist/', {
+          tmdb_id: route.params.tmdbId,
+          type: movieData.type,
+          status: 'watchlist',
+        });
+        console.log('[MovieDetail] Add to watchlist response:', response.data);
+
+        setMovieData(prev => ({...prev, watchlist_status: 'watchlist'}));
+      } else {
+        console.log('[MovieDetail] Removing from watchlist:', {
+          type: movieData.type,
+          tmdbId: route.params.tmdbId,
+        });
+
+        const response = await api.delete(
+          `/watchlist/${movieData.type}/${route.params.tmdbId}/`,
+        );
+        console.log(
+          '[MovieDetail] Remove from watchlist response:',
+          response.data,
+        );
+
+        setMovieData(prev => ({...prev, watchlist_status: null}));
+      }
+    } catch (error) {
+      console.error('[MovieDetail] Watchlist error:', error);
+      console.error('[MovieDetail] Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      showError(error.response?.data?.message || 'Failed to update watchlist');
+    } finally {
+      setIsLoadingWatchlist(false);
     }
   };
 
-  const handleFavoriteToggle = () => {
-    setIsInFavorites(!isInFavorites);
+  const handleWatchedToggle = async () => {
+    console.log('[MovieDetail] Attempting watched toggle');
+    if (isLoadingWatchlist) {
+      console.log(
+        '[MovieDetail] Watchlist action in progress, ignoring request',
+      );
+      return;
+    }
+
+    if (!user) {
+      console.log('[MovieDetail] No user found, showing auth popup');
+      setShowAuthPopup(true);
+      return;
+    }
+
+    if (movieData.watchlist_status !== 'watched') {
+      try {
+        setIsLoadingWatchlist(true);
+        console.log('[MovieDetail] Marking as watched:', {
+          type: movieData.type,
+          tmdbId: route.params.tmdbId,
+          status: 'watched',
+        });
+
+        const response = await api.patch(
+          `/watchlist/${movieData.type}/${route.params.tmdbId}/`,
+          {
+            status: 'watched',
+          },
+        );
+        console.log('[MovieDetail] Mark as watched response:', response.data);
+
+        setMovieData(prev => ({...prev, watchlist_status: 'watched'}));
+        setIsRatingModalVisible(true);
+      } catch (error) {
+        console.error('[MovieDetail] Watched status error:', error);
+        console.error('[MovieDetail] Error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        });
+        showError(
+          error.response?.data?.message || 'Failed to update watched status',
+        );
+      } finally {
+        setIsLoadingWatchlist(false);
+      }
+    } else {
+      try {
+        setIsLoadingWatchlist(true);
+        console.log('[MovieDetail] Removing watched status:', {
+          type: movieData.type,
+          tmdbId: route.params.tmdbId,
+        });
+
+        const response = await api.delete(
+          `/watchlist/${movieData.type}/${route.params.tmdbId}/`,
+        );
+        console.log(
+          '[MovieDetail] Remove watched status response:',
+          response.data,
+        );
+
+        setMovieData(prev => ({...prev, watchlist_status: null}));
+      } catch (error) {
+        console.error('[MovieDetail] Watched status error:', error);
+        console.error('[MovieDetail] Error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        });
+        showError(
+          error.response?.data?.message || 'Failed to update watched status',
+        );
+      } finally {
+        setIsLoadingWatchlist(false);
+      }
+    }
   };
 
-  const handleRemoveFromWatchlist = () => {
-    setIsInWatchlist(false);
+  const handleFavoriteToggle = async () => {
+    console.log('[MovieDetail] Attempting favorite toggle');
+    if (isLoadingFavorite) {
+      console.log(
+        '[MovieDetail] Favorite action in progress, ignoring request',
+      );
+      return;
+    }
+
+    if (!user) {
+      console.log('[MovieDetail] No user found, showing auth popup');
+      setShowAuthPopup(true);
+      return;
+    }
+
+    try {
+      setIsLoadingFavorite(true);
+      console.log(
+        '[MovieDetail] Current favorite status:',
+        movieData.is_favorite,
+      );
+
+      if (!movieData.is_favorite) {
+        console.log('[MovieDetail] Adding to favorites:', {
+          tmdb_id: route.params.tmdbId,
+          type: movieData.type,
+        });
+
+        const response = await api.post('/favorites/', {
+          tmdb_id: route.params.tmdbId,
+          type: movieData.type,
+        });
+        console.log('[MovieDetail] Add to favorites response:', response.data);
+
+        setMovieData(prev => ({...prev, is_favorite: true}));
+      } else {
+        console.log('[MovieDetail] Removing from favorites:', {
+          type: movieData.type,
+          tmdbId: route.params.tmdbId,
+        });
+
+        const response = await api.delete(
+          `/favorites/${movieData.type}/${route.params.tmdbId}/`,
+        );
+        console.log(
+          '[MovieDetail] Remove from favorites response:',
+          response.data,
+        );
+
+        setMovieData(prev => ({...prev, is_favorite: false}));
+      }
+    } catch (error) {
+      console.error('[MovieDetail] Favorite toggle error:', error);
+      console.error('[MovieDetail] Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      showError(error.response?.data?.message || 'Failed to toggle favorite');
+    } finally {
+      setIsLoadingFavorite(false);
+    }
   };
 
-  const handleRatingSubmit = ({rating, comment}) => {
-    console.log('Rating:', rating, 'Comment:', comment);
-    setIsWatched(true);
-    if (!isInWatchlist) setIsInWatchlist(true);
+  const handleRemoveFromWatchlist = async () => {};
+
+  const handleRatingSubmit = async ({rating, comment}) => {
+    console.log('[MovieDetail] Submitting rating:', {
+      movieId: movieData.id,
+      tmdbId: route.params.tmdbId,
+      rating,
+      comment,
+    });
+
+    try {
+      console.log('[MovieDetail] Sending rating request');
+      const response = await api.post(`/ratings/`, {
+        tmdb_id: route.params.tmdbId,
+        type: movieData.type,
+        rating: rating,
+        comment: comment,
+      });
+      console.log('[MovieDetail] Rating submission response:', response.data);
+
+      setMovieData(prev => ({
+        ...prev,
+        watchlist_status: 'watched',
+      }));
+    } catch (error) {
+      console.error('[MovieDetail] Rating submission error:', error);
+      console.error('[MovieDetail] Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      showError(error.response?.data?.message || 'Failed to submit rating');
+    }
   };
 
   const handleImagePress = imageUrl => {
@@ -508,12 +725,12 @@ const MovieDetailScreen = ({route}) => {
           style={styles.modalContainer}
           activeOpacity={1}
           onPress={() => setIsImageModalVisible(false)}>
-          {/* <Image
+          <Image
             source={{uri: modalImage}}
             alt="Full screen image"
             style={styles.fullScreenImage}
             resizeMode="contain"
-          /> */}
+          />
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsImageModalVisible(false)}>
@@ -694,33 +911,44 @@ const MovieDetailScreen = ({route}) => {
           {/* Action Buttons */}
           <VStack space="md" marginBottom={24}>
             <HStack space="md">
-              {!isWatched ? (
-                <>
-                  {!isInWatchlist ? (
-                    <TouchableItem
-                      style={styles.actionButton}
-                      onPress={handleWatchlistToggle}>
-                      <HStack space="sm" alignItems="center" padding={12}>
-                        <BookmarkPlus size={20} color="#dc3f72" />
-                        <Text color="#dc3f72">Add to Watchlist</Text>
-                      </HStack>
-                    </TouchableItem>
-                  ) : (
-                    <TouchableItem
-                      style={[styles.actionButton, styles.activeButton]}
-                      onPress={handleWatchedToggle}>
-                      <HStack space="sm" alignItems="center" padding={12}>
-                        <Plus size={20} color="white" />
-                        <Text color="white">Mark as Watched</Text>
-                      </HStack>
-                    </TouchableItem>
-                  )}
-                </>
+              {movieData.watchlist_status === null ? (
+                <TouchableItem
+                  style={styles.actionButton}
+                  onPress={handleWatchlistToggle}>
+                  <HStack
+                    space="sm"
+                    alignItems="center"
+                    justifyContent="center"
+                    padding={12}
+                    flex={1}>
+                    <BookmarkPlus size={20} color="#dc3f72" />
+                    <Text color="#dc3f72">Add to Watchlist</Text>
+                  </HStack>
+                </TouchableItem>
+              ) : movieData.watchlist_status === 'watchlist' ? (
+                <TouchableItem
+                  style={[styles.actionButton, styles.activeButton]}
+                  onPress={handleWatchedToggle}>
+                  <HStack
+                    space="sm"
+                    alignItems="center"
+                    justifyContent="center"
+                    padding={12}
+                    flex={1}>
+                    <Plus size={20} color="white" />
+                    <Text color="white">Mark as Watched</Text>
+                  </HStack>
+                </TouchableItem>
               ) : (
                 <TouchableItem
                   style={[styles.actionButton, styles.activeButton]}
                   onPress={handleWatchedToggle}>
-                  <HStack space="sm" alignItems="center" padding={12}>
+                  <HStack
+                    space="sm"
+                    alignItems="center"
+                    justifyContent="center"
+                    padding={12}
+                    flex={1}>
                     <Check size={20} color="white" />
                     <Text color="white">Watched</Text>
                   </HStack>
@@ -733,17 +961,24 @@ const MovieDetailScreen = ({route}) => {
                 style={[
                   styles.actionButton,
                   styles.secondaryButton,
-                  isInFavorites && styles.activeButton,
+                  movieData.is_favorite && styles.activeButton,
                 ]}
                 onPress={handleFavoriteToggle}>
-                <HStack space="sm" alignItems="center" padding={12}>
+                <HStack
+                  space="sm"
+                  alignItems="center"
+                  justifyContent="center"
+                  padding={12}
+                  flex={1}>
                   <Heart
                     size={20}
-                    fill={isInFavorites ? 'white' : 'none'}
-                    color={isInFavorites ? 'white' : '#dc3f72'}
+                    fill={movieData.is_favorite ? 'white' : 'none'}
+                    color={movieData.is_favorite ? 'white' : '#dc3f72'}
                   />
-                  <Text color={isInFavorites ? 'white' : '#dc3f72'}>
-                    {isInFavorites ? 'In Favorites' : 'Add to Favorites'}
+                  <Text color={movieData.is_favorite ? 'white' : '#dc3f72'}>
+                    {movieData.is_favorite
+                      ? 'In Favorites'
+                      : 'Add to Favorites'}
                   </Text>
                 </HStack>
               </TouchableItem>
@@ -753,18 +988,27 @@ const MovieDetailScreen = ({route}) => {
                 onPress={() =>
                   navigation.navigate('AddToList', {movieId: movieData.id})
                 }>
-                <HStack space="sm" alignItems="center" padding={12}>
+                <HStack
+                  space="sm"
+                  alignItems="center"
+                  justifyContent="center"
+                  padding={12}
+                  flex={1}>
                   <ListPlus size={20} color="#dc3f72" />
                   <Text color="#dc3f72">Add to List</Text>
                 </HStack>
               </TouchableItem>
             </HStack>
 
-            {isInWatchlist && !isWatched && (
+            {movieData.watchlist_status === 'watchlist' && (
               <TouchableItem
                 style={[styles.actionButton, styles.dangerButton]}
                 onPress={handleRemoveFromWatchlist}>
-                <HStack space="sm" alignItems="center" padding={12}>
+                <HStack
+                  space="sm"
+                  alignItems="center"
+                  padding={12}
+                  justifyContent="center">
                   <Trash2 size={20} color="#f44336" />
                   <Text color="#f44336">Remove from Watchlist</Text>
                 </HStack>
@@ -831,6 +1075,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 12,
   },
   actionButton: {
     flex: 1,
