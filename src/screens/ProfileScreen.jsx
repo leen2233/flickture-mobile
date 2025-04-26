@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Box,
   Center,
@@ -140,7 +140,14 @@ const ProfileScreen = () => {
   const [followingState, setFollowingState] = React.useState(
     new Set(sampleData.user.following),
   );
-  const {user} = useAuth();
+  const {user, fetchUser} = useAuth();
+
+  useEffect(() => {
+    const updateUser = async () => {
+      await fetchUser();
+    };
+    updateUser();
+  }, []);
 
   const handleStatPress = (title, value, type) => {
     let data = [];

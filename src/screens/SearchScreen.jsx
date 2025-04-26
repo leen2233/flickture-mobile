@@ -11,23 +11,20 @@ import {
   HStack,
   Image,
 } from '@gluestack-ui/themed';
-import {Search, Clock, X, Image as ImageIcon} from 'lucide-react-native';
+import {
+  Search,
+  Clock,
+  X,
+  Image as ImageIcon,
+  Trophy,
+  Calendar,
+} from 'lucide-react-native';
 import {Keyboard, ActivityIndicator, StyleSheet} from 'react-native';
-import sampleData from '../data/sample.json';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import {Flame} from 'lucide-react-native';
+import api from '../lib/api';
+import {useNavigation} from '@react-navigation/native';
 
-const genres = [
-  {id: 1, name: 'Action', color: '#FF6B6B'},
-  {id: 2, name: 'Drama', color: '#4ECDC4'},
-  {id: 3, name: 'Science Fiction', color: '#45B7D1'},
-  {id: 4, name: 'Crime', color: '#96CEB4'},
-  {id: 5, name: 'Adventure', color: '#FF9999'},
-  {id: 6, name: 'War', color: '#9D50BB'},
-  {id: 7, name: 'History', color: '#FFB6C1'},
-  {id: 8, name: 'Thriller', color: '#87CEEB'},
-];
-
-// New component for search suggestions
 const SearchSuggestions = ({
   recentSearches,
   searchQuery,
@@ -78,87 +75,158 @@ const SearchSuggestions = ({
   );
 };
 
-// Update SearchResults component to include loading state for images
 const SearchResults = ({results}) => {
   const [loadedImages, setLoadedImages] = useState({});
+  const navigation = useNavigation();
 
   if (!results) return null;
 
-  const sections = [
-    {title: 'Movies', data: results.movies || []},
-    {title: 'TV Shows', data: results.tvShows || []},
-    {title: 'Persons', data: results.persons || []},
-  ];
-
   return (
     <VStack space="xl" py="$4">
-      {sections.map(
-        section =>
-          section.data.length > 0 && (
-            <Box key={section.title}>
-              <Text
-                color="#ffffff"
-                fontSize={20}
-                fontWeight="600"
-                mb="$3"
-                px="$4">
-                {section.title}
-              </Text>
-              <VStack space="sm">
-                {section.data.map(item => (
-                  <Pressable key={item.id} onPress={() => {}} px="$4" py="$2">
-                    <HStack space="md" alignItems="center">
-                      <Box width={60} height={90}>
-                        {!loadedImages[item.id] && (
-                          <ImagePlaceholder width={60} height={90} />
-                        )}
-                        <Image
-                          source={{uri: item.image}}
-                          alt={item.title || item.name}
-                          width={60}
-                          height={90}
-                          borderRadius="$md"
-                          onLoad={() =>
-                            setLoadedImages(prev => ({
-                              ...prev,
-                              [item.id]: true,
-                            }))
-                          }
-                          style={[
-                            styles.image,
-                            !loadedImages[item.id] && styles.hiddenImage,
-                          ]}
-                        />
-                      </Box>
-                      <VStack flex={1} space="xs">
-                        <Text
-                          color="#ffffff"
-                          fontSize={16}
-                          fontWeight="600"
-                          numberOfLines={1}>
-                          {item.title || item.name}
-                        </Text>
-                        <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                          {item.subtitle}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Pressable>
-                ))}
-              </VStack>
+      {results.map((item, index) => (
+        <Pressable
+          key={`${item.type}-${item.tmdb_id}`}
+          onPress={() => {
+            if (item.type === 'movie' || item.type === 'tv') {
+              navigation.navigate('MovieDetail', {
+                tmdbId: item.tmdb_id,
+                type: item.type,
+              });
+            }
+          }}
+          px="$4"
+          py="$2">
+          <HStack space="md" alignItems="center">
+            <Box width={60} height={90}>
+              {!loadedImages[item.tmdb_id] && (
+                <ImagePlaceholder width={60} height={90} />
+              )}
+              {item.type === 'person' ? (
+                <Image
+                  source={{uri: item.profile_path || '/default-avatar.png'}}
+                  alt={item.name}
+                  width={60}
+                  height={90}
+                  borderRadius="$md"
+                  onLoad={() =>
+                    setLoadedImages(prev => ({
+                      ...prev,
+                      [item.tmdb_id]: true,
+                    }))
+                  }
+                  style={[
+                    styles.image,
+                    !loadedImages[item.tmdb_id] && styles.hiddenImage,
+                  ]}
+                />
+              ) : (
+                <Image
+                  source={{
+                    uri:
+                      item.poster_preview_url ||
+                      (item.type === 'tv'
+                        ? '/default-tv.png'
+                        : '/default-movie.png'),
+                  }}
+                  alt={item.title}
+                  width={60}
+                  height={90}
+                  borderRadius="$md"
+                  onLoad={() =>
+                    setLoadedImages(prev => ({
+                      ...prev,
+                      [item.tmdb_id]: true,
+                    }))
+                  }
+                  style={[
+                    styles.image,
+                    !loadedImages[item.tmdb_id] && styles.hiddenImage,
+                  ]}
+                />
+              )}
             </Box>
-          ),
-      )}
+            <VStack flex={1} space="xs" justifyContent="center">
+              <HStack alignItems="center" space="sm">
+                <Text
+                  color="#ffffff"
+                  fontSize={16}
+                  fontWeight="600"
+                  numberOfLines={1}>
+                  {(item.type === 'person' ? item.name : item.title).slice(
+                    0,
+                    28,
+                  ) +
+                    ((item.type === 'person' ? item.name : item.title).length >
+                    28
+                      ? '...'
+                      : '')}
+                </Text>
+                <Text
+                  color="rgba(255, 255, 255, 0.5)"
+                  fontSize={12}
+                  style={styles.typeText}>
+                  {item.type === 'tv'
+                    ? 'TV Series'
+                    : item.type === 'person'
+                    ? 'Person'
+                    : 'Movie'}
+                </Text>
+              </HStack>
+              {item.type === 'person' ? (
+                <>
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                    {item.known_for_department}
+                  </Text>
+                  {item.known_for && item.known_for.length > 0 && (
+                    <Text
+                      color="rgba(255, 255, 255, 0.5)"
+                      fontSize={12}
+                      numberOfLines={1}>
+                      Known for: {item.known_for.map(m => m.title).join(', ')}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <>
+                  <HStack space="sm" alignItems="center">
+                    {item.year && (
+                      <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                        {item.year}
+                      </Text>
+                    )}
+                    {item.rating > 0 && (
+                      <HStack space="xs" alignItems="center">
+                        <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                          {item.rating.toFixed(1)}⭐
+                        </Text>
+                        <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
+                          ({item.vote_count.toLocaleString()})
+                        </Text>
+                      </HStack>
+                    )}
+                  </HStack>
+                  {item.overview && (
+                    <Text
+                      color="rgba(255, 255, 255, 0.5)"
+                      fontSize={12}
+                      numberOfLines={2}>
+                      {item.overview}
+                    </Text>
+                  )}
+                </>
+              )}
+            </VStack>
+          </HStack>
+        </Pressable>
+      ))}
     </VStack>
   );
 };
 
-// Add new SearchResultsSkeleton component after SearchResults component
 const SearchResultsSkeleton = () => (
   <VStack space="xl" py="$4">
     {[1, 2, 3].map(section => (
       <Box key={section}>
-        {/* Section Title Skeleton */}
         <Box
           width={120}
           height={24}
@@ -167,12 +235,10 @@ const SearchResultsSkeleton = () => (
           mb="$3"
           mx="$4"
         />
-
         <VStack space="sm">
           {[1, 2, 3].map(item => (
             <Box key={item} px="$4" py="$2">
               <HStack space="md" alignItems="center">
-                {/* Image Skeleton */}
                 <Box
                   width={60}
                   height={90}
@@ -180,14 +246,12 @@ const SearchResultsSkeleton = () => (
                   borderRadius="$md"
                 />
                 <VStack flex={1} space="xs">
-                  {/* Title Skeleton */}
                   <Box
                     width="80%"
                     height={20}
                     backgroundColor="#270a39"
                     borderRadius="$sm"
                   />
-                  {/* Subtitle Skeleton */}
                   <Box
                     width="60%"
                     height={16}
@@ -204,15 +268,17 @@ const SearchResultsSkeleton = () => (
   </VStack>
 );
 
-// Update MovieRow component to include loading state for images
-const MovieRow = ({title, movies}) => {
+const MovieRow = ({icon, title, movies}) => {
   const [loadedImages, setLoadedImages] = useState({});
 
   return (
     <Box mb="$6">
-      <Text color="#ffffff" fontSize={20} fontWeight="600" mb="$3" px="$4">
-        {title}
-      </Text>
+      <HStack space="sm" alignItems="center" mb="$3" px="$4">
+        {icon}
+        <Text color="#ffffff" fontSize={20} fontWeight="600">
+          {title}
+        </Text>
+      </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="sm" px="$4">
           {movies.map(movie => (
@@ -222,30 +288,36 @@ const MovieRow = ({title, movies}) => {
                   {!loadedImages[movie.id] && (
                     <ImagePlaceholder width={140} height={210} />
                   )}
-                  <Image
-                    source={{uri: movie.poster}}
-                    alt={movie.title}
-                    width={140}
-                    height={210}
-                    borderRadius="$lg"
-                    onLoad={() =>
-                      setLoadedImages(prev => ({...prev, [movie.id]: true}))
-                    }
-                    style={[
-                      styles.image,
-                      !loadedImages[movie.id] && styles.hiddenImage,
-                    ]}
-                  />
+                  {movie.poster_preview_url && (
+                    <Image
+                      source={{uri: movie.poster_preview_url}}
+                      alt={movie.title}
+                      width={140}
+                      height={210}
+                      borderRadius="$lg"
+                      onLoad={() =>
+                        setLoadedImages(prev => ({...prev, [movie.id]: true}))
+                      }
+                      style={[
+                        styles.image,
+                        !loadedImages[movie.id] && styles.hiddenImage,
+                      ]}
+                    />
+                  )}
                 </Box>
-                <VStack mt="$2">
+                <VStack mt="$2" justifyContent="center">
                   <Text
                     color="#ffffff"
                     fontSize={14}
                     fontWeight="600"
-                    numberOfLines={2}>
+                    numberOfLines={2}
+                    textAlignVertical="center">
                     {movie.title}
                   </Text>
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+                  <Text
+                    color="rgba(255, 255, 255, 0.7)"
+                    fontSize={12}
+                    textAlignVertical="center">
                     {movie.year} • {movie.rating}⭐
                   </Text>
                 </VStack>
@@ -271,19 +343,71 @@ const SearchScreen = () => {
   ]);
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [genres, setGenres] = useState([]);
+  const [movies, setMovies] = useState({
+    popular: [],
+    nowPlaying: [],
+    topRated: [],
+    upcoming: [],
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Combine all movies from different sections
-  const allMovies = [
-    ...sampleData.movies.recentlyWatched,
-    ...sampleData.movies.watchlist,
-    ...sampleData.movies.favorites,
-  ];
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await api.get('/genres/');
+        const genresData = response.data.results.map(genre => ({
+          id: genre.id,
+          name: genre.name,
+          color: getRandomColor(genre.id),
+        }));
+        setGenres(genresData);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
 
-  // Filter movies by genre
-  const getMoviesByGenre = genreName => {
-    return allMovies.filter(
-      movie => movie.genres && movie.genres.includes(genreName),
-    );
+    fetchGenres();
+  }, []);
+
+  useEffect(() => {
+    const fetchMovieLists = async () => {
+      try {
+        const [popular, nowPlaying, topRated, upcoming] = await Promise.all([
+          api.get('/movies/discover/?category=popular'),
+          api.get('/movies/discover/?category=now_playing'),
+          api.get('/movies/discover/?category=top_rated'),
+          api.get('/movies/discover/?category=upcoming'),
+        ]);
+
+        setMovies({
+          popular: popular.data.results,
+          nowPlaying: nowPlaying.data.results,
+          topRated: topRated.data.results,
+          upcoming: upcoming.data.results,
+        });
+      } catch (error) {
+        console.error('Error fetching movie lists:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovieLists();
+  }, []);
+
+  const getRandomColor = id => {
+    const colors = [
+      '#FF6B6B',
+      '#4ECDC4',
+      '#45B7D1',
+      '#96CEB4',
+      '#FF9999',
+      '#9D50BB',
+      '#FFB6C1',
+      '#87CEEB',
+    ];
+    return colors[id % colors.length];
   };
 
   const handleSearch = query => {
@@ -305,66 +429,45 @@ const SearchScreen = () => {
     Keyboard.dismiss();
   };
 
-  // Update handleSearchSubmit to dismiss keyboard immediately
-  const handleSearchSubmit = customQuery => {
+  const handleSearchSubmit = async customQuery => {
     const queryToSearch = customQuery || searchQuery;
     if (queryToSearch.trim()) {
       setIsSearching(true);
-      setIsInputFocused(false); // Hide suggestions immediately
-      Keyboard.dismiss(); // Dismiss keyboard immediately
-      // Simulate API call delay
-      setTimeout(() => {
-        setSearchResults({
-          movies: [
-            {
-              id: 1,
-              title: 'Inception',
-              subtitle: '2010 • Action, Sci-Fi',
-              image: 'https://example.com/inception.jpg',
-            },
-            {
-              id: 2,
-              title: 'Interstellar',
-              subtitle: '2014 • Sci-Fi, Adventure',
-              image: 'https://example.com/interstellar.jpg',
-            },
-          ],
-          tvShows: [
-            {
-              id: 1,
-              title: 'Breaking Bad',
-              subtitle: '2008-2013 • Drama, Crime',
-              image: 'https://example.com/breaking-bad.jpg',
-            },
-          ],
-          persons: [
-            {
-              id: 1,
-              name: 'Christopher Nolan',
-              subtitle: 'Director, Writer',
-              image: 'https://example.com/nolan.jpg',
-            },
-          ],
-        });
+      setIsInputFocused(false);
+      Keyboard.dismiss();
+
+      try {
+        const response = await api.get(
+          `/movies/search/multi/?query=${encodeURIComponent(queryToSearch)}`,
+        );
+        setSearchResults(response.data.results);
+
+        // Update recent searches
+        if (queryToSearch.trim() !== '') {
+          setRecentSearches(prev => {
+            const newSearches = prev.filter(item => item !== queryToSearch);
+            return [queryToSearch, ...newSearches].slice(0, 10);
+          });
+        }
+      } catch (error) {
+        console.error('Error searching:', error);
+        // You might want to show an error toast here
+      } finally {
         setIsSearching(false);
         handleUnfocus();
-      }, 1500);
+      }
     }
   };
 
-  // Update handleClearSearch function
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchResults(null);
-    // Focus input and show keyboard
     setIsInputFocused(true);
-    // Small delay to ensure the input is mounted
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
   };
 
-  // Add ref for the input field
   const inputRef = useRef(null);
 
   return (
@@ -441,69 +544,75 @@ const SearchScreen = () => {
           ) : searchResults ? (
             <SearchResults results={searchResults} />
           ) : (
-            <Box p="$4">
-              <Text color="#ffffff" fontSize={20} fontWeight="600" mb="$3">
-                Genres
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <HStack space="sm">
-                  {genres.map(genre => (
-                    <Pressable
-                      key={genre.id}
-                      onPress={() => {
-                        setSelectedGenre(genre.name);
-                        handleUnfocus();
-                        Keyboard.dismiss();
-                      }}>
-                      <Box
-                        backgroundColor={
-                          selectedGenre === genre.name ? genre.color : '#270a39'
-                        }
-                        borderRadius="$lg"
-                        px="$4"
-                        py="$2"
-                        mr="$2">
-                        <Text color="#ffffff" fontSize={16}>
-                          {genre.name}
-                        </Text>
-                      </Box>
-                    </Pressable>
-                  ))}
-                </HStack>
-              </ScrollView>
-            </Box>
+            <>
+              <Box p="$4">
+                <Text color="#ffffff" fontSize={20} fontWeight="600" mb="$3">
+                  Genres
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <HStack space="sm">
+                    {genres.map(genre => (
+                      <Pressable
+                        key={genre.id}
+                        onPress={() => {
+                          setSelectedGenre(genre.name);
+                          handleUnfocus();
+                          Keyboard.dismiss();
+                        }}>
+                        <Box
+                          backgroundColor={
+                            selectedGenre === genre.name
+                              ? genre.color
+                              : '#270a39'
+                          }
+                          borderRadius="$lg"
+                          px="$4"
+                          py="$2"
+                          mr="$2">
+                          <Text color="#ffffff" fontSize={16}>
+                            {genre.name}
+                          </Text>
+                        </Box>
+                      </Pressable>
+                    ))}
+                  </HStack>
+                </ScrollView>
+              </Box>
+
+              {isLoading ? (
+                <SearchResultsSkeleton />
+              ) : (
+                <>
+                  <MovieRow
+                    icon={<Flame color={'#dc3f72'} size={20} />}
+                    title="Popular Movies"
+                    movies={movies.popular}
+                  />
+                  <MovieRow
+                    icon={<Clock color={'#dc3f72'} size={20} />}
+                    title="Now Playing"
+                    movies={movies.nowPlaying}
+                  />
+                  <MovieRow
+                    icon={<Trophy color={'#dc3f72'} size={20} />}
+                    title="Top Rated"
+                    movies={movies.topRated}
+                  />
+                  <MovieRow
+                    icon={<Calendar color={'#dc3f72'} size={20} />}
+                    title="Upcoming"
+                    movies={movies.upcoming}
+                  />
+                </>
+              )}
+            </>
           )}
-
-          {/* Popular Movies */}
-          <MovieRow
-            title="Popular Movies"
-            movies={sampleData.movies.recentlyWatched.slice(0, 5)}
-          />
-
-          {/* Action Movies */}
-          <MovieRow title="Action Movies" movies={getMoviesByGenre('Action')} />
-
-          {/* Drama Movies */}
-          <MovieRow title="Drama Movies" movies={getMoviesByGenre('Drama')} />
-
-          {/* Science Fiction Movies */}
-          <MovieRow
-            title="Sci-Fi Movies"
-            movies={getMoviesByGenre('Science Fiction')}
-          />
-
-          {/* Crime Movies */}
-          <MovieRow title="Crime Movies" movies={getMoviesByGenre('Crime')} />
-
-          {/* War Movies */}
-          <MovieRow title="War Movies" movies={getMoviesByGenre('War')} />
         </ScrollView>
       )}
     </Box>
   );
 };
 
-// Add to the styles at the bottom of the file
 const styles = StyleSheet.create({
   image: {
     position: 'absolute',
@@ -515,7 +624,17 @@ const styles = StyleSheet.create({
   hiddenImage: {
     opacity: 0,
   },
-  // ... existing styles ...
+  typeText: {
+    backgroundColor: '#dc3f72',
+    color: 'white',
+    paddingBottom: 2,
+    paddingTop: 2,
+    paddingLeft: 4,
+    paddingRight: 4,
+    borderRadius: 4,
+    whiteSpace: 'nowrap',
+    fontWeight: 500,
+  },
 });
 
 export default SearchScreen;
