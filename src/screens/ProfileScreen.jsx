@@ -16,6 +16,7 @@ import sampleData from '../data/sample.json';
 import MovieListModal from '../components/MovieListModal';
 import UserListModal from '../components/UserListModal';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import {useAuth} from '../context/AuthContext';
 
 const StatBox = ({label, value, onPress}) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{flex: 1}}>
@@ -30,7 +31,7 @@ const StatBox = ({label, value, onPress}) => (
   </TouchableOpacity>
 );
 
-const MovieList = ({title, count, movies, onSeeAll}) => {
+const MovieList = ({title, count, items, onSeeAll}) => {
   const navigation = useNavigation();
 
   return (
@@ -53,21 +54,26 @@ const MovieList = ({title, count, movies, onSeeAll}) => {
       </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingBottom={8}>
-          {movies.map(movie => {
+          {items.map(item => {
             const [isImageLoaded, setIsImageLoaded] = useState(false);
 
             return (
               <Pressable
-                key={movie.id}
-                onPress={() => navigation.navigate('MovieDetail', {movie})}>
+                key={item.movie.id}
+                onPress={() =>
+                  navigation.navigate('MovieDetail', {
+                    tmdbId: item.movie.tmdb_id,
+                    type: item.movie.type,
+                  })
+                }>
                 <VStack space="sm" width={120}>
                   <Box width={120} height={180}>
                     {!isImageLoaded && (
                       <ImagePlaceholder width={120} height={180} />
                     )}
                     <Image
-                      source={{uri: movie.poster}}
-                      alt={movie.title}
+                      source={{uri: item.movie.poster_preview_url}}
+                      alt={item.movie.title}
                       width={120}
                       height={180}
                       borderRadius={12}
@@ -80,7 +86,7 @@ const MovieList = ({title, count, movies, onSeeAll}) => {
                     fontSize={14}
                     numberOfLines={1}
                     ellipsizeMode="tail">
-                    {movie.title}
+                    {item.movie.title}
                   </Text>
                 </VStack>
               </Pressable>
@@ -123,7 +129,7 @@ const ListItem = ({list, onPress}) => (
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const {user, movies} = sampleData;
+  const {movies} = sampleData;
   const [modalVisible, setModalVisible] = React.useState(false);
   const [modalContent, setModalContent] = React.useState({
     title: '',
@@ -134,6 +140,7 @@ const ProfileScreen = () => {
   const [followingState, setFollowingState] = React.useState(
     new Set(sampleData.user.following),
   );
+  const {user} = useAuth();
 
   const handleStatPress = (title, value, type) => {
     let data = [];
@@ -191,7 +198,9 @@ const ProfileScreen = () => {
         {/* Banner with overlaid buttons */}
         <Box>
           <Image
-            source={{uri: user.banner || 'https://picsum.photos/1600/900'}}
+            source={{
+              uri: user?.banner_image || 'https://picsum.photos/1600/900',
+            }}
             alt="Profile Banner"
             width="100%"
             height={240}
@@ -246,7 +255,11 @@ const ProfileScreen = () => {
           {/* Avatar and Info */}
           <Center marginTop={-60} marginBottom={12}>
             <Image
-              source={{uri: user.avatar}}
+              source={{
+                uri: user.avatar
+                  ? user.avatar
+                  : 'https://flickture.leen2233.me/default-avatar.png',
+              }}
               alt="Profile Picture"
               width={100}
               height={100}
@@ -257,10 +270,13 @@ const ProfileScreen = () => {
             />
             <VStack space="xs" alignItems="center">
               <Text color="white" fontSize={24} fontWeight="600">
-                {`${user.firstName} ${user.lastName}`}
+                {user.full_name}
               </Text>
               <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
                 @{user.username}
+              </Text>
+              <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
+                {user.about}
               </Text>
             </VStack>
           </Center>
@@ -274,53 +290,48 @@ const ProfileScreen = () => {
             <HStack justifyContent="space-between">
               <StatBox
                 label="Movies"
-                value={user.stats.moviesWatched}
+                value={user.movies_watched}
                 onPress={() =>
                   handleStatPress('Movies', user.stats.moviesWatched, 'movies')
                 }
               />
               <StatBox
                 label="Following"
-                value={user.stats.following}
+                value={user.follower_count}
                 onPress={() =>
-                  handleStatPress(
-                    'Following',
-                    user.stats.following,
-                    'following',
-                  )
+                  handleStatPress('Following', user.follower_count, 'following')
                 }
               />
               <StatBox
                 label="Followers"
-                value={user.stats.followers}
+                value={user.follower_count}
                 onPress={() =>
-                  handleStatPress(
-                    'Followers',
-                    user.stats.followers,
-                    'followers',
-                  )
+                  handleStatPress('Followers', user.follower_count, 'followers')
                 }
               />
             </HStack>
           </Box>
 
           {/* Movie Lists */}
-          <MovieList
-            title="Recently Watched"
-            count={movies.recentlyWatched.length}
-            movies={movies.recentlyWatched}
-            onSeeAll={() => navigateToList('Recently Watched')}
-          />
+          {user.recently_watched && (
+            <MovieList
+              title="Recently Watched"
+              count={user.movies_watched}
+              items={user.recently_watched}
+              onSeeAll={() => navigateToList('Recently Watched')}
+            />
+          )}
+
           <MovieList
             title="Want to Watch"
-            count={movies.watchlist.length}
-            movies={movies.watchlist}
+            count={user.watchlist_count}
+            items={user.watchlist}
             onSeeAll={() => navigateToList('Want to Watch')}
           />
           <MovieList
             title="Favorites"
-            count={movies.favorites.length}
-            movies={movies.favorites}
+            count={user.favorites_count}
+            items={user.favorites}
             onSeeAll={() => navigateToList('Favorites')}
           />
         </Box>

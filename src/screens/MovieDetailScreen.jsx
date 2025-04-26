@@ -44,6 +44,7 @@ import {
 import RatingModal from '../components/RatingModal';
 import {useToast} from '../context/ToastContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import {getMovieDetails} from '../lib/api';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -189,7 +190,12 @@ const CollectionSection = ({collection}) => {
           {collection.movies.slice(0, 4).map(movie => (
             <Pressable
               key={movie.id}
-              onPress={() => navigation.push('MovieDetail', {movie})}>
+              onPress={() =>
+                navigation.push('MovieDetail', {
+                  tmdbId: movie.tmdb_id,
+                  type: movie.type,
+                })
+              }>
               <VStack alignItems="center" space="sm" width={100}>
                 <Box
                   width={100}
@@ -198,7 +204,7 @@ const CollectionSection = ({collection}) => {
                   overflow="hidden"
                   backgroundColor="#270a39">
                   <Image
-                    source={{uri: movie.poster}}
+                    source={{uri: movie.poster_preview_url}}
                     alt={movie.title}
                     width={100}
                     height={150}
@@ -251,13 +257,13 @@ const ListsSection = ({lists}) => (
                 borderRadius={12}
                 overflow="hidden"
                 backgroundColor="#270a39">
-                <Image
+                {/* <Image
                   source={{uri: list.thumbnail}}
                   alt={list.name}
                   width={150}
                   height={100}
                   style={styles.listThumbnail}
-                />
+                /> */}
                 <Box
                   position="absolute"
                   bottom={0}
@@ -415,23 +421,34 @@ const MovieDetailScreen = ({route}) => {
   useEffect(() => {
     const loadMovieData = async () => {
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const {tmdbId, type} = route.params;
+        const movieDetails = await getMovieDetails(tmdbId, type);
 
         const movie = {
-          ...route.params.movie,
-          backdrop: route.params.movie.backdrop?.replace(
-            '/w500/',
-            '/original/',
-          ),
+          ...movieDetails,
+          poster: movieDetails.poster_url,
+          backdrop: movieDetails.backdrop_url,
+          genres: movieDetails.genres?.map(g => g.name) || [],
+          duration: movieDetails.runtime ? `${movieDetails.runtime} min` : null,
+          director: movieDetails.directors?.[0]?.name,
+          cast: movieDetails.cast_preview?.map(c => ({
+            name: c.person.name,
+            character: c.character,
+            image: c.person.profile_path,
+          })),
+          comments: movieDetails.comment_count,
+          collection: movieDetails.collection,
         };
 
         // Validate required movie data
         if (!movie.title || !movie.year || !movie.poster) {
           throw new Error('Missing required movie information');
         }
-
+        console.log('Movie data:', movie);
         setMovieData(movie);
+        setIsInFavorites(movieDetails.is_favorite);
+        setIsInWatchlist(movieDetails.watchlist_status === 'watchlist');
+        setIsWatched(movieDetails.watchlist_status === 'watched');
       } catch (error) {
         showError('Failed to load movie details. Please try again later.');
         console.error('Error loading movie:', error);
@@ -441,7 +458,7 @@ const MovieDetailScreen = ({route}) => {
     };
 
     loadMovieData();
-  }, [route.params.movie, showError]);
+  }, [route.params, showError]);
 
   const handleWatchlistToggle = () => {
     setIsInWatchlist(!isInWatchlist);
@@ -491,12 +508,12 @@ const MovieDetailScreen = ({route}) => {
           style={styles.modalContainer}
           activeOpacity={1}
           onPress={() => setIsImageModalVisible(false)}>
-          <Image
+          {/* <Image
             source={{uri: modalImage}}
             alt="Full screen image"
             style={styles.fullScreenImage}
             resizeMode="contain"
-          />
+          /> */}
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsImageModalVisible(false)}>
@@ -510,7 +527,7 @@ const MovieDetailScreen = ({route}) => {
       <ScrollView flex={1} backgroundColor="#040b1c">
         {/* Backdrop Image */}
         <Box height={300}>
-          {!isBackdropLoaded && <ImagePlaceholder width="100%" height={300} />}
+          {isBackdropLoaded || <ImagePlaceholder width="100%" height={300} />}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() =>
@@ -526,6 +543,7 @@ const MovieDetailScreen = ({route}) => {
               onLoad={() => setIsBackdropLoaded(true)}
             />
           </TouchableOpacity>
+
           <Box
             position="absolute"
             top={0}
@@ -561,17 +579,20 @@ const MovieDetailScreen = ({route}) => {
         <Box padding={16} marginTop={-40}>
           {/* Poster and Title */}
           <HStack space="md" marginBottom={24}>
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => handleImagePress(movieData.poster)}>
-              <Image
-                source={{uri: movieData.poster}}
-                alt={movieData.title}
-                width={120}
-                height={180}
-                borderRadius={12}
-              />
-            </TouchableOpacity>
+            {movieData.poster && (
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => handleImagePress(movieData.poster)}>
+                <Image
+                  source={{uri: movieData.poster}}
+                  alt={movieData.title}
+                  width={120}
+                  height={180}
+                  borderRadius={12}
+                />
+              </TouchableOpacity>
+            )}
+
             <VStack flex={1} space="xs">
               <Text color="white" fontSize={24} fontWeight="600">
                 {movieData.title}
@@ -582,13 +603,13 @@ const MovieDetailScreen = ({route}) => {
                     {movieData.originalTitle}
                   </Text>
                 )}
-              {movieData.overview && (
+              {movieData.plot && (
                 <Text
                   color="rgba(255, 255, 255, 0.7)"
                   fontSize={14}
                   numberOfLines={3}
                   marginTop={4}>
-                  {movieData.overview}
+                  {movieData.plot}
                 </Text>
               )}
               {movieData.genres && (
@@ -606,6 +627,19 @@ const MovieDetailScreen = ({route}) => {
                       </Text>
                     </Box>
                   ))}
+                </HStack>
+              )}
+              {movieData.director && (
+                <HStack space="md" alignItems="center" marginTop={20}>
+                  <User size={20} color="#dc3f72" />
+                  <VStack>
+                    <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+                      Director
+                    </Text>
+                    <Text color="white" fontSize={16}>
+                      {movieData.director}
+                    </Text>
+                  </VStack>
                 </HStack>
               )}
             </VStack>
@@ -739,7 +773,7 @@ const MovieDetailScreen = ({route}) => {
           </VStack>
 
           {/* Overview */}
-          {movieData.overview && (
+          {movieData.plot && (
             <VStack space="md" marginBottom={24}>
               <Text color="white" fontSize={20} fontWeight="600">
                 Overview
@@ -748,27 +782,13 @@ const MovieDetailScreen = ({route}) => {
                 color="rgba(255, 255, 255, 0.7)"
                 fontSize={16}
                 lineHeight={24}>
-                {movieData.overview}
+                {movieData.plot}
               </Text>
             </VStack>
           )}
 
           {/* Cast & Crew */}
           <VStack space="xl" marginBottom={24}>
-            {movieData.director && (
-              <HStack space="md" alignItems="center">
-                <User size={20} color="#dc3f72" />
-                <VStack>
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-                    Director
-                  </Text>
-                  <Text color="white" fontSize={16}>
-                    {movieData.director}
-                  </Text>
-                </VStack>
-              </HStack>
-            )}
-
             {movieData.cast && movieData.cast.length > 0 && (
               <Box marginTop={8}>
                 <CastList

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Box,
   Center,
@@ -24,25 +24,40 @@ import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import sampleData from '../data/sample.json';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useToast} from '../context/ToastContext';
+import {useAuth} from '../context/AuthContext';
+import api from '../lib/api'; // Assuming api is imported from a file
 
 const EditProfileScreen = ({navigation}) => {
   // Initialize state with sample data
-  const {user} = sampleData;
-  const [fullName, setFullName] = useState(
-    `${user.firstName} ${user.lastName}`,
+  const {user, updateUser} = useAuth();
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatar, setAvatar] = useState(
+    'https://flickture.leen2233.me/default-avatar.png',
   );
-  const [username, setUsername] = useState(user.username);
-  const [birthday, setBirthday] = useState(new Date());
-  const [bio, setBio] = useState(user.bio || '');
-  const [avatar, setAvatar] = useState(user.avatar);
   const [banner, setBanner] = useState(
-    user.banner || 'https://picsum.photos/1600/900',
+    'https://flickture.leen2233.me/default-avatar.png',
   );
   const [isLoading, setIsLoading] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [activeImageType, setActiveImageType] = useState(null); // 'avatar' or 'banner'
   const [errors, setErrors] = useState({});
   const {showSuccess, showError} = useToast();
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name);
+      setUsername(user.username);
+      setBio(user.about);
+      setAvatar(
+        user.avatar || 'https://flickture.leen2233.me/default-avatar.png',
+      );
+      setBanner(
+        user.banner_image || 'https://flickture.leen2233.me/default-avatar.png',
+      );
+    }
+  }, [user]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -72,38 +87,49 @@ const EditProfileScreen = ({navigation}) => {
 
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        const shouldFail = false;
-        setTimeout(() => {
-          if (shouldFail) {
-            reject(new Error('Network error'));
-          } else {
-            resolve();
-          }
-        }, 2000);
+      const formData = new FormData();
+      formData.append('full_name', fullName);
+      formData.append('username', username);
+      formData.append('about', bio);
+
+      // Handle avatar image
+      if (avatar && avatar.startsWith('file://')) {
+        formData.append('avatar', {
+          uri: avatar,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        });
+      }
+
+      // Handle banner image
+      if (banner && banner.startsWith('file://')) {
+        formData.append('banner_image', {
+          uri: banner,
+          type: 'image/jpeg',
+          name: 'banner.jpg',
+        });
+      }
+
+      const response = await api.patch('/auth/me/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      showSuccess('Profile updated successfully!');
-      navigation.goBack();
+      if (response.data) {
+        await updateUser(response.data);
+        showSuccess('Profile updated successfully!');
+        navigation.goBack();
+      }
     } catch (err) {
-      showError('Failed to update profile. Please try again.');
+      console.error('Profile update error:', err);
+      showError(
+        err.response?.data?.message ||
+          'Failed to update profile. Please try again.',
+      );
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const showDatePicker = () => {
-    DateTimePickerAndroid.open({
-      value: birthday,
-      onChange: (event, selectedDate) => {
-        if (event.type === 'set' && selectedDate) {
-          setBirthday(selectedDate);
-        }
-      },
-      mode: 'date',
-      maximumDate: new Date(),
-    });
   };
 
   const formatDate = date => {
@@ -142,18 +168,66 @@ const EditProfileScreen = ({navigation}) => {
     return true; // iOS permissions are handled by info.plist
   };
 
+  const requestStoragePermissions = async () => {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+      try {
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+          // PermissionsAndroid.PERMISSIONS.READ_MEDIA_DOWNLOADS,
+        ];
+
+        const results = await PermissionsAndroid.requestMultiple(permissions);
+
+        return Object.values(results).every(
+          result => result === PermissionsAndroid.RESULTS.GRANTED,
+        );
+      } catch (err) {
+        console.error('Permission error:', err);
+        return false;
+      }
+    } else if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission',
+            message: 'Flickture needs access to your storage to select photos',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.error('Permission error:', err);
+        return false;
+      }
+    }
+    return true; // iOS handled by Info.plist
+  };
+
   const handleImageSelection = async method => {
     setShowImagePicker(false);
 
     try {
+      // Request permissions first
+      const hasPermission = await requestStoragePermissions();
+      if (!hasPermission) {
+        showError('Storage permission denied');
+        return;
+      }
+
       let result;
+      let croppedImage;
       const cropperOptions = {
         width: activeImageType === 'avatar' ? 400 : 1200,
         height: activeImageType === 'avatar' ? 400 : 675,
         cropping: true,
         cropperCircleOverlay: activeImageType === 'avatar',
         mediaType: 'photo',
-        // Theme customization
+        compressImageQuality: 0.8,
+        forceJpg: true, // Force JPEG format
+        includeBase64: true, // Include base64 data
         cropperToolbarTitle:
           activeImageType === 'avatar'
             ? 'Crop Profile Picture'
@@ -168,26 +242,48 @@ const EditProfileScreen = ({navigation}) => {
       };
 
       if (method === 'camera') {
-        const hasPermission = await requestCameraPermission();
-        if (!hasPermission) {
-          console.log('Camera permission denied');
+        const hasCameraPermission = await requestCameraPermission();
+        if (!hasCameraPermission) {
+          showError('Camera permission denied');
           return;
         }
         result = await ImageCropPicker.openCamera(cropperOptions);
       } else {
-        result = await ImageCropPicker.openPicker(cropperOptions);
+        // result = await ImageCropPicker.openPicker(cropperOptions);
+        result = await ImageCropPicker.openPicker({
+          mediaType: 'photo',
+          cropping: false,
+        });
+        croppedImage = await ImageCropPicker.openCropper({
+          ...cropperOptions,
+          path: result.path,
+        });
+        console.log('cropped', croppedImage);
       }
 
-      if (result.path) {
+      if (result) {
+        console.log(result, 'result');
+        // Clean up previous image if it exists
+        if (
+          (activeImageType === 'avatar' && avatar?.startsWith('file://')) ||
+          (activeImageType === 'banner' && banner?.startsWith('file://'))
+        ) {
+          ImageCropPicker.cleanSingle(
+            activeImageType === 'avatar' ? avatar : banner,
+          ).catch(e => console.log('Image cleanup error:', e));
+        }
+
+        // Update the image state
         if (activeImageType === 'avatar') {
-          setAvatar(result.path);
+          setAvatar(croppedImage.path);
         } else if (activeImageType === 'banner') {
-          setBanner(result.path);
+          setBanner(croppedImage.path);
         }
       }
     } catch (error) {
       if (error.message !== 'User cancelled image selection') {
         console.error('Error picking image:', error);
+        showError('Failed to process the image. Please try another one.');
       }
     }
   };
@@ -300,30 +396,6 @@ const EditProfileScreen = ({navigation}) => {
                 autoCapitalize="none"
                 error={errors.username}
               />
-
-              <FormControl>
-                <FormControl.Label>
-                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    Birthday
-                  </Text>
-                </FormControl.Label>
-                <Pressable onPress={showDatePicker}>
-                  <Box
-                    borderRadius={12}
-                    borderColor="#341251"
-                    borderWidth={1}
-                    backgroundColor="#270a39"
-                    padding={16}
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="space-between">
-                    <Text color="white" fontSize={16}>
-                      {formatDate(birthday)}
-                    </Text>
-                    <Calendar color="#dc3f72" size={20} />
-                  </Box>
-                </Pressable>
-              </FormControl>
 
               <FormTextArea
                 value={bio}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Box,
   Center,
@@ -9,21 +9,44 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import {PrimaryButton, FormInput} from '../elements';
+import {useAuth} from '../context/AuthContext';
+import {useToast} from '../context/ToastContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const {login, loading, user, fetchUser} = useAuth();
+  const {showSuccess} = useToast();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      if (user) {
+        console.log('user found');
+        navigation.replace('Home');
+      }
+      console.log('checking user');
+      console.log(await AsyncStorage.getItem('token'), 'checked');
+      if (await AsyncStorage.getItem('token')) {
+        console.log('token found');
+        if (await fetchUser()) {
+          console.log('user found');
+          navigation.replace('Home');
+        }
+      }
+    };
+
+    checkUser();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email address';
+    if (!username) {
+      newErrors.username = 'Username is required';
     }
 
     if (!password) {
@@ -36,16 +59,16 @@ const LoginScreen = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!validateForm()) {
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate('Home');
-    }, 3000);
+    const success = await login(username, password);
+    if (success) {
+      showSuccess('Login successful');
+      navigation.replace('Home');
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -67,17 +90,17 @@ const LoginScreen = ({navigation}) => {
         </Box>
 
         <FormInput
-          value={email}
+          value={username}
           onChangeText={text => {
-            setEmail(text);
-            if (errors.email) {
-              setErrors(prev => ({...prev, email: ''}));
+            setUsername(text);
+            if (errors.username) {
+              setErrors(prev => ({...prev, username: ''}));
             }
           }}
-          placeholder="Email"
-          keyboardType="email-address"
+          placeholder="Username"
+          keyboardType="text"
           autoCapitalize="none"
-          error={errors.email}
+          error={errors.username}
         />
 
         <FormInput
@@ -96,7 +119,7 @@ const LoginScreen = ({navigation}) => {
           error={errors.password}
         />
 
-        <PrimaryButton onPress={handleLogin} isLoading={isLoading}>
+        <PrimaryButton onPress={handleLogin} isLoading={loading}>
           Sign In
         </PrimaryButton>
 
