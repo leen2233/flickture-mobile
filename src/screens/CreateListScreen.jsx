@@ -38,6 +38,7 @@ import {PrimaryButton, FormInput, FormTextArea} from '../elements';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useToast} from '../context/ToastContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
 
 const MovieItem = ({movie, onRemove}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -105,29 +106,43 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
       }
 
       setIsLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Import sample data and filter recentlyWatched movies
-      const sampleData = require('../data/sample.json');
-      const results = sampleData.movies.recentlyWatched.filter(movie =>
-        movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-      setSearchResults(results);
-      setIsLoading(false);
+      try {
+        const response = await api.get(
+          `/movies/search/multi/?query=${encodeURIComponent(searchQuery)}`,
+        );
+        setSearchResults(response.data.results || []);
+      } catch (error) {
+        console.error('Error searching movies:', error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    searchMovies();
+    const debounceTimeout = setTimeout(searchMovies, 500);
+    return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
 
   const handleSelect = movie => {
-    onSelect(movie);
+    // Convert the movie object to match the expected format
+    const formattedMovie = {
+      id: movie.tmdb_id,
+      tmdb_id: movie.tmdb_id,
+      type: movie.type,
+      title: movie.title,
+      year: movie.year,
+      poster: movie.poster_preview_url,
+      rating: movie.rating,
+    };
+    onSelect(formattedMovie);
     setSearchQuery(''); // Clear search query
     onClose();
   };
 
   const MovieSearchItem = ({movie}) => {
-    const isSelected = selectedMovies.some(m => m.id === movie.id);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const isSelected = selectedMovies.some(m => m.tmdb_id === movie.tmdb_id);
+    const posterUrl = movie.poster_preview_url;
 
     return (
       <Box
@@ -138,13 +153,20 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
         borderWidth={1}
         borderColor="rgba(255, 255, 255, 0.1)">
         <HStack space="md" alignItems="center">
-          <Image
-            source={{uri: movie.poster}}
-            alt={movie.title}
-            width={60}
-            height={90}
-            borderRadius={8}
-          />
+          <Box width={60} height={90}>
+            {!isImageLoaded && <ImagePlaceholder width={60} height={90} />}
+            {posterUrl && (
+              <Image
+                source={{uri: posterUrl}}
+                alt={movie.title}
+                width={60}
+                height={90}
+                borderRadius={8}
+                onLoad={() => setIsImageLoaded(true)}
+                style={[!isImageLoaded && styles.hiddenImage]}
+              />
+            )}
+          </Box>
           <VStack flex={1} space="xs">
             <Text color="white" fontSize={16} fontWeight="600">
               {movie.title}
@@ -305,21 +327,51 @@ const CreateListScreen = ({navigation}) => {
 
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        const shouldFail = false; // Changed to false for consistency
-        setTimeout(() => {
-          if (shouldFail) {
-            reject(new Error('Network error'));
-          } else {
-            resolve();
-          }
-        }, 2000);
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+
+      // Handle image files
+      if (thumbnail) {
+        formData.append('thumbnail', {
+          uri: thumbnail,
+          type: 'image/jpeg',
+          name: 'thumbnail.jpg',
+        });
+      } else {
+        formData.append('thumbnail', '');
+      }
+
+      if (backdrop) {
+        formData.append('backdrop', {
+          uri: backdrop,
+          type: 'image/jpeg',
+          name: 'backdrop.jpg',
+        });
+      } else {
+        formData.append('backdrop', '');
+      }
+
+      // Handle movies
+      const movieIds = movies.map(movie => ({
+        tmdb_id: movie.tmdb_id,
+        type: movie.type,
+      }));
+      formData.append('movie_ids', JSON.stringify(movieIds));
+
+      const response = await api.post('/lists/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       showSuccess('List created successfully!');
-      navigation.goBack();
+      navigation.replace('ListDetails', {
+        listId: response.data.id,
+        listName: response.data.name,
+      });
     } catch (err) {
+      console.error('Error creating list:', err);
       showError('Failed to create list. Please try again.');
     } finally {
       setIsLoading(false);

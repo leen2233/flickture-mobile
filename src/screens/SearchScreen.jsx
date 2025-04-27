@@ -10,6 +10,7 @@ import {
   VStack,
   HStack,
   Image,
+  Center,
 } from '@gluestack-ui/themed';
 import {
   Search,
@@ -80,6 +81,17 @@ const SearchResults = ({results}) => {
   const navigation = useNavigation();
 
   if (!results) return null;
+
+  if (results.length === 0) {
+    return (
+      <Center flex={1} py="$12">
+        <Icon as={Search} size="xl" color="rgba(255, 255, 255, 0.3)" mb="$4" />
+        <Text color="rgba(255, 255, 255, 0.7)" fontSize={16} textAlign="center">
+          No results found
+        </Text>
+      </Center>
+    );
+  }
 
   return (
     <VStack space="xl" py="$4">
@@ -268,7 +280,7 @@ const SearchResultsSkeleton = () => (
   </VStack>
 );
 
-const MovieRow = ({icon, title, movies}) => {
+const MovieRow = ({navigation, icon, title, movies}) => {
   const [loadedImages, setLoadedImages] = useState({});
 
   return (
@@ -282,7 +294,15 @@ const MovieRow = ({icon, title, movies}) => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="sm" px="$4">
           {movies.map(movie => (
-            <Pressable key={movie.id} mr="$4">
+            <Pressable
+              key={movie.id}
+              mr="$4"
+              onPress={() => {
+                navigation.navigate('MovieDetail', {
+                  tmdbId: movie.tmdb_id,
+                  type: movie.type,
+                });
+              }}>
               <Box width={140}>
                 <Box width={140} height={210}>
                   {!loadedImages[movie.id] && (
@@ -351,6 +371,7 @@ const SearchScreen = () => {
     upcoming: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -503,8 +524,13 @@ const SearchScreen = () => {
             value={searchQuery}
             onChangeText={handleSearch}
             onFocus={() => setIsInputFocused(true)}
-            onSubmitEditing={handleSearchSubmit}
+            onSubmitEditing={() => handleSearchSubmit()}
             returnKeyType="search"
+            onKeyPress={({nativeEvent}) => {
+              if (nativeEvent.key === 'Enter') {
+                handleSearchSubmit();
+              }
+            }}
           />
           {searchQuery.length > 0 && (
             <Pressable
@@ -584,21 +610,25 @@ const SearchScreen = () => {
               ) : (
                 <>
                   <MovieRow
+                    navigation={navigation}
                     icon={<Flame color={'#dc3f72'} size={20} />}
                     title="Popular Movies"
                     movies={movies.popular}
                   />
                   <MovieRow
+                    navigation={navigation}
                     icon={<Clock color={'#dc3f72'} size={20} />}
                     title="Now Playing"
                     movies={movies.nowPlaying}
                   />
                   <MovieRow
+                    navigation={navigation}
                     icon={<Trophy color={'#dc3f72'} size={20} />}
                     title="Top Rated"
                     movies={movies.topRated}
                   />
                   <MovieRow
+                    navigation={navigation}
                     icon={<Calendar color={'#dc3f72'} size={20} />}
                     title="Upcoming"
                     movies={movies.upcoming}

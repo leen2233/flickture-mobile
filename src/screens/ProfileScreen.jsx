@@ -33,6 +33,7 @@ const StatBox = ({label, value, onPress}) => (
 
 const MovieList = ({title, count, items, onSeeAll}) => {
   const navigation = useNavigation();
+  const [loadedImages, setLoadedImages] = useState({});
 
   return (
     <Box marginBottom={24}>
@@ -54,44 +55,45 @@ const MovieList = ({title, count, items, onSeeAll}) => {
       </HStack>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <HStack space="md" paddingBottom={8}>
-          {items.map(item => {
-            const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-            return (
-              <Pressable
-                key={item.movie.id}
-                onPress={() =>
-                  navigation.navigate('MovieDetail', {
-                    tmdbId: item.movie.tmdb_id,
-                    type: item.movie.type,
-                  })
-                }>
-                <VStack space="sm" width={120}>
-                  <Box width={120} height={180}>
-                    {!isImageLoaded && (
-                      <ImagePlaceholder width={120} height={180} />
-                    )}
-                    <Image
-                      source={{uri: item.movie.poster_preview_url}}
-                      alt={item.movie.title}
-                      width={120}
-                      height={180}
-                      borderRadius={12}
-                      onLoad={() => setIsImageLoaded(true)}
-                      style={[!isImageLoaded && styles.hiddenImage]}
-                    />
-                  </Box>
-                  <Text
-                    color="white"
-                    fontSize={14}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {item.movie.title}
-                  </Text>
-                </VStack>
-              </Pressable>
-            );
-          })}
+          {items.map(item => (
+            <Pressable
+              key={item.movie.id}
+              onPress={() =>
+                navigation.navigate('MovieDetail', {
+                  tmdbId: item.movie.tmdb_id,
+                  type: item.movie.type,
+                })
+              }>
+              <VStack space="sm" width={120}>
+                <Box width={120} height={180}>
+                  {!loadedImages[item.movie.id] && (
+                    <ImagePlaceholder width={120} height={180} />
+                  )}
+                  <Image
+                    source={{uri: item.movie.poster_preview_url}}
+                    alt={item.movie.title}
+                    width={120}
+                    height={180}
+                    borderRadius={12}
+                    onLoad={() =>
+                      setLoadedImages(prev => ({
+                        ...prev,
+                        [item.movie.id]: true,
+                      }))
+                    }
+                    style={[!loadedImages[item.movie.id] && styles.hiddenImage]}
+                  />
+                </Box>
+                <Text
+                  color="white"
+                  fontSize={14}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {item.movie.title}
+                </Text>
+              </VStack>
+            </Pressable>
+          ))}
         </HStack>
       </ScrollView>
     </Box>
@@ -146,8 +148,12 @@ const ProfileScreen = () => {
     const updateUser = async () => {
       await fetchUser();
     };
-    updateUser();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      updateUser();
+    });
+
+    return unsubscribe;
+  }, [navigation, fetchUser]);
 
   const handleStatPress = (title, value, type) => {
     let data = [];

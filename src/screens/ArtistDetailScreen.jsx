@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   Box,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   ButtonIcon,
   Pressable,
   Divider,
+  Spinner,
 } from '@gluestack-ui/themed';
 import {
   ArrowLeft,
@@ -38,11 +39,11 @@ import {
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
-import sampleData from '../data/sample.json';
 import ArtistHeader from '../components/ArtistHeader';
 import ArtistStats from '../components/ArtistStats';
 import ArtistPersonalInfo from '../components/ArtistPersonalInfo';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
 
 const StatItem = ({icon, label, value}) => (
   <VStack alignItems="center" space="xs" flex={1}>
@@ -168,6 +169,11 @@ const ArtistDetailSkeleton = () => (
 
 const MovieCard = ({movie}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const navigation = useNavigation();
+
+  // Get poster URL from available sources
+  const posterUrl =
+    movie.poster_preview_url || movie.poster || movie.poster_path;
 
   return (
     <Pressable
@@ -176,12 +182,25 @@ const MovieCard = ({movie}) => {
       style={styles.movieCard}>
       <Box width="100%" height={200}>
         {!isImageLoaded && <ImagePlaceholder width="100%" height={200} />}
-        <Image
-          source={{uri: movie.poster}}
-          alt={movie.title}
-          style={[styles.moviePoster, !isImageLoaded && styles.hiddenImage]}
-          onLoad={() => setIsImageLoaded(true)}
-        />
+        {posterUrl ? (
+          <Image
+            source={{uri: posterUrl}}
+            alt={movie.title}
+            style={[styles.moviePoster, !isImageLoaded && styles.hiddenImage]}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+        ) : (
+          <Box
+            width="100%"
+            height="100%"
+            backgroundColor="#270a39"
+            alignItems="center"
+            justifyContent="center">
+            <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
+              No Image
+            </Text>
+          </Box>
+        )}
       </Box>
       <VStack space="xs" padding={8}>
         <Text color="white" fontSize={14} fontWeight="600" numberOfLines={1}>
@@ -190,10 +209,10 @@ const MovieCard = ({movie}) => {
         <HStack space="xs" alignItems="center">
           <Star size={12} color="#dc3f72" />
           <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-            {movie.rating}
+            {movie.rating?.toFixed(1) || 'N/A'}
           </Text>
           <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-            • {movie.year}
+            • {movie.year || 'N/A'}
           </Text>
         </HStack>
       </VStack>
@@ -203,56 +222,81 @@ const MovieCard = ({movie}) => {
 
 const ArtistDetailScreen = ({route}) => {
   const navigation = useNavigation();
+  const {artistId} = route.params;
   const [artist, setArtist] = useState(null);
+  const [movies, setMovies] = useState([]);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
+
+  const fetchArtist = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/persons/${artistId}`);
+      console.log(response.data);
+      setArtist(response.data);
+    } catch (err) {
+      console.log(error.response, 'Error fetching artist');
+      console.error('Error fetching artist:', err);
+    }
+  };
+
+  const fetchFilmography = async (page = 1) => {
+    try {
+      if (page === 1) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      const response = await api.get(
+        `/persons/${artistId}/filmography/?page=${page}`,
+      );
+      console.log(response.data);
+
+      if (page === 1) {
+        setMovies(response.data.results);
+      } else {
+        setMovies(prev => [...prev, ...response.data.results]);
+      }
+
+      setHasNextPage(!!response.data.next);
+      setCurrentPage(page);
+    } catch (err) {
+      console.log(error.response, 'Error fetching filmography');
+      console.error('Error fetching filmography:', err);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const loadArtistData = async () => {
-      try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+    fetchArtist();
+    fetchFilmography();
+  }, [artistId]);
 
-        const {artistId} = route.params;
-        const artistData = sampleData.artists[artistId];
-        if (artistData) {
-          setArtist(artistData);
-          setIsFollowing(artistData.isFollowing);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadArtistData();
-  }, [route.params]);
-
-  const handleSocialMediaPress = url => {
-    Linking.openURL(url);
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasNextPage) {
+      fetchFilmography(currentPage + 1);
+    }
   };
 
-  const handleFollowPress = () => {
-    setIsFollowing(!isFollowing);
-    // Here you would typically make an API call to update the follow status
+  const onScroll = ({nativeEvent}) => {
+    const {layoutMeasurement, contentOffset, contentSize} = nativeEvent;
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+
+    if (isCloseToBottom) {
+      handleLoadMore();
+    }
   };
 
-  if (isLoading) {
+  if (isLoading || !artist || !movies.length) {
     return <ArtistDetailSkeleton />;
-  }
-
-  if (!artist) {
-    return (
-      <Box
-        flex={1}
-        backgroundColor="#040b1c"
-        justifyContent="center"
-        alignItems="center">
-        <Text color="white" fontSize={16} marginBottom={16}>
-          Artist not found
-        </Text>
-      </Box>
-    );
   }
 
   return (
@@ -268,8 +312,8 @@ const ArtistDetailScreen = ({route}) => {
           activeOpacity={1}
           onPress={() => setIsImageModalVisible(false)}>
           <Image
-            source={{uri: artist?.image}}
-            alt={artist?.name}
+            source={{uri: artist.profile_path}}
+            alt={artist.name}
             style={styles.fullScreenImage}
             resizeMode="contain"
           />
@@ -283,9 +327,14 @@ const ArtistDetailScreen = ({route}) => {
         </TouchableOpacity>
       </Modal>
 
-      <ScrollView flex={1} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        flex={1}
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}>
         <ArtistHeader
-          artist={artist}
+          imageUrl={artist.profile_path}
+          name={artist.name}
           navigation={navigation}
           onImagePress={() => setIsImageModalVisible(true)}
         />
@@ -297,21 +346,33 @@ const ArtistDetailScreen = ({route}) => {
               <Text color="white" fontSize={32} fontWeight="600">
                 {artist.name}
               </Text>
-              <Button
-                backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}
-                borderColor="#dc3f72"
-                borderWidth={1}
-                borderRadius={12}
-                height={36}
-                onPress={handleFollowPress}>
-                <Text color="white" fontSize={14}>
-                  {isFollowing ? 'Following' : 'Follow'}
-                </Text>
-              </Button>
             </HStack>
           </VStack>
 
-          <ArtistStats stats={artist.stats} />
+          {/* Stats */}
+          <Box
+            backgroundColor="#270a39"
+            padding={16}
+            borderRadius={16}
+            marginBottom={24}>
+            <HStack justifyContent="space-around">
+              <StatItem
+                icon={<Film size={20} color="#dc3f72" />}
+                label="Movies"
+                value={movies.length}
+              />
+              <StatItem
+                icon={<Briefcase size={20} color="#dc3f72" />}
+                label="Known For"
+                value={artist.known_for_department}
+              />
+              <StatItem
+                icon={<Heart size={20} color="#dc3f72" />}
+                label="Followers"
+                value={artist.followers.length}
+              />
+            </HStack>
+          </Box>
 
           {/* Biography */}
           {artist.biography && (
@@ -328,89 +389,65 @@ const ArtistDetailScreen = ({route}) => {
             </VStack>
           )}
 
-          <ArtistPersonalInfo artist={artist} />
-
-          {/* Social Media */}
-          {artist.socialMedia && (
-            <VStack space="md">
-              <Text color="white" fontSize={20} fontWeight="600">
-                Social Media
-              </Text>
-              <HStack space="md">
-                {artist.socialMedia.instagram && (
-                  <Button
-                    flex={1}
-                    backgroundColor="#270a39"
-                    borderRadius={12}
-                    height={48}
-                    onPress={() =>
-                      handleSocialMediaPress(
-                        `https://instagram.com/${artist.socialMedia.instagram}`,
-                      )
-                    }>
-                    <HStack space="sm" alignItems="center">
-                      <Instagram size={20} color="#dc3f72" />
-                      <Text color="white" fontSize={16}>
-                        Instagram
-                      </Text>
-                    </HStack>
-                  </Button>
-                )}
-                {artist.socialMedia.twitter && (
-                  <Button
-                    flex={1}
-                    backgroundColor="#270a39"
-                    borderRadius={12}
-                    height={48}
-                    onPress={() =>
-                      handleSocialMediaPress(
-                        `https://twitter.com/${artist.socialMedia.twitter}`,
-                      )
-                    }>
-                    <HStack space="sm" alignItems="center">
-                      <Twitter size={20} color="#dc3f72" />
-                      <Text color="white" fontSize={16}>
-                        Twitter
-                      </Text>
-                    </HStack>
-                  </Button>
-                )}
-              </HStack>
-            </VStack>
-          )}
-
-          {/* Artist Films Section (previously Known For) */}
-          {artist.knownFor && artist.knownFor.length > 0 && (
-            <VStack space="md">
-              <HStack justifyContent="space-between" alignItems="center">
-                <Text color="white" fontSize={20} fontWeight="600">
-                  Artist Films
-                </Text>
-                <Pressable
-                  onPress={() =>
-                    navigation.navigate('ArtistMovies', {
-                      movies: artist.knownFor,
-                      artistName: artist.name,
-                    })
-                  }>
-                  <HStack space="sm" alignItems="center">
-                    <Text color="#dc3f72" fontSize={14}>
-                      See all {artist.knownFor.length}
+          {/* Personal Info */}
+          <VStack space="md">
+            <Text color="white" fontSize={20} fontWeight="600">
+              Personal Info
+            </Text>
+            <VStack space="sm">
+              {artist.birthday && (
+                <HStack space="md" alignItems="center">
+                  <Calendar size={20} color="#dc3f72" />
+                  <VStack>
+                    <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+                      Birthday
                     </Text>
-                    <ChevronRight color="#dc3f72" size={16} />
-                  </HStack>
-                </Pressable>
-              </HStack>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.knownForContainer}>
-                {artist.knownFor.map(movie => (
-                  <MovieCard key={movie.id} movie={movie} />
-                ))}
-              </ScrollView>
+                    <Text color="white" fontSize={14}>
+                      {artist.birthday}
+                    </Text>
+                  </VStack>
+                </HStack>
+              )}
+              {artist.place_of_birth && (
+                <HStack space="md" alignItems="center">
+                  <MapPin size={20} color="#dc3f72" />
+                  <VStack>
+                    <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
+                      Place of Birth
+                    </Text>
+                    <Text color="white" fontSize={14}>
+                      {artist.place_of_birth}
+                    </Text>
+                  </VStack>
+                </HStack>
+              )}
             </VStack>
-          )}
+          </VStack>
+
+          {/* Filmography */}
+          <VStack space="md">
+            <Text color="white" fontSize={20} fontWeight="600">
+              Filmography
+            </Text>
+            <Box>
+              <HStack flexWrap="wrap" marginHorizontal={-6}>
+                {movies.map(movie => (
+                  <Box
+                    key={movie.id}
+                    paddingHorizontal={6}
+                    marginBottom={12}
+                    width="33.33%">
+                    <MovieCard movie={movie} />
+                  </Box>
+                ))}
+              </HStack>
+              {isLoadingMore && (
+                <Box py={4} alignItems="center">
+                  <Spinner size="small" color="#dc3f72" />
+                </Box>
+              )}
+            </Box>
+          </VStack>
         </VStack>
       </ScrollView>
     </Box>
@@ -428,10 +465,9 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   movieCard: {
-    width: 150,
+    width: '100%',
     backgroundColor: '#270a39',
     borderRadius: 12,
-    marginRight: 12,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(220, 63, 114, 0.1)',

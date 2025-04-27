@@ -32,6 +32,7 @@ import {
 } from 'react-native';
 import sampleData from '../data/sample.json';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -267,24 +268,13 @@ const ListDetailScreen = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Find the list from sample data
-        const foundList = [
-          ...sampleData.user.lists,
-          ...sampleData.featured.trending,
-          ...sampleData.featured.staffPicks,
-          ...sampleData.community.popular,
-          ...sampleData.community.recent,
-        ].find(l => l.id === listId);
-
-        // Get sample movies
-        const listMovies = sampleData.movies.recentlyWatched;
-
-        setList(foundList);
-        setMovies(listMovies);
+        const response = await api.get(`/lists/${listId}/`);
+        const listData = response.data;
+        setList(listData);
+        setMovies(listData.movies || []);
+        setIsLiked(listData.is_liked);
       } catch (error) {
         console.error('Error loading list details:', error);
       } finally {
@@ -295,12 +285,25 @@ const ListDetailScreen = () => {
     loadData();
   }, [listId]);
 
-  const handleMoviePress = movieId => {
-    navigation.navigate('MovieDetail', {movieId});
+  const handleMoviePress = (movieId, type) => {
+    navigation.navigate('MovieDetail', {tmdbId: movieId, type: type});
   };
 
-  const handleLikeToggle = () => {
-    setIsLiked(!isLiked);
+  const handleLikeToggle = async () => {
+    try {
+      const response = await api.post(`/lists/${listId}/like/`);
+      const {liked} = response.data;
+      setIsLiked(liked);
+      // Update likes count in the list data
+      setList(prevList => ({
+        ...prevList,
+        likes_count: liked
+          ? (prevList.likes_count || 0) + 1
+          : (prevList.likes_count || 1) - 1,
+      }));
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
   };
 
   if (isLoading || !list) {
@@ -313,7 +316,7 @@ const ListDetailScreen = () => {
         {/* Backdrop Image */}
         <Box height={250} width="100%">
           <Image
-            source={{uri: list.thumbnail}}
+            source={{uri: list.backdrop || list.thumbnail}}
             alt={list.name}
             style={styles.backdropImage}
           />
@@ -368,7 +371,7 @@ const ListDetailScreen = () => {
               <HStack space="sm" flexWrap="wrap" marginTop={8}>
                 <HStack space="xs" alignItems="center">
                   <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                    {list.moviesCount} movies
+                    {list.movies_count} movies
                   </Text>
                 </HStack>
                 <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
@@ -379,7 +382,7 @@ const ListDetailScreen = () => {
                     by {list.creator}
                   </Text>
                 </HStack>
-                {list.likes && (
+                {list.likes_count >= 0 && (
                   <>
                     <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
                       •
@@ -387,7 +390,7 @@ const ListDetailScreen = () => {
                     <HStack space="xs" alignItems="center">
                       <Heart size={14} color="#dc3f72" fill="#dc3f72" />
                       <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-                        {list.likes.toLocaleString()}
+                        {list.likes_count.toLocaleString()}
                       </Text>
                     </HStack>
                   </>
@@ -429,8 +432,11 @@ const ListDetailScreen = () => {
             {movies.map(movie => (
               <MovieListItem
                 key={movie.id}
-                movie={movie}
-                onPress={() => handleMoviePress(movie.id)}
+                movie={{
+                  ...movie,
+                  poster: movie.poster_preview_url,
+                }}
+                onPress={() => handleMoviePress(movie.tmdb_id, movie.type)}
               />
             ))}
           </VStack>

@@ -20,7 +20,7 @@ import {
   Heart,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
-import sampleData from '../data/sample.json';
+import api from '../lib/api'; // Fixed import statement
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import {StyleSheet} from 'react-native';
 
@@ -178,45 +178,49 @@ const ListsScreen = () => {
   });
 
   useEffect(() => {
-    const loadData = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Set data based on active tab
-      switch (activeTab) {
-        case 'featured':
-          setData({
-            ...data,
-            trending: sampleData.featured?.trending || [],
-            staffPicks: sampleData.featured?.staffPicks || [],
-          });
-          break;
-        case 'myLists':
-          setData({
-            ...data,
-            lists: sampleData.user?.lists || [],
-          });
-          break;
-        case 'liked':
-          setData({
-            ...data,
-            liked: sampleData.user?.likedLists || [],
-          });
-          break;
-        case 'community':
-          setData({
-            ...data,
-            popular: sampleData.community?.popular || [],
-            recent: sampleData.community?.recent || [],
-          });
-          break;
+      try {
+        switch (activeTab) {
+          case 'featured':
+            const featuredResponse = await api.get('/lists/featured/');
+            setData(prevData => ({
+              ...prevData,
+              trending: featuredResponse.data.trending || [],
+              staffPicks: featuredResponse.data.staff_picks || [],
+            }));
+            break;
+          case 'myLists':
+            const myListsResponse = await api.get('/lists/my_lists/'); // Updated path
+            setData(prevData => ({
+              ...prevData,
+              lists: myListsResponse.data || [],
+            }));
+            break;
+          case 'liked':
+            const likedResponse = await api.get('/lists/liked/'); // Updated path
+            setData(prevData => ({
+              ...prevData,
+              liked: likedResponse.data || [],
+            }));
+            break;
+          case 'community':
+            const communityResponse = await api.get('/lists/community/');
+            setData(prevData => ({
+              ...prevData,
+              popular: communityResponse.data.popular || [],
+              recent: communityResponse.data.recent || [],
+            }));
+            break;
+        }
+      } catch (error) {
+        console.error('Error fetching lists:', error);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
-    loadData();
+    fetchData();
   }, [activeTab]);
 
   const tabs = [
@@ -320,7 +324,11 @@ const ListsScreen = () => {
                   {(data?.trending || []).map(list => (
                     <ListItem
                       key={list.id}
-                      list={list}
+                      list={{
+                        ...list,
+                        moviesCount: list.movies_count,
+                        likesCount: list.likes_count,
+                      }}
                       onPress={() => navigateToList(list.id, list.name)}
                     />
                   ))}
@@ -337,7 +345,11 @@ const ListsScreen = () => {
                   {(data?.staffPicks || []).map(list => (
                     <ListItem
                       key={list.id}
-                      list={list}
+                      list={{
+                        ...list,
+                        moviesCount: list.movies_count,
+                        likesCount: list.likes_count,
+                      }}
                       onPress={() => navigateToList(list.id, list.name)}
                     />
                   ))}
@@ -355,7 +367,11 @@ const ListsScreen = () => {
                 {(data?.lists || []).map(list => (
                   <ListItem
                     key={list.id}
-                    list={list}
+                    list={{
+                      ...list,
+                      moviesCount: list.movies_count,
+                      likesCount: list.likes_count,
+                    }}
                     onPress={() => navigateToList(list.id, list.name)}
                   />
                 ))}
@@ -372,7 +388,11 @@ const ListsScreen = () => {
                 {(data?.liked || []).map(list => (
                   <ListItem
                     key={list.id}
-                    list={list}
+                    list={{
+                      ...list,
+                      moviesCount: list.movies_count,
+                      likesCount: list.likes_count,
+                    }}
                     onPress={() => navigateToList(list.id, list.name)}
                   />
                 ))}
@@ -392,7 +412,11 @@ const ListsScreen = () => {
                   {(data?.popular || []).map(list => (
                     <ListItem
                       key={list.id}
-                      list={list}
+                      list={{
+                        ...list,
+                        moviesCount: list.movies_count,
+                        likesCount: list.likes_count,
+                      }}
                       onPress={() => navigateToList(list.id, list.name)}
                     />
                   ))}
@@ -409,7 +433,11 @@ const ListsScreen = () => {
                   {(data?.recent || []).map(list => (
                     <ListItem
                       key={list.id}
-                      list={list}
+                      list={{
+                        ...list,
+                        moviesCount: list.movies_count,
+                        likesCount: list.likes_count,
+                      }}
                       onPress={() => navigateToList(list.id, list.name)}
                     />
                   ))}

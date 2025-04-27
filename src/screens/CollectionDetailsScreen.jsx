@@ -14,8 +14,8 @@ import {
 import {ArrowLeft, Heart, Share2} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Platform, StyleSheet, Dimensions, Animated, Share} from 'react-native';
-import sampleData from '../data/sample.json';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_SPACING = 12;
@@ -40,7 +40,7 @@ const MovieCard = ({movie}) => {
             <ImagePlaceholder width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5} />
           )}
           <Image
-            source={{uri: movie.poster}}
+            source={{uri: movie.poster_preview_url}}
             alt={movie.title}
             width={ITEM_WIDTH}
             height={ITEM_WIDTH * 1.5}
@@ -201,7 +201,26 @@ const CollectionDetailsScreen = ({route}) => {
   const {collectionId} = route.params;
   const [isLoading, setIsLoading] = React.useState(true);
   const [collection, setCollection] = React.useState(null);
-  const [isFavorite, setIsFavorite] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [isOverviewExpanded, setIsOverviewExpanded] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchCollection = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get(`/collections/${collectionId}`);
+        setCollection(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching collection:', err);
+        setError(err.response?.data?.message || 'Failed to load collection');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCollection();
+  }, [collectionId]);
 
   const handleShare = () => {
     Share.share({
@@ -210,22 +229,11 @@ const CollectionDetailsScreen = ({route}) => {
     });
   };
 
-  // Load data with delay
-  React.useEffect(() => {
-    const loadData = async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+  const toggleOverview = () => {
+    setIsOverviewExpanded(!isOverviewExpanded);
+  };
 
-      // Get collection data from sample.json
-      const collectionData = sampleData.collections[collectionId];
-      setCollection(collectionData);
-      setIsLoading(false);
-    };
-
-    loadData();
-  }, [collectionId]);
-
-  if (!collection && !isLoading) {
+  if (error) {
     return (
       <Box
         flex={1}
@@ -233,7 +241,7 @@ const CollectionDetailsScreen = ({route}) => {
         alignItems="center"
         justifyContent="center">
         <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
-          Collection not found
+          {error}
         </Text>
       </Box>
     );
@@ -249,7 +257,7 @@ const CollectionDetailsScreen = ({route}) => {
             {/* Backdrop */}
             <Box height={250} width="100%">
               <Image
-                source={{uri: collection.backdrop}}
+                source={{uri: collection.backdrop_url}}
                 alt={collection.name}
                 style={styles.backdropImage}
               />
@@ -284,40 +292,26 @@ const CollectionDetailsScreen = ({route}) => {
               {/* Title, Thumbnail and Overview */}
               <HStack space="md" marginBottom={24}>
                 <Image
-                  source={{uri: collection.thumbnail}}
+                  source={{uri: collection.poster_url}}
                   alt={collection.name}
                   width={120}
                   height={180}
                   borderRadius={12}
                 />
                 <VStack flex={1} space="md">
-                  <HStack space="sm" alignItems="center" flexWrap="wrap">
-                    <Text color="white" fontSize={24} fontWeight="600" flex={1}>
-                      {collection.name}
-                    </Text>
-                    <Box
-                      backgroundColor={isFavorite ? '#dc3f72' : 'transparent'}
-                      padding={8}
-                      borderRadius={20}
-                      borderWidth={1}
-                      borderColor="#dc3f72">
-                      <Pressable onPress={() => setIsFavorite(!isFavorite)}>
-                        <Heart
-                          size={20}
-                          color={isFavorite ? 'white' : '#dc3f72'}
-                          fill={isFavorite ? 'white' : 'transparent'}
-                        />
-                      </Pressable>
-                    </Box>
-                  </HStack>
+                  <Text color="white" fontSize={24} fontWeight="600" flex={1}>
+                    {collection.name}
+                  </Text>
                   {collection.overview && (
-                    <Text
-                      color="rgba(255, 255, 255, 0.7)"
-                      fontSize={14}
-                      lineHeight={20}
-                      numberOfLines={5}>
-                      {collection.overview}
-                    </Text>
+                    <Pressable onPress={toggleOverview}>
+                      <Text
+                        color="rgba(255, 255, 255, 0.7)"
+                        fontSize={14}
+                        lineHeight={20}
+                        numberOfLines={isOverviewExpanded ? undefined : 5}>
+                        {collection.overview}
+                      </Text>
+                    </Pressable>
                   )}
                 </VStack>
               </HStack>
@@ -329,15 +323,15 @@ const CollectionDetailsScreen = ({route}) => {
                     Movies
                   </Text>
                   <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
-                    {collection.movies.length}{' '}
-                    {collection.movies.length === 1 ? 'movie' : 'movies'}
+                    {collection.movies_count}{' '}
+                    {collection.movies_count === 1 ? 'movie' : 'movies'}
                   </Text>
                 </HStack>
                 <Box>
                   <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
                     {collection.movies.map((movie, index) => (
                       <Box
-                        key={index}
+                        key={movie.id}
                         paddingHorizontal={GRID_SPACING / 2}
                         marginBottom={GRID_SPACING}
                         width={`${100 / NUM_COLUMNS}%`}>

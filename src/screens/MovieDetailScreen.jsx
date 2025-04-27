@@ -93,7 +93,7 @@ const CastMember = ({member}) => {
     <Pressable
       onPress={() =>
         navigation.navigate('ArtistDetailScreen', {
-          artistId: member.name.toLowerCase().replace(/\s+/g, '-'),
+          artistId: member.tmdb_id,
         })
       }
       style={{width: 100, marginRight: 12}}>
@@ -120,7 +120,7 @@ const CastMember = ({member}) => {
 
 const CastList = ({cast, director, crew}) => {
   const navigation = useNavigation();
-  const displayCast = cast.slice(0, 8);
+  const displayCast = cast.slice(0, 10);
 
   const handleArtistPress = artist => {
     const artistId = artist.name.toLowerCase().replace(/\s+/g, '-');
@@ -176,7 +176,7 @@ const CollectionSection = ({collection}) => {
         <Pressable
           onPress={() =>
             navigation.navigate('CollectionDetails', {
-              collectionId: collection.id,
+              collectionId: collection.tmdb_id,
             })
           }>
           <HStack space="sm" alignItems="center" minWidth={100}>
@@ -434,6 +434,7 @@ const MovieDetailScreen = ({route}) => {
           duration: movieDetails.runtime ? `${movieDetails.runtime} min` : null,
           director: movieDetails.directors?.[0]?.name,
           cast: movieDetails.cast_preview?.map(c => ({
+            tmdb_id: c.person.tmdb_id,
             name: c.person.name,
             character: c.character,
             image: c.person.profile_path,
