@@ -118,14 +118,9 @@ const CastMember = ({member}) => {
   );
 };
 
-const CastList = ({cast, director, crew}) => {
+const CastList = ({cast, movie}) => {
   const navigation = useNavigation();
   const displayCast = cast.slice(0, 10);
-
-  const handleArtistPress = artist => {
-    const artistId = artist.name.toLowerCase().replace(/\s+/g, '-');
-    navigation.navigate('ArtistDetailScreen', {artistId});
-  };
 
   return (
     <VStack space="md">
@@ -138,7 +133,10 @@ const CastList = ({cast, director, crew}) => {
         </Text>
         <Pressable
           onPress={() =>
-            navigation.navigate('CastDetails', {cast, director, crew})
+            navigation.navigate('CastDetails', {
+              tmdbId: movie.tmdb_id,
+              type: movie.type,
+            })
           }>
           <HStack space="sm" alignItems="center">
             <Text color="#dc3f72" fontSize={14}>
@@ -1036,11 +1034,7 @@ const MovieDetailScreen = ({route}) => {
           <VStack space="xl" marginBottom={24}>
             {movieData.cast && movieData.cast.length > 0 && (
               <Box marginTop={8}>
-                <CastList
-                  cast={movieData.cast}
-                  director={movieData.director}
-                  crew={movieData.crew}
-                />
+                <CastList cast={movieData.cast} movie={movieData} />
               </Box>
             )}
           </VStack>

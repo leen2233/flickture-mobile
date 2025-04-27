@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Box,
   ScrollView,
@@ -9,16 +9,13 @@ import {
   Button,
   ButtonIcon,
   Pressable,
-  Input,
-  InputField,
-  InputIcon,
-  InputSlot,
   Spinner,
 } from '@gluestack-ui/themed';
-import {ArrowLeft, Search, User2} from 'lucide-react-native';
+import {ArrowLeft, User2, Star, Clock, Calendar} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Platform, StyleSheet, Dimensions, Animated} from 'react-native';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_SPACING = 12;
@@ -33,7 +30,7 @@ const ArtistCard = ({artist, role, department}) => {
   return (
     <Pressable
       onPress={() => {
-        const artistId = artist.name.toLowerCase().replace(/\s+/g, '-');
+        const artistId = artist.tmdb_id;
         navigation.navigate('ArtistDetailScreen', {artistId});
       }}>
       <VStack alignItems="center" space="sm" width={ITEM_WIDTH}>
@@ -103,40 +100,6 @@ const ArtistCard = ({artist, role, department}) => {
   );
 };
 
-const CrewSection = ({title, crew}) => {
-  if (!crew || crew.length === 0) return null;
-
-  return (
-    <VStack space="md" marginBottom={24}>
-      <HStack justifyContent="space-between" alignItems="center">
-        <Text color="white" fontSize={20} fontWeight="600">
-          {title}
-        </Text>
-        <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
-          {crew.length} {crew.length === 1 ? 'person' : 'people'}
-        </Text>
-      </HStack>
-      <Box>
-        <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
-          {crew.map((person, index) => (
-            <Box
-              key={index}
-              paddingHorizontal={GRID_SPACING / 2}
-              marginBottom={GRID_SPACING}
-              width={`${100 / NUM_COLUMNS}%`}>
-              <ArtistCard
-                artist={person}
-                role={person.role || person.job}
-                department={person.department}
-              />
-            </Box>
-          ))}
-        </HStack>
-      </Box>
-    </VStack>
-  );
-};
-
 const LoadingSkeleton = () => {
   const fadeAnim = React.useRef(new Animated.Value(0.3)).current;
 
@@ -200,168 +163,253 @@ const LoadingSkeleton = () => {
     </Box>
   );
 
-  const SkeletonSection = ({count = 6}) => (
-    <VStack space="md" marginBottom={24}>
-      <HStack justifyContent="space-between" alignItems="center">
-        <Animated.View
-          style={{
-            width: 120,
-            height: 24,
-            borderRadius: 12,
-            backgroundColor: '#270a39',
-            opacity: fadeAnim,
-          }}
-        />
-      </HStack>
-      <Box>
-        <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
-          {Array(count)
-            .fill(0)
-            .map((_, index) => (
-              <SkeletonCard key={index} />
-            ))}
-        </HStack>
-      </Box>
-    </VStack>
-  );
-
   return (
-    <VStack space="md">
-      <SkeletonSection count={9} />
-      <SkeletonSection count={3} />
-      <SkeletonSection count={6} />
-    </VStack>
+    <Box flex={1} backgroundColor="#040b1c">
+      {/* Backdrop Skeleton */}
+      <Animated.View
+        style={{
+          height: 300,
+          backgroundColor: '#270a39',
+          opacity: fadeAnim,
+        }}
+      />
+
+      {/* Content Section */}
+      <Box padding={16} marginTop={-90}>
+        {/* Title and Details Skeleton */}
+        <VStack space="md" marginBottom={24}>
+          <VStack space="xs">
+            <Animated.View
+              style={{
+                width: '70%',
+                height: 24,
+                borderRadius: 12,
+                backgroundColor: '#270a39',
+                opacity: fadeAnim,
+              }}
+            />
+            <Animated.View
+              style={{
+                width: '50%',
+                height: 16,
+                borderRadius: 8,
+                backgroundColor: '#270a39',
+                opacity: fadeAnim,
+                marginTop: 8,
+              }}
+            />
+            <HStack space="sm" marginTop={8}>
+              <Animated.View
+                style={{
+                  width: 40,
+                  height: 14,
+                  borderRadius: 7,
+                  backgroundColor: '#270a39',
+                  opacity: fadeAnim,
+                }}
+              />
+              <Animated.View
+                style={{
+                  width: 80,
+                  height: 14,
+                  borderRadius: 7,
+                  backgroundColor: '#270a39',
+                  opacity: fadeAnim,
+                }}
+              />
+              <Animated.View
+                style={{
+                  width: 100,
+                  height: 14,
+                  borderRadius: 7,
+                  backgroundColor: '#270a39',
+                  opacity: fadeAnim,
+                }}
+              />
+            </HStack>
+          </VStack>
+        </VStack>
+
+        {/* Cast and Crew Section */}
+        <VStack space="md" marginBottom={24}>
+          <HStack justifyContent="space-between" alignItems="center">
+            <Animated.View
+              style={{
+                width: 120,
+                height: 20,
+                borderRadius: 10,
+                backgroundColor: '#270a39',
+                opacity: fadeAnim,
+              }}
+            />
+            <Animated.View
+              style={{
+                width: 80,
+                height: 14,
+                borderRadius: 7,
+                backgroundColor: '#270a39',
+                opacity: fadeAnim,
+              }}
+            />
+          </HStack>
+          <Box>
+            <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
+              {Array(9)
+                .fill(0)
+                .map((_, index) => (
+                  <SkeletonCard key={index} />
+                ))}
+            </HStack>
+          </Box>
+        </VStack>
+      </Box>
+    </Box>
   );
 };
 
 const CastDetailsScreen = ({route}) => {
   const navigation = useNavigation();
-  const {cast, director, crew = []} = route.params;
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(true);
+  const {tmdbId, type} = route.params;
+  const [isLoading, setIsLoading] = useState(true);
+  const [movieData, setMovieData] = useState(null);
+  const [castAndCrew, setCastAndCrew] = useState([]);
+  const [isBackdropLoaded, setIsBackdropLoaded] = useState(false);
 
-  // Load data with delay
-  React.useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+
+        // Fetch movie details
+        const movieResponse = await api.get(`/movies/${tmdbId}/${type}`);
+        setMovieData(movieResponse.data);
+
+        // Fetch cast and crew
+        const castResponse = await api.get(`/movies/${tmdbId}/${type}/cast/`);
+        const castData = castResponse.data.results || [];
+        setCastAndCrew(castData);
+      } catch (error) {
+        console.error('Error loading cast details:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
-  }, []);
+  }, [tmdbId, type]);
 
-  // Organize crew by department
-  const directors = [
-    ...(director
-      ? [
-          {
-            name: director,
-            image: 'https://via.placeholder.com/300x450',
-            role: 'Director',
-            department: 'Directing',
-          },
-        ]
-      : []),
-    ...crew.filter(person => person.department === 'Directing'),
-  ];
-
-  const writers = crew.filter(person => person.department === 'Writing');
-  const producers = crew.filter(person => person.department === 'Production');
-  const otherCrew = crew.filter(
-    person =>
-      !['Directing', 'Writing', 'Production'].includes(person.department),
-  );
-
-  // Filter cast and crew based on search
-  const filteredCast = cast.filter(person =>
-    person.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <Box flex={1} backgroundColor="#040b1c">
-      {/* Header */}
-      <VStack
-        space="md"
-        padding={16}
-        paddingTop={Platform.OS === 'ios' ? 60 : 20}>
-        <HStack space="md" alignItems="center">
-          <Button variant="link" onPress={() => navigation.goBack()}>
+      <ScrollView flex={1}>
+        {/* Backdrop Image */}
+        <Box height={300}>
+          {isBackdropLoaded || <ImagePlaceholder width="100%" height={300} />}
+          <Image
+            source={{uri: movieData.backdrop_url || movieData.poster_url}}
+            alt={movieData.title}
+            style={[
+              styles.backdropImage,
+              !isBackdropLoaded && styles.hiddenImage,
+            ]}
+            onLoad={() => setIsBackdropLoaded(true)}
+          />
+
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundColor="rgba(4, 11, 28, 0.5)"
+          />
+          <Button
+            position="absolute"
+            top={Platform.OS === 'ios' ? 60 : 20}
+            left={16}
+            variant="link"
+            onPress={() => navigation.goBack()}>
             <ButtonIcon as={ArrowLeft} color="white" />
           </Button>
-          <Text color="white" fontSize={20} fontWeight="600">
-            Cast & Crew
-          </Text>
-        </HStack>
+        </Box>
 
-        {/* Search Bar */}
-        <Input
-          variant="rounded"
-          size="md"
-          backgroundColor="rgba(255, 255, 255, 0.1)"
-          borderWidth={0}>
-          <InputSlot pl="$3">
-            <InputIcon as={Search} color="rgba(255, 255, 255, 0.5)" />
-          </InputSlot>
-          <InputField
-            color="white"
-            placeholder="Search cast & crew"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </Input>
-      </VStack>
-
-      <ScrollView flex={1} contentContainerStyle={{padding: 16}}>
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : (
-          <>
-            {/* Cast Section */}
-            <VStack space="md" marginBottom={24}>
-              <HStack justifyContent="space-between" alignItems="center">
-                <Text color="white" fontSize={20} fontWeight="600">
-                  Cast
+        {/* Content */}
+        <Box padding={16} marginTop={-90}>
+          {/* Title and Details */}
+          <VStack space="md" marginBottom={24}>
+            <VStack space="xs">
+              <Text color="white" fontSize={24} fontWeight="600">
+                {movieData.title.length > 30
+                  ? `${movieData.title.slice(0, 30)}...`
+                  : movieData.title}
+              </Text>
+              {movieData.originalTitle &&
+                movieData.originalTitle !== movieData.title && (
+                  <Text color="rgba(255, 255, 255, 0.5)" fontSize={16}>
+                    {movieData.originalTitle}
+                  </Text>
+                )}
+              <HStack space="sm" flexWrap="wrap">
+                <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
+                  {movieData.year}
+                </Text>
+                {movieData.runtime && (
+                  <>
+                    <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
+                      •
+                    </Text>
+                    <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
+                      {movieData.runtime} min
+                    </Text>
+                  </>
+                )}
+                <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
+                  •
                 </Text>
                 <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
-                  {filteredCast.length}{' '}
-                  {filteredCast.length === 1 ? 'person' : 'people'}
+                  Rating: {movieData.rating}
                 </Text>
               </HStack>
-              <Box>
-                <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
-                  {filteredCast.map((actor, index) => (
-                    <Box
-                      key={index}
-                      paddingHorizontal={GRID_SPACING / 2}
-                      marginBottom={GRID_SPACING}
-                      width={`${100 / NUM_COLUMNS}%`}>
-                      <ArtistCard
-                        artist={actor}
-                        role={actor.character}
-                        department="Acting"
-                      />
-                    </Box>
-                  ))}
-                </HStack>
-              </Box>
             </VStack>
+          </VStack>
 
-            {/* Crew Sections */}
-            {directors.length > 0 && (
-              <CrewSection title="Directing" crew={directors} />
-            )}
-            {writers.length > 0 && (
-              <CrewSection title="Writing" crew={writers} />
-            )}
-            {producers.length > 0 && (
-              <CrewSection title="Production" crew={producers} />
-            )}
-            {otherCrew.length > 0 && (
-              <CrewSection title="Crew" crew={otherCrew} />
-            )}
-          </>
-        )}
+          {/* Cast and Crew Section */}
+          <VStack space="md" marginBottom={24}>
+            <HStack justifyContent="space-between" alignItems="center">
+              <Text color="white" fontSize={20} fontWeight="600">
+                Cast & Crew
+              </Text>
+              <Text color="rgba(255, 255, 255, 0.5)" fontSize={14}>
+                {castAndCrew.length}{' '}
+                {castAndCrew.length === 1 ? 'person' : 'people'}
+              </Text>
+            </HStack>
+            <Box>
+              <HStack flexWrap="wrap" marginHorizontal={-GRID_SPACING / 2}>
+                {castAndCrew.map((member, index) => (
+                  <Box
+                    key={index}
+                    paddingHorizontal={GRID_SPACING / 2}
+                    marginBottom={GRID_SPACING}
+                    width={`${100 / NUM_COLUMNS}%`}>
+                    <ArtistCard
+                      artist={{
+                        name: member.person.name,
+                        image: member.person.profile_path,
+                        tmdb_id: member.person.tmdb_id,
+                      }}
+                      role={member.character}
+                      department={member.department}
+                    />
+                  </Box>
+                ))}
+              </HStack>
+            </Box>
+          </VStack>
+        </Box>
       </ScrollView>
     </Box>
   );
@@ -369,6 +417,11 @@ const CastDetailsScreen = ({route}) => {
 
 const styles = StyleSheet.create({
   artistImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  backdropImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
