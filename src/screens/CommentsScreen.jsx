@@ -142,7 +142,8 @@ const CommentItem = ({
 }) => {
   const [isLiked, setIsLiked] = React.useState(initialLiked);
   const [likes, setLikes] = React.useState(initialLikes);
-  const [isLiking, setIsLiking] = React.useState(false);``
+  const [isLiking, setIsLiking] = React.useState(false);
+  ``;
   const [showResponses, setShowResponses] = React.useState(false);
   const [showMainInput, setShowMainInput] = React.useState(false);
   const [responseText, setResponseText] = React.useState('');
@@ -235,10 +236,12 @@ const CommentItem = ({
     if (!responseText.trim()) return;
 
     setIsSubmitting(true);
+
+    console.log('Submitting response:', responseText.trim(), id, movieId);
     try {
       const response = await api.post(`/movies/${tmdbId}/${type}/comments/`, {
         content: responseText.trim(),
-        parent: activeResponseId !== null ? id : undefined,
+        parent: id,
         movie: movieId,
       });
 
@@ -488,7 +491,9 @@ const CommentItem = ({
                             placeholderTextColor="rgba(255, 255, 255, 0.5)"
                             value={responseText}
                             onChangeText={setResponseText}
-                            onSubmitEditing={handleSubmitResponse}
+                            onSubmitEditing={() => {
+                              handleSubmitResponse(response.id);
+                            }}
                           />
                         </Input>
                         <Button
