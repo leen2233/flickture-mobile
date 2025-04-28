@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Box, Text, Center, Icon} from '@gluestack-ui/themed';
+import {Box, Text, Center, Icon, Pressable} from '@gluestack-ui/themed';
 import {Home, Search, User, List} from 'lucide-react-native';
 import ProfileScreen from './ProfileScreen';
 import SearchScreen from './SearchScreen';
@@ -20,17 +20,69 @@ const HomeTab = () => (
 const HomeScreen = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({route}) => ({
         tabBarStyle: {
           backgroundColor: '#270a39',
           borderTopWidth: 0,
           height: 60,
-          paddingBottom: 8,
+          paddingBottom: 5,
+          paddingTop: 5,
+          paddingHorizontal: 5,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          elevation: 0,
         },
-        tabBarActiveTintColor: '#dc3f72',
+        tabBarActiveTintColor: '#ffffff',
         tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
         headerShown: false,
-      }}>
+        tabBarItemStyle: {
+          margin: 0,
+          padding: 0,
+          marginHorizontal: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginTop: 0,
+        },
+        tabBarIconStyle: {
+          marginBottom: 0,
+        },
+        tabBarButton: props => {
+          const selected = props.accessibilityState?.selected;
+          return (
+            <Pressable
+              style={{
+                flex: 1,
+                minHeight: 50,
+                marginHorizontal: 8,
+              }}
+              onPress={props.onPress}>
+              <Box
+                backgroundColor={selected ? '#dc3f72' : 'transparent'}
+                borderRadius={20}
+                style={{
+                  height: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                }}>
+                <Box
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  {props.children}
+                </Box>
+              </Box>
+            </Pressable>
+          );
+        },
+      })}>
       <Tab.Screen
         name="HomeTab"
         component={MainHomeScreen}

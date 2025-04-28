@@ -36,6 +36,29 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import api from '../lib/api';
+
+const timeAgo = timestamp => {
+  const now = new Date();
+  const date = new Date(timestamp);
+  const seconds = Math.floor((now - date) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  if (seconds < 60)
+    return `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
+  if (minutes < 60)
+    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+  if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  if (days < 7) return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+  if (weeks < 4) return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+  if (months < 12) return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+  return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+};
 
 const RatingStars = ({rating}) => (
   <HStack space="xs">
@@ -54,6 +77,7 @@ const ActionButton = ({
   onPress,
   icon,
   text,
+  icon2,
   color = 'rgba(255, 255, 255, 0.7)',
 }) => {
   const scale = React.useRef(new Animated.Value(1)).current;
@@ -94,6 +118,7 @@ const ActionButton = ({
           <Text color={color} fontSize={13} fontWeight="500">
             {text}
           </Text>
+          {icon2}
         </HStack>
       </Animated.View>
     </Pressable>
@@ -101,16 +126,23 @@ const ActionButton = ({
 };
 
 const CommentItem = ({
+  id,
   user,
   rating,
-  comment,
-  date,
+  content,
+  created_at,
   responses = [],
   initialLikes = 0,
+  initialLiked = false,
+  tmdbId,
+  type,
+  movieId,
+  fetchComments,
   scrollToInput,
 }) => {
-  const [isLiked, setIsLiked] = React.useState(false);
+  const [isLiked, setIsLiked] = React.useState(initialLiked);
   const [likes, setLikes] = React.useState(initialLikes);
+  const [isLiking, setIsLiking] = React.useState(false);``
   const [showResponses, setShowResponses] = React.useState(false);
   const [showMainInput, setShowMainInput] = React.useState(false);
   const [responseText, setResponseText] = React.useState('');
@@ -123,9 +155,24 @@ const CommentItem = ({
   const responseInputRefs = React.useRef({});
   const [inputKey, setInputKey] = React.useState(0);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(prev => (isLiked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    if (isLiking) return;
+
+    try {
+      setIsLiking(true);
+      const response = await api.post(
+        `/movies/${tmdbId}/${type}/comments/${id}/like/`,
+      );
+      const {liked, likes_count} = response.data;
+
+      setIsLiked(liked);
+      setLikes(likes_count);
+    } catch (error) {
+      console.error('Error liking comment:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   const toggleResponses = async () => {
@@ -188,27 +235,34 @@ const CommentItem = ({
     if (!responseText.trim()) return;
 
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await api.post(`/movies/${tmdbId}/${type}/comments/`, {
+        content: responseText.trim(),
+        parent: activeResponseId !== null ? id : undefined,
+        movie: movieId,
+      });
 
-    // Add the new response to the local state
-    const newResponse = {
-      user: {
-        username: 'You',
-        avatar: 'https://i.pravatar.cc/300?img=5',
-      },
-      comment: responseText.trim(),
-      date: new Date().toISOString().split('T')[0],
-    };
+      const newComment = response.data;
 
-    setLocalResponses(prev => [...prev, newResponse]);
-    setShowResponses(true);
+      if (activeResponseId !== null) {
+        // If this is a response to an existing comment
+        setLocalResponses(prev => [...prev, newComment]);
+        setShowResponses(true);
+      } else {
+        // If this is a new main comment, it will be fetched with the next comments refresh
+        fetchComments(1); // Refresh the comments list
+      }
 
-    // Reset all input states
-    setIsSubmitting(false);
-    setResponseText('');
-    setShowMainInput(false);
-    setActiveResponseId(null);
+      // Reset all input states
+      setIsSubmitting(false);
+      setResponseText('');
+      setShowMainInput(false);
+      setActiveResponseId(null);
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      setIsSubmitting(false);
+      // You might want to show an error toast here
+    }
   };
 
   return (
@@ -230,13 +284,13 @@ const CommentItem = ({
           <HStack space="md" alignItems="center">
             <RatingStars rating={rating} />
             <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
-              {date}
+              {timeAgo(created_at)}
             </Text>
           </HStack>
         </VStack>
       </HStack>
       <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-        {comment}
+        {content}
       </Text>
 
       {/* Action Buttons */}
@@ -250,26 +304,35 @@ const CommentItem = ({
           icon={
             <HStack space="xs" alignItems="center">
               <MessageCircle size={18} color="rgba(255, 255, 255, 0.7)" />
-              {localResponses.length > 0 && showResponses ? (
-                <ChevronUp size={16} color="rgba(255, 255, 255, 0.7)" />
-              ) : localResponses.length > 0 ? (
-                <ChevronDown size={16} color="rgba(255, 255, 255, 0.7)" />
-              ) : null}
             </HStack>
           }
           text={`${localResponses.length} ${
-            localResponses.length === 1 ? 'Response' : 'Responses'
+            localResponses.length <= 1 ? 'Response' : 'Responses'
           }`}
+          icon2={
+            localResponses.length > 0 && showResponses ? (
+              <ChevronUp size={16} color="rgba(255, 255, 255, 0.7)" />
+            ) : localResponses.length > 0 ? (
+              <ChevronDown size={16} color="rgba(255, 255, 255, 0.7)" />
+            ) : null
+          }
         />
 
         <ActionButton
           onPress={handleLike}
           icon={
-            <Heart
-              size={18}
-              color={isLiked ? '#dc3f72' : 'rgba(255, 255, 255, 0.7)'}
-              fill={isLiked ? '#dc3f72' : 'none'}
-            />
+            isLiking ? (
+              <Spinner
+                size="small"
+                color={isLiked ? '#dc3f72' : 'rgba(255, 255, 255, 0.7)'}
+              />
+            ) : (
+              <Heart
+                size={18}
+                color={isLiked ? '#dc3f72' : 'rgba(255, 255, 255, 0.7)'}
+                fill={isLiked ? '#dc3f72' : 'none'}
+              />
+            )
           }
           text={`${likes} ${likes === 1 ? 'Like' : 'Likes'}`}
           color={isLiked ? '#dc3f72' : 'rgba(255, 255, 255, 0.7)'}
@@ -382,7 +445,7 @@ const CommentItem = ({
                             {response.user.username}
                           </Text>
                           <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
-                            {response.date}
+                            {timeAgo(response.created_at)}
                           </Text>
                         </VStack>
                         <ActionButton
@@ -398,7 +461,7 @@ const CommentItem = ({
                         />
                       </HStack>
                       <Text color="rgba(255, 255, 255, 0.7)" fontSize={13}>
-                        {response.comment}
+                        {response.content}
                       </Text>
                     </VStack>
 
@@ -462,26 +525,74 @@ const CommentItem = ({
 
 const MovieHeader = ({movie}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const navigation = useNavigation();
   return (
-    <VStack space="md" padding={16} backgroundColor="#270a39">
-      <HStack space="md">
-        <Box width={100} height={150}>
-          {!isImageLoaded && <ImagePlaceholder width={100} height={150} />}
-          <Image
-            source={{uri: movie.poster}}
-            alt={movie.title}
-            style={[styles.poster, !isImageLoaded && styles.hiddenImage]}
-            onLoad={() => setIsImageLoaded(true)}
+    <Box>
+      <Box height={350} width="100%" position="relative">
+        {!isImageLoaded && (
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundColor="rgba(39, 10, 57, 0.5)"
           />
-        </Box>
-        <VStack flex={1} space="xs">
+        )}
+        <Image
+          source={{uri: movie.backdrop_url}}
+          alt={movie.title}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
+          onLoad={() => setIsImageLoaded(true)}
+        />
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          style={{
+            backgroundColor: 'rgba(4, 11, 28, 0.8)',
+          }}
+        />
+
+        {/* Header with back button */}
+        <HStack
+          padding={16}
+          paddingTop={Platform.OS === 'ios' ? 60 : 20}
+          space="md"
+          alignItems="center">
+          <Button
+            variant="link"
+            onPress={() => navigation.goBack()}
+            padding={0}
+            margin={0}>
+            <ButtonIcon as={ArrowLeft} color="white" />
+          </Button>
           <Text color="white" fontSize={20} fontWeight="600">
+            Comments & Reviews
+          </Text>
+        </HStack>
+
+        {/* Movie Info */}
+        <VStack
+          space="xs"
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          padding={16}>
+          <Text color="white" fontSize={24} fontWeight="600">
             {movie.title}
           </Text>
-          <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
-            {movie.year}
-          </Text>
-          <HStack space="md" alignItems="center">
+          <HStack space="md" alignItems="center" flexWrap="wrap">
+            <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+              {movie.year}
+            </Text>
             <HStack space="xs" alignItems="center">
               <Star size={16} color="#dc3f72" fill="#dc3f72" />
               <Text color="white" fontSize={14}>
@@ -502,11 +613,8 @@ const MovieHeader = ({movie}) => {
             </HStack>
           </HStack>
         </VStack>
-      </HStack>
-      <Text color="rgba(255, 255, 255, 0.7)" fontSize={14} numberOfLines={3}>
-        {movie.overview}
-      </Text>
-    </VStack>
+      </Box>
+    </Box>
   );
 };
 
@@ -528,7 +636,7 @@ const FilterSection = ({
   const toggleFilters = () => setShowFilters(!showFilters);
 
   return (
-    <VStack space="sm" padding={16} backgroundColor="#270a39">
+    <VStack space="sm" padding={16}>
       <Pressable onPress={toggleFilters}>
         <HStack
           justifyContent="space-between"
@@ -707,7 +815,7 @@ const InitialLoadingState = () => (
 
 const CommentsScreen = ({route}) => {
   const navigation = useNavigation();
-  const {movieId} = route.params;
+  const {tmdbId, type, movie} = route.params;
   const [selectedRating, setSelectedRating] = React.useState(0);
   const [sortBy, setSortBy] = React.useState('date');
   const [showFilters, setShowFilters] = React.useState(false);
@@ -717,8 +825,8 @@ const CommentsScreen = ({route}) => {
   const [hasMore, setHasMore] = React.useState(true);
   const scrollViewRef = React.useRef(null);
 
-  // This would normally come from an API, using sample data for now
-  const movie = {
+  // We'll fetch this from API too in a real implementation
+  const moviee = {
     id: 1,
     title: 'Inception',
     originalTitle: 'Inception',
@@ -731,149 +839,69 @@ const CommentsScreen = ({route}) => {
     comments: 324,
   };
 
-  // Base comments data
-  const baseComments = [
-    {
-      id: 1,
-      user: {
-        username: 'CinematicDreams',
-        avatar: 'https://i.pravatar.cc/300?img=1',
-      },
-      rating: 5,
-      comment:
-        'A masterpiece that pushes the boundaries of storytelling and visual effects.',
-      date: '2024-03-15',
-      likes: 24,
-      responses: [
-        {
-          user: {
-            username: 'MovieBuff',
-            avatar: 'https://i.pravatar.cc/300?img=3',
-          },
-          comment: 'Totally agree! The visual effects were groundbreaking.',
-          date: '2024-03-15',
-        },
-        {
-          user: {
-            username: 'FilmCritic',
-            avatar: 'https://i.pravatar.cc/300?img=4',
-          },
-          comment: 'The dream sequences were particularly impressive.',
-          date: '2024-03-15',
-        },
-      ],
-    },
-    {
-      id: 2,
-      user: {
-        username: 'FilmBuff42',
-        avatar: 'https://i.pravatar.cc/300?img=2',
-      },
-      rating: 4,
-      comment: 'Incredible performances and a mind-bending plot.',
-      date: '2024-03-14',
-      likes: 18,
-      responses: [],
-    },
-    {
-      id: 3,
-      user: {
-        username: 'MovieLover',
-        avatar: 'https://i.pravatar.cc/300?img=6',
-      },
-      rating: 5,
-      comment: 'This movie changed how I think about cinema. Pure brilliance!',
-      date: '2024-03-13',
-      likes: 15,
-      responses: [],
-    },
-  ];
-
-  // State for all loaded comments
   const [allComments, setAllComments] = React.useState([]);
+
+  const fetchComments = React.useCallback(
+    async (pageNum = 1) => {
+      if (isLoading || (!hasMore && pageNum > 1)) return;
+
+      try {
+        if (pageNum === 1) {
+          setIsInitialLoading(true);
+        } else {
+          setIsLoading(true);
+        }
+
+        const response = await api.get(
+          `/movies/${tmdbId}/${type}/comments/?page=${pageNum}&rating=${selectedRating}&sort_by=${sortBy}`,
+        );
+        console.log(response, 'resposne');
+
+        const newComments = response.data.results;
+
+        if (pageNum === 1) {
+          setAllComments(newComments);
+        } else {
+          setAllComments(prev => [...prev, ...newComments]);
+        }
+
+        setHasMore(!!response.data.next);
+        setPage(pageNum);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        console.log(error.response);
+        // You might want to show an error toast here
+      } finally {
+        setIsInitialLoading(false);
+        setIsLoading(false);
+      }
+    },
+    [tmdbId, selectedRating, sortBy, isLoading, hasMore],
+  );
 
   // Initial load of comments
   React.useEffect(() => {
-    const loadInitialComments = async () => {
-      // Simulate initial API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setAllComments(baseComments);
-      setIsInitialLoading(false);
-    };
-
-    loadInitialComments();
-  }, []);
-
-  const loadMoreComments = React.useCallback(async () => {
-    if (isLoading || !hasMore) return;
-
-    setIsLoading(true);
-
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Generate new comments based on base comments
-    const newComments = baseComments.map(comment => ({
-      ...comment,
-      id: comment.id + page * baseComments.length,
-      date: new Date(
-        new Date(comment.date).getTime() - page * 24 * 60 * 60 * 1000,
-      )
-        .toISOString()
-        .split('T')[0],
-    }));
-
-    setAllComments(prev => [...prev, ...newComments]);
-    setPage(prev => prev + 1);
-
-    // Stop after 3 pages
-    if (page >= 3) {
-      setHasMore(false);
-    }
-
-    setIsLoading(false);
-  }, [page, isLoading, hasMore]);
+    fetchComments(1);
+  }, [selectedRating, sortBy]);
 
   const handleScroll = React.useCallback(
     ({nativeEvent}) => {
       const {layoutMeasurement, contentOffset, contentSize} = nativeEvent;
-      const paddingToBottom = 20; // Reduced padding to trigger earlier
+      const paddingToBottom = 20;
 
-      // Calculate scroll position percentage
       const currentPosition = layoutMeasurement.height + contentOffset.y;
       const totalHeight = contentSize.height;
       const isCloseToBottom = currentPosition >= totalHeight - paddingToBottom;
 
       if (isCloseToBottom && !isLoading && hasMore) {
-        loadMoreComments();
+        fetchComments(page + 1);
       }
     },
-    [loadMoreComments, isLoading, hasMore],
+    [fetchComments, isLoading, hasMore, page],
   );
 
-  const filteredAndSortedComments = React.useMemo(() => {
-    let filtered = [...allComments];
-
-    // Apply rating filter
-    if (selectedRating > 0) {
-      filtered = filtered.filter(comment => comment.rating === selectedRating);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'likes':
-          return b.likes - a.likes;
-        case 'rating':
-          return b.rating - a.rating;
-        case 'date':
-        default:
-          return new Date(b.date) - new Date(a.date);
-      }
-    });
-
-    return filtered;
-  }, [allComments, selectedRating, sortBy]);
+  // No need for filteredAndSortedComments since API handles filtering and sorting
+  const comments = allComments;
 
   const scrollToInput = (yOffset = 300) => {
     setTimeout(() => {
@@ -890,24 +918,6 @@ const CommentsScreen = ({route}) => {
       style={{flex: 1}}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
       <Box flex={1} backgroundColor="#040b1c">
-        <HStack
-          padding={16}
-          paddingTop={Platform.OS === 'ios' ? 60 : 20}
-          space="md"
-          alignItems="center"
-          backgroundColor="#270a39">
-          <Button
-            variant="link"
-            onPress={() => navigation.goBack()}
-            padding={0}
-            margin={0}>
-            <ButtonIcon as={ArrowLeft} color="white" />
-          </Button>
-          <Text color="white" fontSize={20} fontWeight="600">
-            Comments & Reviews
-          </Text>
-        </HStack>
-
         {isLoading && <LoadingIndicator />}
 
         <ScrollView
@@ -931,11 +941,16 @@ const CommentsScreen = ({route}) => {
             <InitialLoadingState />
           ) : (
             <VStack space="sm">
-              {filteredAndSortedComments.map(comment => (
+              {comments.map(comment => (
                 <React.Fragment key={comment.id}>
                   <CommentItem
                     {...comment}
-                    initialLikes={comment.likes}
+                    initialLikes={comment.likes_count}
+                    initialLiked={comment.is_liked}
+                    tmdbId={tmdbId}
+                    type={type}
+                    movieId={movie.id}
+                    fetchComments={fetchComments}
                     scrollToInput={scrollToInput}
                   />
                   <Divider bg="rgba(255, 255, 255, 0.1)" />

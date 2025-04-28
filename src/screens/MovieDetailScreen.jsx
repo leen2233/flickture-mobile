@@ -902,7 +902,11 @@ const MovieDetailScreen = ({route}) => {
               label="Comments"
               value={(movieData.comments || 0).toString()}
               onPress={() =>
-                navigation.navigate('CommentsScreen', {movieId: movieData.id})
+                navigation.navigate('CommentsScreen', {
+                  tmdbId: movieData.tmdb_id,
+                  type: movieData.type,
+                  movie: movieData,
+                })
               }
             />
           </HStack>
