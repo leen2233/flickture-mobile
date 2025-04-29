@@ -63,7 +63,7 @@ const HomeScreen = () => {
               onPress={props.onPress}>
               <Box
                 backgroundColor={selected ? '#dc3f72' : 'transparent'}
-                borderRadius={20}
+                borderRadius={15}
                 style={{
                   height: '100%',
                   justifyContent: 'center',
