@@ -10,7 +10,18 @@ import {
   ScrollView,
 } from '@gluestack-ui/themed';
 import {View, TouchableOpacity, StyleSheet, FlatList} from 'react-native';
-import {Edit2, ChevronRight, Settings, Search, Plus} from 'lucide-react-native';
+import {
+  Edit2,
+  ChevronRight,
+  Settings,
+  Search,
+  Plus,
+  Clock,
+  Bookmark,
+  BookMarked,
+  Heart,
+  Film,
+} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import sampleData from '../data/sample.json';
 import MovieListModal from '../components/MovieListModal';
@@ -31,71 +42,113 @@ const StatBox = ({label, value, onPress}) => (
   </TouchableOpacity>
 );
 
-const MovieList = ({title, count, items, onSeeAll}) => {
+const MovieList = ({icon, title, count, items, onSeeAll}) => {
   const navigation = useNavigation();
   const [loadedImages, setLoadedImages] = useState({});
+
+  const getEmptyStateMessage = () => {
+    switch (title) {
+      case 'Recently Watched':
+        return 'No movies watched yet. Start watching!';
+      case 'Want to Watch':
+        return 'Your watchlist is empty. Start adding movies!';
+      case 'Favorites':
+        return 'No favorite movies yet. Mark some movies as favorites!';
+      default:
+        return 'No movies found';
+    }
+  };
 
   return (
     <Box marginBottom={24}>
       <HStack
         justifyContent="space-between"
+        gap={8}
         alignItems="center"
         marginBottom={12}>
-        <Text color="white" fontSize={20} fontWeight="600">
-          {title}
-        </Text>
-        <Pressable onPress={onSeeAll}>
-          <HStack space="sm" alignItems="center">
-            <Text color="#dc3f72" fontSize={14}>
-              See all {count}
-            </Text>
-            <ChevronRight color="#dc3f72" size={16} />
-          </HStack>
-        </Pressable>
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+          {icon}
+          <Text color="white" fontSize={18} fontWeight="600">
+            {title}
+          </Text>
+        </View>
+        {count > 0 && (
+          <Pressable onPress={onSeeAll}>
+            <HStack space="sm" alignItems="center">
+              <Text color="#dc3f72" fontSize={14}>
+                See all {count}
+              </Text>
+              <ChevronRight color="#dc3f72" size={16} />
+            </HStack>
+          </Pressable>
+        )}
       </HStack>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <HStack space="md" paddingBottom={8}>
-          {items.map(item => (
-            <Pressable
-              key={item.movie.id}
-              onPress={() =>
-                navigation.navigate('MovieDetail', {
-                  tmdbId: item.movie.tmdb_id,
-                  type: item.movie.type,
-                })
-              }>
-              <VStack space="sm" width={120}>
-                <Box width={120} height={180}>
-                  {!loadedImages[item.movie.id] && (
-                    <ImagePlaceholder width={120} height={180} />
-                  )}
-                  <Image
-                    source={{uri: item.movie.poster_preview_url}}
-                    alt={item.movie.title}
-                    width={120}
-                    height={180}
-                    borderRadius={12}
-                    onLoad={() =>
-                      setLoadedImages(prev => ({
-                        ...prev,
-                        [item.movie.id]: true,
-                      }))
-                    }
-                    style={[!loadedImages[item.movie.id] && styles.hiddenImage]}
-                  />
-                </Box>
-                <Text
-                  color="white"
-                  fontSize={14}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {item.movie.title}
-                </Text>
-              </VStack>
-            </Pressable>
-          ))}
-        </HStack>
-      </ScrollView>
+      {!items || items.length === 0 ? (
+        <Box
+          padding={24}
+          backgroundColor="rgba(255, 255, 255, .05)"
+          borderRadius={12}
+          borderWidth={1}
+          borderStyle="dashed"
+          borderColor="rgba(255, 255, 255, 0.2)"
+          alignItems="center"
+          justifyContent="center"
+          gap={10}>
+          <Film fontSize={14} color={'rgba(255, 255, 255, 0.7)'} />
+          <Text
+            color="rgba(255, 255, 255, 0.7)"
+            fontSize={16}
+            textAlign="center">
+            {getEmptyStateMessage()}
+          </Text>
+        </Box>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <HStack space="md" paddingBottom={8} paddingLeft={10}>
+            {items.map(item => (
+              <Pressable
+                key={item.movie.id}
+                onPress={() =>
+                  navigation.navigate('MovieDetail', {
+                    tmdbId: item.movie.tmdb_id,
+                    type: item.movie.type,
+                  })
+                }>
+                <VStack space="sm" width={120}>
+                  <Box width={120} height={180}>
+                    {!loadedImages[item.movie.id] && (
+                      <ImagePlaceholder width={120} height={180} />
+                    )}
+                    <Image
+                      source={{uri: item.movie.poster_preview_url}}
+                      alt={item.movie.title}
+                      width={120}
+                      height={180}
+                      borderRadius={12}
+                      onLoad={() =>
+                        setLoadedImages(prev => ({
+                          ...prev,
+                          [item.movie.id]: true,
+                        }))
+                      }
+                      style={[
+                        !loadedImages[item.movie.id] && styles.hiddenImage,
+                      ]}
+                    />
+                  </Box>
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {item.movie.title}
+                  </Text>
+                </VStack>
+              </Pressable>
+            ))}
+          </HStack>
+        </ScrollView>
+      )}
     </Box>
   );
 };
@@ -328,6 +381,7 @@ const ProfileScreen = () => {
           {/* Movie Lists */}
           {user.recently_watched && (
             <MovieList
+              icon={<Clock color={'#d33f72'} size={20} />}
               title="Recently Watched"
               count={user.movies_watched}
               items={user.recently_watched}
@@ -336,12 +390,14 @@ const ProfileScreen = () => {
           )}
 
           <MovieList
+            icon={<BookMarked color={'#d33f72'} size={20} />}
             title="Want to Watch"
             count={user.watchlist_count}
             items={user.watchlist}
             onSeeAll={() => navigateToList('Want to Watch')}
           />
           <MovieList
+            icon={<Heart color={'#d33f72'} size={20} />}
             title="Favorites"
             count={user.favorites_count}
             items={user.favorites}

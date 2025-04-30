@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Box,
   Center,
@@ -8,8 +9,12 @@ import {
   Pressable,
 } from '@gluestack-ui/themed';
 import {PrimaryButton, FormInput} from '../elements';
+import {useAuth} from '../context/AuthContext';
+import api from '../lib/api';
 
 const RegisterScreen = ({navigation}) => {
+  const {fetchUser} = useAuth();
+  const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +26,14 @@ const RegisterScreen = ({navigation}) => {
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!username) {
+      newErrors.username = 'Username is required';
+    }
+
+    if (!name) {
+      newErrors.name = 'Name is required';
+    }
 
     if (!email) {
       newErrors.email = 'Email is required';
@@ -50,14 +63,32 @@ const RegisterScreen = ({navigation}) => {
     }
 
     setIsLoading(true);
-    // Simulate API call with 2 second delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const response = await api.post('/auth/register/', {
+        username,
+        email,
+        password,
+        full_name: name,
+      });
 
-    // Implement registration logic here
-    console.log('Register pressed', {name, email, password, confirmPassword});
+      const {token} = response.data;
+      await AsyncStorage.setItem('token', token);
+      await fetchUser();
+      navigation.navigate('Home');
+    } catch (error) {
+      const serverErrors = error.response?.data || {};
+      const newErrors = {};
 
-    setIsLoading(false);
-    navigation.navigate('Verify');
+      if (serverErrors.username) {
+        newErrors.username = serverErrors.username[0];
+      }
+      if (serverErrors.email) {
+        newErrors.email = serverErrors.email[0];
+      }
+      setErrors(newErrors);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,6 +102,31 @@ const RegisterScreen = ({navigation}) => {
             Sign up to get started
           </Text>
         </Box>
+
+        <FormInput
+          value={username}
+          onChangeText={text => {
+            setUsername(text);
+            if (errors.username) {
+              setErrors(prev => ({...prev, username: ''}));
+            }
+          }}
+          placeholder="Username"
+          autoCapitalize="none"
+          error={errors.username}
+        />
+
+        <FormInput
+          value={name}
+          onChangeText={text => {
+            setName(text);
+            if (errors.name) {
+              setErrors(prev => ({...prev, name: ''}));
+            }
+          }}
+          placeholder="Full Name"
+          error={errors.name}
+        />
 
         <FormInput
           value={email}
