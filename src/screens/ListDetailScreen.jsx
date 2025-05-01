@@ -458,6 +458,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#dc3f72',
     overflow: 'hidden',
+    textAlign: 'center',
+    alignItems: 'center',
   },
   secondaryButton: {
     borderColor: '#dc3f72',

@@ -179,7 +179,7 @@ const ActivityCard = ({activity, onMoviePress}) => {
         <HStack space="sm" alignItems="center" justifyContent="space-between">
           <Pressable
             onPress={() =>
-              navigation.navigate('Profile', {username: activity.user.username})
+              navigation.navigate('PublicProfile', {username: activity.user.username})
             }>
             <HStack space="sm" alignItems="center" flex={1}>
               <Box width={32} height={32}>
