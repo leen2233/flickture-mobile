@@ -6,28 +6,18 @@ import {
   Image,
   VStack,
   HStack,
-  Button,
-  ButtonIcon,
   Pressable,
-  Divider,
   Spinner,
 } from '@gluestack-ui/themed';
 import {
-  ArrowLeft,
-  Award,
   Film,
   Instagram,
   Twitter,
   Star,
   MapPin,
   Calendar,
-  Share2,
-  Globe,
-  Ruler,
   Briefcase,
-  GraduationCap,
   Heart,
-  ChevronRight,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -37,11 +27,8 @@ import {
   Modal,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator,
 } from 'react-native';
 import ArtistHeader from '../components/ArtistHeader';
-import ArtistStats from '../components/ArtistStats';
-import ArtistPersonalInfo from '../components/ArtistPersonalInfo';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import api from '../lib/api';
 
@@ -335,6 +322,7 @@ const ArtistDetailScreen = ({route}) => {
         <ArtistHeader
           imageUrl={artist.profile_path}
           name={artist.name}
+          tmdbId={artist.tmdb_id}
           navigation={navigation}
           onImagePress={() => setIsImageModalVisible(true)}
         />

@@ -224,8 +224,9 @@ const CollectionDetailsScreen = ({route}) => {
 
   const handleShare = () => {
     Share.share({
-      message: `Check out ${collection.name} on Flickture!`,
-      url: `https://flickture.com/collection/${collectionId}`,
+      message: `Check out ${collection.name} on Flickture!
+https://flickture.leen2233.me/collection/${collectionId}`,
+      url: `https://flickture.leen2233.me/collection/${collectionId}`,
     });
   };
 

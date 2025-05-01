@@ -785,8 +785,9 @@ const MovieDetailScreen = ({route}) => {
             variant="link"
             onPress={() => {
               Share.share({
-                message: `Check out ${movieData.title} on Flickture!`,
-                url: `https://flickture.com/movie/${movieData.id}`,
+                message: `Check out ${movieData.title} on Flickture!
+https://flickture.leen2233.me/${movieData.type}/${movieData.tmdb_id}`,
+                url: `https://flickture.leen2233.me/${movieData.type}/${movieData.tmdb_id}`,
               });
             }}>
             <ButtonIcon as={Share2} color="white" />

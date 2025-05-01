@@ -341,8 +341,9 @@ const ListDetailScreen = () => {
               variant="link"
               onPress={() => {
                 Share.share({
-                  message: `Check out "${list.name}" on Flickture!`,
-                  url: `https://flickture.com/lists/${list.id}`,
+                  message: `Check out "${list.name}" on Flickture!
+https://flickture.leen2233.me/lists/${list.id}`,
+                  url: `https://flickture.leen2233.me/lists/${list.id}`,
                 });
               }}>
               <ButtonIcon as={Share2} color="white" />

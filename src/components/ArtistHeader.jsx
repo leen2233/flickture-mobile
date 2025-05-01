@@ -4,7 +4,7 @@ import {ArrowLeft, Share2} from 'lucide-react-native';
 import {Platform, TouchableOpacity, StyleSheet, Share} from 'react-native';
 import {Image} from '@gluestack-ui/themed';
 
-const ArtistHeader = ({imageUrl, name, navigation, onImagePress}) => {
+const ArtistHeader = ({imageUrl, name, tmdbId, navigation, onImagePress}) => {
   return (
     <Box height={400}>
       <Box
@@ -50,10 +50,9 @@ const ArtistHeader = ({imageUrl, name, navigation, onImagePress}) => {
           variant="link"
           onPress={() => {
             Share.share({
-              message: `Check out ${name} on Flickture!`,
-              url: `https://flickture.com/artist/${name
-                .toLowerCase()
-                .replace(/\s+/g, '-')}`,
+              message: `Check out ${name} on Flickture!
+https://flickture.leen2233.me/person/${tmdbId}`,
+              url: `https://flickture.leen2233.me/person/${tmdbId}`,
             });
           }}>
           <ButtonIcon as={Share2} color="white" />
