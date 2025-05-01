@@ -23,7 +23,7 @@ const ArtistPersonalInfo = ({artist}) => {
   return (
     <VStack
       space="md"
-      backgroundColor="#270a39"
+      backgroundColor="#151527"
       padding={16}
       borderRadius={16}
       borderWidth={1}
@@ -79,4 +79,4 @@ const ArtistPersonalInfo = ({artist}) => {
   );
 };
 
-export default ArtistPersonalInfo; 
+export default ArtistPersonalInfo;

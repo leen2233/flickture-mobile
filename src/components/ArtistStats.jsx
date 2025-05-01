@@ -5,7 +5,7 @@ import {Award, Film, Star} from 'lucide-react-native';
 const StatCard = ({icon, value, label}) => (
   <Pressable
     flex={1}
-    backgroundColor="#270a39"
+    backgroundColor="#151527"
     padding={16}
     borderRadius={16}
     borderWidth={1}
@@ -44,4 +44,4 @@ const ArtistStats = ({stats}) => {
   );
 };
 
-export default ArtistStats; 
+export default ArtistStats;

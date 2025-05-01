@@ -13,7 +13,7 @@ const ArtistHeader = ({imageUrl, name, navigation, onImagePress}) => {
         left={0}
         right={0}
         bottom={0}
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
       />
       <TouchableOpacity activeOpacity={0.9} onPress={onImagePress}>
         <Image
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
   },
 });
 

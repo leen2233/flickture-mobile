@@ -39,7 +39,7 @@ const ArtistCard = ({artist, role, department}) => {
           height={ITEM_WIDTH * 1.5}
           borderRadius={12}
           overflow="hidden"
-          backgroundColor="#270a39">
+          backgroundColor="#151527">
           {!isImageLoaded && (
             <ImagePlaceholder width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5} />
           )}
@@ -58,7 +58,7 @@ const ArtistCard = ({artist, role, department}) => {
               height={ITEM_WIDTH * 1.5}
               alignItems="center"
               justifyContent="center"
-              backgroundColor="#270a39">
+              backgroundColor="#151527">
               <User2 size={40} color="rgba(255, 255, 255, 0.3)" />
             </Box>
           )}
@@ -135,7 +135,7 @@ const LoadingSkeleton = () => {
             width: ITEM_WIDTH,
             height: ITEM_WIDTH * 1.5,
             borderRadius: 12,
-            backgroundColor: '#270a39',
+            backgroundColor: '#151527',
             opacity: fadeAnim,
           }}
         />
@@ -145,7 +145,7 @@ const LoadingSkeleton = () => {
               width: '80%',
               height: 14,
               borderRadius: 7,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />
@@ -154,7 +154,7 @@ const LoadingSkeleton = () => {
               width: '60%',
               height: 12,
               borderRadius: 6,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />
@@ -169,7 +169,7 @@ const LoadingSkeleton = () => {
       <Animated.View
         style={{
           height: 300,
-          backgroundColor: '#270a39',
+          backgroundColor: '#151527',
           opacity: fadeAnim,
         }}
       />
@@ -184,7 +184,7 @@ const LoadingSkeleton = () => {
                 width: '70%',
                 height: 24,
                 borderRadius: 12,
-                backgroundColor: '#270a39',
+                backgroundColor: '#151527',
                 opacity: fadeAnim,
               }}
             />
@@ -193,7 +193,7 @@ const LoadingSkeleton = () => {
                 width: '50%',
                 height: 16,
                 borderRadius: 8,
-                backgroundColor: '#270a39',
+                backgroundColor: '#151527',
                 opacity: fadeAnim,
                 marginTop: 8,
               }}
@@ -204,7 +204,7 @@ const LoadingSkeleton = () => {
                   width: 40,
                   height: 14,
                   borderRadius: 7,
-                  backgroundColor: '#270a39',
+                  backgroundColor: '#151527',
                   opacity: fadeAnim,
                 }}
               />
@@ -213,7 +213,7 @@ const LoadingSkeleton = () => {
                   width: 80,
                   height: 14,
                   borderRadius: 7,
-                  backgroundColor: '#270a39',
+                  backgroundColor: '#151527',
                   opacity: fadeAnim,
                 }}
               />
@@ -222,7 +222,7 @@ const LoadingSkeleton = () => {
                   width: 100,
                   height: 14,
                   borderRadius: 7,
-                  backgroundColor: '#270a39',
+                  backgroundColor: '#151527',
                   opacity: fadeAnim,
                 }}
               />
@@ -238,7 +238,7 @@ const LoadingSkeleton = () => {
                 width: 120,
                 height: 20,
                 borderRadius: 10,
-                backgroundColor: '#270a39',
+                backgroundColor: '#151527',
                 opacity: fadeAnim,
               }}
             />
@@ -247,7 +247,7 @@ const LoadingSkeleton = () => {
                 width: 80,
                 height: 14,
                 borderRadius: 7,
-                backgroundColor: '#270a39',
+                backgroundColor: '#151527',
                 opacity: fadeAnim,
               }}
             />

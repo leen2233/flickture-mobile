@@ -378,7 +378,9 @@ const MainHomeScreen = () => {
       <Box
         padding={0}
         paddingTop={Platform.OS === 'ios' ? 20 : 15}
-        backgroundColor="#270a39">
+        backgroundColor="#151527"
+        borderBottomStartRadius={22}
+        borderBottomEndRadius={22}>
         <Box alignItems="center" marginBottom={16}>
           <Image
             source={require('../assets/logo-landscape.png')}

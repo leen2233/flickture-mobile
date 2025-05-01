@@ -42,6 +42,7 @@ import {
   StatusBar,
 } from 'react-native';
 import RatingModal from '../components/RatingModal';
+import AddToListModal from '../components/AddToListModal';
 import {useToast} from '../context/ToastContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import {getMovieDetails} from '../lib/api';
@@ -202,7 +203,7 @@ const CollectionSection = ({collection}) => {
                   height={150}
                   borderRadius={12}
                   overflow="hidden"
-                  backgroundColor="#270a39">
+                  backgroundColor="#151527">
                   <Image
                     source={{uri: movie.poster_preview_url}}
                     alt={movie.title}
@@ -256,7 +257,7 @@ const ListsSection = ({lists}) => (
                 height={100}
                 borderRadius={12}
                 overflow="hidden"
-                backgroundColor="#270a39">
+                backgroundColor="#151527">
                 {/* <Image
                   source={{uri: list.thumbnail}}
                   alt={list.name}
@@ -304,7 +305,7 @@ const ListsSection = ({lists}) => (
 const MovieDetailSkeleton = () => (
   <Box flex={1} backgroundColor="#040b1c">
     {/* Backdrop Skeleton */}
-    <Box height={250} width="100%" backgroundColor="#270a39" />
+    <Box height={250} width="100%" backgroundColor="#151527" />
 
     {/* Content Skeleton */}
     <Box padding={16} marginTop={-40}>
@@ -314,7 +315,7 @@ const MovieDetailSkeleton = () => (
           width={120}
           height={180}
           borderRadius={12}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
         />
 
         <VStack flex={1} space="xs">
@@ -323,13 +324,13 @@ const MovieDetailSkeleton = () => (
             width="80%"
             height={24}
             borderRadius={8}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
           />
           <Box
             width="60%"
             height={16}
             borderRadius={8}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             marginTop={4}
           />
 
@@ -338,7 +339,7 @@ const MovieDetailSkeleton = () => (
             width="100%"
             height={60}
             borderRadius={8}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             marginTop={8}
           />
 
@@ -350,7 +351,7 @@ const MovieDetailSkeleton = () => (
                 width={60}
                 height={24}
                 borderRadius={16}
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
               />
             ))}
           </HStack>
@@ -359,7 +360,7 @@ const MovieDetailSkeleton = () => (
 
       {/* Metadata Skeleton */}
       <Box
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
         padding={16}
         borderRadius={16}
         marginBottom={24}>
@@ -397,7 +398,7 @@ const MovieDetailSkeleton = () => (
             flex={1}
             height={44}
             borderRadius={12}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
           />
         ))}
       </HStack>
@@ -408,6 +409,7 @@ const MovieDetailSkeleton = () => (
 const MovieDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
+  const [isAddToListModalVisible, setIsAddToListModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [movieData, setMovieData] = useState(null);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
@@ -833,7 +835,7 @@ const MovieDetailScreen = ({route}) => {
                   {movieData.genres.map(genre => (
                     <Box
                       key={genre}
-                      backgroundColor="#270a39"
+                      backgroundColor="#dc3f72"
                       paddingHorizontal={12}
                       paddingVertical={4}
                       borderRadius={16}
@@ -865,7 +867,7 @@ const MovieDetailScreen = ({route}) => {
           <HStack
             space="lg"
             justifyContent="space-around"
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             padding={16}
             borderRadius={16}
             marginBottom={24}>
@@ -988,9 +990,7 @@ const MovieDetailScreen = ({route}) => {
 
               <TouchableItem
                 style={[styles.actionButton, styles.secondaryButton]}
-                onPress={() =>
-                  navigation.navigate('AddToList', {movieId: movieData.id})
-                }>
+                onPress={() => setIsAddToListModalVisible(true)}>
                 <HStack
                   space="sm"
                   alignItems="center"
@@ -1059,6 +1059,11 @@ const MovieDetailScreen = ({route}) => {
         visible={isRatingModalVisible}
         onClose={() => setIsRatingModalVisible(false)}
         onSubmit={handleRatingSubmit}
+      />
+      <AddToListModal
+        visible={isAddToListModalVisible}
+        onClose={() => setIsAddToListModalVisible(false)}
+        movie={movieData}
       />
     </>
   );

@@ -5,7 +5,7 @@ const UserListItem = ({user, isFollowing, onToggleFollow}) => {
   return (
     <Box
       width="100%"
-      backgroundColor="#270a39"
+      backgroundColor="#151527"
       padding={16}
       marginBottom={8}
       borderRadius={12}
@@ -45,4 +45,4 @@ const UserListItem = ({user, isFollowing, onToggleFollow}) => {
   );
 };
 
-export default UserListItem; 
+export default UserListItem;

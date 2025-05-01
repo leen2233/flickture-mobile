@@ -14,7 +14,7 @@ const PrimaryButton = ({
   const getButtonStyle = () => {
     if (variant === 'outline') {
       return {
-        backgroundColor: '#270a39',
+        backgroundColor: '#151527',
         borderColor: '#341251',
         borderWidth: 1,
       };

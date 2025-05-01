@@ -44,7 +44,7 @@ const UserListModal = ({data, title, isFollowing, onToggleFollow, onClose}) => {
           style={{
             width: '90%',
             maxHeight: '80%',
-            backgroundColor: '#270a39',
+            backgroundColor: '#151527',
             borderRadius: 16,
             padding: 24,
           }}>
@@ -112,4 +112,4 @@ const UserListModal = ({data, title, isFollowing, onToggleFollow, onClose}) => {
   );
 };
 
-export default UserListModal; 
+export default UserListModal;

@@ -6,7 +6,7 @@ const ImagePlaceholder = ({width, height}) => (
   <Box
     width={width}
     height={height}
-    backgroundColor="#270a39"
+    backgroundColor="#151527"
     borderRadius="$lg"
     justifyContent="center"
     alignItems="center">

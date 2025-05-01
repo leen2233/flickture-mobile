@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   commentInput: {
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
     borderRadius: 12,
     padding: 16,
     color: 'white',

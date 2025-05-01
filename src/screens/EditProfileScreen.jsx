@@ -232,7 +232,7 @@ const EditProfileScreen = ({navigation}) => {
           activeImageType === 'avatar'
             ? 'Crop Profile Picture'
             : 'Crop Banner Image',
-        cropperToolbarColor: '#270a39',
+        cropperToolbarColor: '#151527',
         cropperStatusBarColor: '#040b1c',
         cropperToolbarWidgetColor: '#ffffff',
         cropperActiveWidgetColor: '#dc3f72',
@@ -351,7 +351,7 @@ const EditProfileScreen = ({navigation}) => {
                   position="absolute"
                   bottom={0}
                   right={0}
-                  backgroundColor="#270a39"
+                  backgroundColor="#151527"
                   padding={8}
                   borderRadius={20}
                   borderWidth={2}
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
     borderRadius: 16,
     padding: 20,
     width: '100%',

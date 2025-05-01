@@ -60,7 +60,7 @@ const StatItem = ({icon, label, value}) => (
 const ArtistDetailSkeleton = () => (
   <Box flex={1} backgroundColor="#040b1c">
     {/* Header Image Skeleton */}
-    <Box height={400} width="100%" backgroundColor="#270a39">
+    <Box height={400} width="100%" backgroundColor="#151527">
       <Box
         position="absolute"
         bottom={0}
@@ -82,20 +82,20 @@ const ArtistDetailSkeleton = () => (
         <Box
           width={200}
           height={32}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           borderRadius={8}
         />
         <Box
           width={100}
           height={36}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           borderRadius={12}
         />
       </HStack>
 
       {/* Stats Skeleton */}
       <Box
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
         padding={16}
         borderRadius={16}
         marginBottom={24}>
@@ -130,10 +130,10 @@ const ArtistDetailSkeleton = () => (
         <Box
           width={120}
           height={24}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           borderRadius={8}
         />
-        <Box height={100} backgroundColor="#270a39" borderRadius={12} />
+        <Box height={100} backgroundColor="#151527" borderRadius={12} />
       </VStack>
 
       {/* Personal Info Skeleton */}
@@ -141,7 +141,7 @@ const ArtistDetailSkeleton = () => (
         <Box
           width={150}
           height={24}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           borderRadius={8}
         />
         <VStack space="sm">
@@ -151,12 +151,12 @@ const ArtistDetailSkeleton = () => (
                 width={24}
                 height={24}
                 borderRadius={12}
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
               />
               <Box
                 flex={1}
                 height={20}
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
                 borderRadius={8}
               />
             </HStack>
@@ -193,7 +193,7 @@ const MovieCard = ({movie}) => {
           <Box
             width="100%"
             height="100%"
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             alignItems="center"
             justifyContent="center">
             <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
@@ -351,7 +351,7 @@ const ArtistDetailScreen = ({route}) => {
 
           {/* Stats */}
           <Box
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             padding={16}
             borderRadius={16}
             marginBottom={24}>
@@ -459,14 +459,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
   },
   knownForContainer: {
     paddingRight: 16,
   },
   movieCard: {
     width: '100%',
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,

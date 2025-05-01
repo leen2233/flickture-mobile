@@ -87,7 +87,7 @@ const MovieListScreen = ({route}) => {
         borderRadius="$xl"
         borderColor="#341251"
         borderWidth={1}
-        backgroundColor="#270a39">
+        backgroundColor="#151527">
         <Input height="$12">
           <Box justifyContent="center" ml="$3">
             <Icon as={Search} color="#dc3f72" size="lg" />
@@ -111,7 +111,7 @@ const MovieListScreen = ({route}) => {
           <Box
             flexDirection="row"
             marginBottom={16}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             borderRadius={12}
             padding={8}>
             <Box flex={1}>

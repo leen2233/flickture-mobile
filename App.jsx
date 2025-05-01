@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -19,7 +18,6 @@ import ArtistDetailScreen from './src/screens/ArtistDetailScreen';
 import CommentsScreen from './src/screens/CommentsScreen';
 import CastDetailsScreen from './src/screens/CastDetailsScreen';
 import CollectionDetailsScreen from './src/screens/CollectionDetailsScreen';
-import ArtistMoviesScreen from './src/screens/ArtistMoviesScreen';
 import ListDetailScreen from './src/screens/ListDetailScreen';
 import CreateListScreen from './src/screens/CreateListScreen';
 
@@ -53,10 +51,6 @@ function App() {
               <Stack.Screen
                 name="CollectionDetails"
                 component={CollectionDetailsScreen}
-              />
-              <Stack.Screen
-                name="ArtistMovies"
-                component={ArtistMoviesScreen}
               />
               <Stack.Screen
                 name="ListDetails"

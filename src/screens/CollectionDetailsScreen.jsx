@@ -35,7 +35,7 @@ const MovieCard = ({movie}) => {
           height={ITEM_WIDTH * 1.5}
           borderRadius={12}
           overflow="hidden"
-          backgroundColor="#270a39">
+          backgroundColor="#151527">
           {!isImageLoaded && (
             <ImagePlaceholder width={ITEM_WIDTH} height={ITEM_WIDTH * 1.5} />
           )}
@@ -104,7 +104,7 @@ const LoadingSkeleton = () => {
             width: ITEM_WIDTH,
             height: ITEM_WIDTH * 1.5,
             borderRadius: 12,
-            backgroundColor: '#270a39',
+            backgroundColor: '#151527',
             opacity: fadeAnim,
           }}
         />
@@ -114,7 +114,7 @@ const LoadingSkeleton = () => {
               width: '80%',
               height: 14,
               borderRadius: 7,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />
@@ -123,7 +123,7 @@ const LoadingSkeleton = () => {
               width: '60%',
               height: 12,
               borderRadius: 6,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />
@@ -138,7 +138,7 @@ const LoadingSkeleton = () => {
       <Animated.View
         style={{
           height: 250,
-          backgroundColor: '#270a39',
+          backgroundColor: '#151527',
           opacity: fadeAnim,
         }}
       />
@@ -152,7 +152,7 @@ const LoadingSkeleton = () => {
               width: '70%',
               height: 28,
               borderRadius: 14,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />
@@ -164,7 +164,7 @@ const LoadingSkeleton = () => {
                   width: '100%',
                   height: 16,
                   borderRadius: 8,
-                  backgroundColor: '#270a39',
+                  backgroundColor: '#151527',
                   opacity: fadeAnim,
                 }}
               />
@@ -179,7 +179,7 @@ const LoadingSkeleton = () => {
               width: 120,
               height: 24,
               borderRadius: 12,
-              backgroundColor: '#270a39',
+              backgroundColor: '#151527',
               opacity: fadeAnim,
             }}
           />

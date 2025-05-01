@@ -10,6 +10,7 @@ import {
   Input,
   InputField,
   InputIcon,
+  Icon,
 } from '@gluestack-ui/themed';
 import {
   Plus,
@@ -110,12 +111,15 @@ const ListsSkeleton = () => (
         <Box
           width={150}
           height={24}
-          backgroundColor="#270a39"
+          backgroundColor="rgba(255, 255, 255, 0.05)"
           borderRadius={8}
           marginBottom={16}
         />
 
-        <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+        <Box
+          backgroundColor="rgba(255, 255, 255, 0.05)"
+          borderRadius={20}
+          padding={16}>
           {[1, 2, 3].map(item => (
             <HStack key={item} space="md" alignItems="center" marginBottom={16}>
               {/* Thumbnail Skeleton */}
@@ -236,45 +240,54 @@ const ListsScreen = () => {
 
   return (
     <Box flex={1} backgroundColor="#040b1c">
-      {/* Search Header */}
-      <Box padding={16} paddingTop={32} backgroundColor="#270a39">
-        <HStack space="md" alignItems="center" marginBottom={16}>
-          <Input
-            flex={1}
-            height={40}
-            backgroundColor="rgba(255,255,255,0.1)"
-            borderRadius={20}
-            borderWidth={0}
-            display="flex"
-            alignItems="center">
-            <InputIcon
-              as={Search}
-              color="#dc3f72"
-              marginLeft={12}
-              height="100%"
-              justifyContent="center"
-            />
-            <InputField
-              color="white"
-              placeholder="Search lists..."
-              placeholderTextColor="rgba(255,255,255,0.5)"
-            />
-          </Input>
-          <Pressable
-            onPress={() => navigation.navigate('CreateList')}
-            backgroundColor="#dc3f72"
-            width={40}
-            height={40}
-            borderRadius={20}
-            justifyContent="center"
-            alignItems="center">
-            <Plus color="white" size={20} />
-          </Pressable>
-        </HStack>
+      <Box
+        p="$4"
+        position="relative"
+        zIndex={2}
+        flexDirection="row"
+        gap={10}
+        alignItems="center">
+        <Input
+          backgroundColor="rgba(255,255,255,0.05)"
+          borderWidth={0.2}
+          borderRadius={25}
+          height={45}
+          flex={8}
+          display="flex"
+          flexDirection="row"
+          alignItems="center">
+          <Icon as={Search} color="#ffffff" size="lg" ml="$3" />
+          <InputField
+            color="#ffffff"
+            placeholder="Search lists..."
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            fontSize={16}
+            onFocus={() => setIsInputFocused(true)}
+            onSubmitEditing={() => handleSearchSubmit()}
+            returnKeyType="search"
+            onKeyPress={({nativeEvent}) => {
+              if (nativeEvent.key === 'Enter') {
+                handleSearchSubmit();
+              }
+            }}
+          />
+        </Input>
+        <Pressable
+          onPress={() => navigation.navigate('CreateList')}
+          backgroundColor="#dc3f72"
+          width={40}
+          height={40}
+          borderRadius={20}
+          justifyContent="center"
+          alignItems="center">
+          <Plus color="white" size={20} />
+        </Pressable>
+      </Box>
 
+      <ScrollView flex={1}>
         {/* Tab Navigation */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <HStack space="sm" paddingBottom={8}>
+          <HStack space="sm" margin={20} marginBottom={0}>
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
@@ -302,9 +315,6 @@ const ListsScreen = () => {
             })}
           </HStack>
         </ScrollView>
-      </Box>
-
-      <ScrollView flex={1}>
         {isLoading ? (
           <ListsSkeleton />
         ) : (
@@ -320,7 +330,10 @@ const ListsScreen = () => {
                     </Text>
                   }
                 />
-                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                <Box
+                  backgroundColor="rgba(255,255,255,0.05)"
+                  borderRadius={20}
+                  padding={16}>
                   {(data?.trending || []).map(list => (
                     <ListItem
                       key={list.id}
@@ -341,7 +354,10 @@ const ListsScreen = () => {
 
                 {/* Staff Picks */}
                 <SectionHeader title="Staff Picks" />
-                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                <Box
+                  backgroundColor="rgba(255, 255, 255, 0.05)"
+                  borderRadius={20}
+                  padding={16}>
                   {(data?.staffPicks || []).map(list => (
                     <ListItem
                       key={list.id}
@@ -363,7 +379,7 @@ const ListsScreen = () => {
             )}
 
             {activeTab === 'myLists' && data && (
-              <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+              <Box backgroundColor="#151527" borderRadius={20} padding={16}>
                 {(data?.lists || []).map(list => (
                   <ListItem
                     key={list.id}
@@ -384,7 +400,7 @@ const ListsScreen = () => {
             )}
 
             {activeTab === 'liked' && data && (
-              <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+              <Box backgroundColor="#151527" borderRadius={20} padding={16}>
                 {(data?.liked || []).map(list => (
                   <ListItem
                     key={list.id}
@@ -408,7 +424,7 @@ const ListsScreen = () => {
               <>
                 {/* Popular Lists */}
                 <SectionHeader title="Popular in Community" />
-                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                <Box backgroundColor="#151527" borderRadius={20} padding={16}>
                   {(data?.popular || []).map(list => (
                     <ListItem
                       key={list.id}
@@ -429,7 +445,7 @@ const ListsScreen = () => {
 
                 {/* Recent Lists */}
                 <SectionHeader title="Recently Created" />
-                <Box backgroundColor="#270a39" borderRadius={20} padding={16}>
+                <Box backgroundColor="#151527" borderRadius={20} padding={16}>
                   {(data?.recent || []).map(list => (
                     <ListItem
                       key={list.id}

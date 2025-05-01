@@ -143,7 +143,7 @@ const SettingsScreen = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigation.replace('Login');
+      navigation.navigate('Login');
     } catch (error) {
       showError('Failed to logout. Please try again.');
     }

@@ -79,7 +79,7 @@ const MovieCard = ({movie, listType, onUpdateStatus}) => {
     <Pressable onPress={() => navigation.navigate('MovieDetail', {movie})}>
       <Box
         flexDirection="column"
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
         padding={12}
         borderRadius={12}
         marginBottom={12}>

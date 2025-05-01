@@ -23,9 +23,9 @@ const FormTextArea = ({
         size="xl"
         minHeight={minHeight}
         borderRadius={12}
-        borderColor={error ? '#f44336' : '#341251'}
-        borderWidth={1}
-        backgroundColor="#270a39"
+        borderColor={error ? '#f44336' : 'white'}
+        borderWidth={0.2}
+        backgroundColor="#151527"
         $invalid={{
           borderColor: '#f44336',
           borderWidth: 1,

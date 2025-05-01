@@ -354,7 +354,7 @@ const CommentItem = ({
         <HStack
           space="sm"
           alignItems="center"
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           padding={12}
           borderRadius={12}>
           <Input
@@ -413,7 +413,7 @@ const CommentItem = ({
               {isLoadingResponses ? (
                 <Box
                   padding={12}
-                  backgroundColor="#270a39"
+                  backgroundColor="#151527"
                   borderRadius={12}
                   height={80}
                   alignItems="center"
@@ -431,7 +431,7 @@ const CommentItem = ({
                     <VStack
                       space="xs"
                       padding={12}
-                      backgroundColor="#270a39"
+                      backgroundColor="#151527"
                       borderRadius={12}>
                       <HStack space="sm" alignItems="center">
                         <Image
@@ -473,7 +473,7 @@ const CommentItem = ({
                       <HStack
                         space="sm"
                         alignItems="center"
-                        backgroundColor="#270a39"
+                        backgroundColor="#151527"
                         padding={12}
                         borderRadius={12}
                         marginTop={8}>
@@ -781,7 +781,7 @@ const InitialLoadingState = () => (
     {[1, 2, 3].map(i => (
       <Box
         key={i}
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
         padding={16}
         borderRadius={12}
         opacity={0.7}>

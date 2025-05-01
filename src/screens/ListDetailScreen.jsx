@@ -110,7 +110,7 @@ const MovieListItem = ({movie, onPress}) => {
 
   return (
     <Box
-      backgroundColor="#270a39"
+      backgroundColor="#151527"
       borderRadius={16}
       marginBottom={16}
       overflow="hidden">
@@ -186,7 +186,7 @@ const MovieListItem = ({movie, onPress}) => {
 const ListDetailSkeleton = () => (
   <Box flex={1} backgroundColor="#040b1c">
     {/* Backdrop Skeleton */}
-    <Box height={250} width="100%" backgroundColor="#270a39" />
+    <Box height={250} width="100%" backgroundColor="#151527" />
 
     {/* Content */}
     <Box padding={16} marginTop={-40}>
@@ -196,7 +196,7 @@ const ListDetailSkeleton = () => (
           width={120}
           height={180}
           borderRadius={12}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
         />
         <VStack flex={1} space="xs">
           {/* Title Skeleton */}
@@ -204,7 +204,7 @@ const ListDetailSkeleton = () => (
             width="80%"
             height={24}
             borderRadius={8}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
           />
 
           {/* Description Skeleton */}
@@ -212,7 +212,7 @@ const ListDetailSkeleton = () => (
             width="100%"
             height={48}
             borderRadius={8}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             marginTop={4}
           />
 
@@ -224,7 +224,7 @@ const ListDetailSkeleton = () => (
                 width={60}
                 height={20}
                 borderRadius={16}
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
               />
             ))}
           </HStack>
@@ -232,7 +232,7 @@ const ListDetailSkeleton = () => (
       </HStack>
 
       {/* Like Button Skeleton */}
-      <Box height={44} borderRadius={12} backgroundColor="#270a39" />
+      <Box height={44} borderRadius={12} backgroundColor="#151527" />
 
       {/* Movies List Skeleton */}
       <Box marginTop={24}>
@@ -240,14 +240,14 @@ const ListDetailSkeleton = () => (
           width={100}
           height={24}
           borderRadius={8}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           marginBottom={16}
         />
         {[1, 2, 3].map(i => (
           <Box
             key={i}
             height={174}
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             borderRadius={16}
             marginBottom={16}
           />
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   skeletonItem: {
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
     borderRadius: 12,
     marginBottom: 16,
   },

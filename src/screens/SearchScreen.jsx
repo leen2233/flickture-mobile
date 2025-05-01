@@ -45,7 +45,7 @@ const SearchSuggestions = ({
   };
 
   return (
-    <Box backgroundColor="#270a39" borderRadius="$lg" mt="$2" py="$2">
+    <Box backgroundColor="#151527" borderRadius="$lg" mt="$2" py="$2">
       <VStack space="sm">
         {filteredSearches.map(search => (
           <Pressable
@@ -242,7 +242,7 @@ const SearchResultsSkeleton = () => (
         <Box
           width={120}
           height={24}
-          backgroundColor="#270a39"
+          backgroundColor="#151527"
           borderRadius="$md"
           mb="$3"
           mx="$4"
@@ -254,20 +254,20 @@ const SearchResultsSkeleton = () => (
                 <Box
                   width={60}
                   height={90}
-                  backgroundColor="#270a39"
+                  backgroundColor="#151527"
                   borderRadius="$md"
                 />
                 <VStack flex={1} space="xs">
                   <Box
                     width="80%"
                     height={20}
-                    backgroundColor="#270a39"
+                    backgroundColor="#151527"
                     borderRadius="$sm"
                   />
                   <Box
                     width="60%"
                     height={16}
-                    backgroundColor="#270a39"
+                    backgroundColor="#151527"
                     borderRadius="$sm"
                   />
                 </VStack>
@@ -507,14 +507,14 @@ const SearchScreen = () => {
 
       <Box p="$4" position="relative" zIndex={2}>
         <Input
-          backgroundColor="#270a39"
-          borderWidth={0}
-          borderRadius="$lg"
+          backgroundColor="#151527"
+          borderWidth={0.2}
+          borderRadius={25}
           height={45}
           display="flex"
           flexDirection="row"
           alignItems="center">
-          <Icon as={Search} color="#dc3f72" size="lg" ml="$3" />
+          <Icon as={Search} color="#ffffff" size="lg" ml="$3" />
           <InputField
             ref={inputRef}
             color="#ffffff"
@@ -589,7 +589,7 @@ const SearchScreen = () => {
                           backgroundColor={
                             selectedGenre === genre.name
                               ? genre.color
-                              : '#270a39'
+                              : '#151527'
                           }
                           borderRadius="$lg"
                           px="$4"

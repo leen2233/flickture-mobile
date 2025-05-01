@@ -45,7 +45,7 @@ const MovieListModal = ({data, title, onClose}) => {
           style={{
             width: '90%',
             maxHeight: '80%',
-            backgroundColor: '#270a39',
+            backgroundColor: '#151527',
             borderRadius: 16,
             padding: 24,
           }}>
@@ -90,7 +90,7 @@ const MovieListModal = ({data, title, onClose}) => {
                 }}>
                 <Box
                   width="100%"
-                  backgroundColor="#270a39"
+                  backgroundColor="#151527"
                   padding={16}
                   marginBottom={8}
                   borderRadius={12}
@@ -146,4 +146,4 @@ const MovieListModal = ({data, title, onClose}) => {
   );
 };
 
-export default MovieListModal; 
+export default MovieListModal;

@@ -22,8 +22,10 @@ const HomeScreen = () => {
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarStyle: {
-          backgroundColor: '#270a39',
-          borderTopWidth: 0,
+          backgroundColor: '#151527',
+          borderWidth: 0.1,
+          borderBottomWidth: 0,
+          borderColor: 'white',
           height: 60,
           paddingBottom: 5,
           paddingTop: 5,
@@ -43,6 +45,7 @@ const HomeScreen = () => {
           margin: 0,
           padding: 0,
           marginHorizontal: 6,
+          borderRadius: 15,
         },
         tabBarLabelStyle: {
           fontSize: 12,

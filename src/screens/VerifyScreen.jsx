@@ -117,7 +117,7 @@ const VerifyScreen = ({navigation}) => {
                 borderRadius="$xl"
                 borderColor={code[index] ? '#dc3f72' : '#341251'}
                 borderWidth={2}
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
                 height={70}
                 $focus={{
                   borderColor: '#dc3f72',

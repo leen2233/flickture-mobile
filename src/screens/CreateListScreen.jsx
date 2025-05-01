@@ -44,7 +44,7 @@ const MovieItem = ({movie, onRemove}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   return (
     <Box
-      backgroundColor="#270a39"
+      backgroundColor="#151527"
       borderRadius={12}
       padding={12}
       marginBottom={12}
@@ -146,7 +146,7 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
 
     return (
       <Box
-        backgroundColor="#270a39"
+        backgroundColor="#151527"
         borderRadius={12}
         padding={12}
         marginBottom={12}
@@ -226,7 +226,7 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
 
           {/* Search Input */}
           <Box
-            backgroundColor="#270a39"
+            backgroundColor="#151527"
             borderRadius={12}
             marginBottom={16}
             padding={4}>
@@ -280,7 +280,7 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
   );
 };
 
-const CreateListScreen = ({navigation}) => {
+const CreateListScreen = ({navigation, route}) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [backdrop, setBackdrop] = useState(null);
@@ -292,6 +292,27 @@ const CreateListScreen = ({navigation}) => {
   const [errors, setErrors] = useState({});
   const [showSearchModal, setShowSearchModal] = useState(false);
   const {showSuccess, showError} = useToast();
+
+  // Handle initial movie from navigation
+  useEffect(() => {
+    if (route.params?.movie) {
+      const initialMovie = route.params.movie;
+      setMovies([
+        {
+          id: initialMovie.tmdb_id,
+          tmdb_id: initialMovie.tmdb_id,
+          type: initialMovie.type,
+          title: initialMovie.title,
+          year: initialMovie.year,
+          poster:
+            initialMovie.poster ||
+            initialMovie.poster_url ||
+            initialMovie.poster_preview_url,
+          rating: initialMovie.rating,
+        },
+      ]);
+    }
+  }, [route.params?.movie]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -421,7 +442,7 @@ const CreateListScreen = ({navigation}) => {
           activeImageType === 'thumbnail'
             ? 'Crop List Thumbnail'
             : 'Crop List Backdrop',
-        cropperToolbarColor: '#270a39',
+        cropperToolbarColor: '#151527',
         cropperStatusBarColor: '#040b1c',
         cropperToolbarWidgetColor: '#ffffff',
         cropperActiveWidgetColor: '#dc3f72',
@@ -486,7 +507,7 @@ const CreateListScreen = ({navigation}) => {
               <Box
                 width="100%"
                 height="100%"
-                backgroundColor="#270a39"
+                backgroundColor="#151527"
                 justifyContent="center"
                 alignItems="center">
                 <ImageIcon size={48} color="rgba(255, 255, 255, 0.3)" />
@@ -548,7 +569,7 @@ const CreateListScreen = ({navigation}) => {
                     width={100}
                     height={150}
                     borderRadius={12}
-                    backgroundColor="#270a39"
+                    backgroundColor="#151527"
                     justifyContent="center"
                     alignItems="center"
                     borderWidth={4}
@@ -560,7 +581,7 @@ const CreateListScreen = ({navigation}) => {
                   position="absolute"
                   bottom={-10}
                   right={-10}
-                  backgroundColor="#270a39"
+                  backgroundColor="#271515270a39"
                   padding={8}
                   borderRadius={20}
                   borderWidth={2}
@@ -712,7 +733,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#270a39',
+    backgroundColor: '#151527',
     borderRadius: 16,
     padding: 20,
     width: '100%',

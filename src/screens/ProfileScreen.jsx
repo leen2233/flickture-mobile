@@ -349,8 +349,8 @@ const ProfileScreen = () => {
 
           {/* Stats */}
           <Box
-            backgroundColor="#270a39"
-            borderRadius="$xl"
+            backgroundColor="#151527"
+            borderRadius={12}
             padding={12}
             marginBottom={24}>
             <HStack justifyContent="space-between">
