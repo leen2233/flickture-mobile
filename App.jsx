@@ -21,6 +21,7 @@ import CollectionDetailsScreen from './src/screens/CollectionDetailsScreen';
 import ListDetailScreen from './src/screens/ListDetailScreen';
 import CreateListScreen from './src/screens/CreateListScreen';
 import PublicUserProfile from './src/screens/PublicUserProfile';
+import MovieWatchlistScreen from './src/screens/MovieWatchlistScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +63,10 @@ function App() {
               <Stack.Screen
                 name="PublicProfile"
                 component={PublicUserProfile}
+              />
+              <Stack.Screen
+                name="MovieWatchlist"
+                component={MovieWatchlistScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>

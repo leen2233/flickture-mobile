@@ -184,18 +184,11 @@ const ListItem = ({list, onPress}) => (
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const {movies} = sampleData;
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [modalContent, setModalContent] = React.useState({
-    title: '',
-    value: '',
-    type: '',
-    data: [],
-  });
   const [followingState, setFollowingState] = React.useState(
     new Set(sampleData.user.following),
   );
   const {user, fetchUser} = useAuth();
+  const [movieModalVisible, setMovieModalVisible] = useState(false);
 
   useEffect(() => {
     const updateUser = async () => {
@@ -207,20 +200,6 @@ const ProfileScreen = () => {
 
     return unsubscribe;
   }, [navigation, fetchUser]);
-
-  const handleStatPress = (title, value, type) => {
-    let data = [];
-    if (type === 'followers') {
-      data = sampleData.user.followersList || [];
-    } else if (type === 'following') {
-      data = sampleData.user.followingList || [];
-    } else if (type === 'movies') {
-      data = sampleData.movies.recentlyWatched || [];
-    }
-
-    setModalContent({title, value, type, data});
-    setModalVisible(true);
-  };
 
   const handleToggleFollow = userId => {
     setFollowingState(prev => {
@@ -234,32 +213,16 @@ const ProfileScreen = () => {
     });
   };
 
-  const navigateToList = listType => {
-    navigation.navigate('MovieList', {listType});
+  const handleSeeAll = () => {
+    navigation.navigate('MovieWatchlist');
   };
 
+  useEffect(() => {
+    console.log('modal', movieModalVisible);
+  }, [movieModalVisible]);
+
   return (
-    <ScrollView flex={1} backgroundColor="#040b1c">
-      {modalVisible &&
-        (modalContent.type === 'followers' ||
-          modalContent.type === 'following') && (
-          <UserListModal
-            data={modalContent.data}
-            title={modalContent.title}
-            isFollowing={followingState}
-            onToggleFollow={handleToggleFollow}
-            onClose={() => setModalVisible(false)}
-          />
-        )}
-
-      {modalVisible && modalContent.type === 'movies' && (
-        <MovieListModal
-          data={modalContent.data || movies.recentlyWatched}
-          title={modalContent.title}
-          onClose={() => setModalVisible(false)}
-        />
-      )}
-
+    <ScrollView flex={1} backgroundColor="#040b1c" marginBottom={30}>
       <Box>
         {/* Banner with overlaid buttons */}
         <Box>
@@ -358,7 +321,7 @@ const ProfileScreen = () => {
                 label="Movies"
                 value={user.movies_watched}
                 onPress={() =>
-                  handleStatPress('Movies', user.stats.moviesWatched, 'movies')
+                  handleStatPress('Movies', user.movies_watched, 'movies')
                 }
               />
               <StatBox
@@ -385,7 +348,9 @@ const ProfileScreen = () => {
               title="Recently Watched"
               count={user.movies_watched}
               items={user.recently_watched}
-              onSeeAll={() => navigateToList('Recently Watched')}
+              onSeeAll={() => {
+                handleSeeAll();
+              }}
             />
           )}
 
@@ -394,14 +359,18 @@ const ProfileScreen = () => {
             title="Want to Watch"
             count={user.watchlist_count}
             items={user.watchlist}
-            onSeeAll={() => navigateToList('Want to Watch')}
+            onSeeAll={() => {
+              handleSeeAll();
+            }}
           />
           <MovieList
             icon={<Heart color={'#d33f72'} size={20} />}
             title="Favorites"
             count={user.favorites_count}
             items={user.favorites}
-            onSeeAll={() => navigateToList('Favorites')}
+            onSeeAll={() => {
+              handleSeeAll();
+            }}
           />
         </Box>
       </Box>

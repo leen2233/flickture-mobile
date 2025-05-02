@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axiosClient from '../lib/api';
-import MovieStatsModal from '../components/MovieStatsModal';
+import MovieStatsModal from './MovieWatchlistScreen';
 import FollowersList from '../components/FollowersList';
 import {useAuth} from '../context/AuthContext';
 
