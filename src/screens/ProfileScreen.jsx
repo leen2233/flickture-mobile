@@ -153,35 +153,6 @@ const MovieList = ({icon, title, count, items, onSeeAll}) => {
   );
 };
 
-const ListItem = ({list, onPress}) => (
-  <Pressable onPress={onPress}>
-    <HStack space="md" alignItems="center" marginBottom={16}>
-      <Image
-        source={{uri: list.thumbnail}}
-        alt={list.name}
-        width={80}
-        height={80}
-        borderRadius={12}
-      />
-      <VStack flex={1} space="xs">
-        <Text color="white" fontSize={16} fontWeight="600">
-          {list.name}
-        </Text>
-        <Text
-          color="rgba(255, 255, 255, 0.7)"
-          fontSize={14}
-          numberOfLines={2}
-          ellipsizeMode="tail">
-          {list.description}
-        </Text>
-        <Text color="rgba(255, 255, 255, 0.7)" fontSize={12}>
-          {list.moviesCount} movies
-        </Text>
-      </VStack>
-    </HStack>
-  </Pressable>
-);
-
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [followingState, setFollowingState] = React.useState(
@@ -189,6 +160,13 @@ const ProfileScreen = () => {
   );
   const {user, fetchUser} = useAuth();
   const [movieModalVisible, setMovieModalVisible] = useState(false);
+
+  const handleStatPress = type => {
+    navigation.navigate('FollowingList', {
+      username: user.username,
+      type: type.toLowerCase(),
+    });
+  };
 
   useEffect(() => {
     const updateUser = async () => {
@@ -320,23 +298,17 @@ const ProfileScreen = () => {
               <StatBox
                 label="Movies"
                 value={user.movies_watched}
-                onPress={() =>
-                  handleStatPress('Movies', user.movies_watched, 'movies')
-                }
+                onPress={handleSeeAll}
               />
               <StatBox
                 label="Following"
-                value={user.follower_count}
-                onPress={() =>
-                  handleStatPress('Following', user.follower_count, 'following')
-                }
+                value={user.following_count}
+                onPress={() => handleStatPress('Following')}
               />
               <StatBox
                 label="Followers"
                 value={user.follower_count}
-                onPress={() =>
-                  handleStatPress('Followers', user.follower_count, 'followers')
-                }
+                onPress={() => handleStatPress('Followers')}
               />
             </HStack>
           </Box>

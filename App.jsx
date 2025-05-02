@@ -22,6 +22,7 @@ import ListDetailScreen from './src/screens/ListDetailScreen';
 import CreateListScreen from './src/screens/CreateListScreen';
 import PublicUserProfile from './src/screens/PublicUserProfile';
 import MovieWatchlistScreen from './src/screens/MovieWatchlistScreen';
+import FollowingListScreen from './src/screens/FollowingListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,6 +68,10 @@ function App() {
               <Stack.Screen
                 name="MovieWatchlist"
                 component={MovieWatchlistScreen}
+              />
+              <Stack.Screen
+                name="FollowingList"
+                component={FollowingListScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>

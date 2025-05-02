@@ -234,6 +234,13 @@ const PublicUserProfile = () => {
     );
   }
 
+  const handleStatPress = type => {
+    navigation.navigate('FollowingList', {
+      username: user.username,
+      type: type.toLowerCase(),
+    });
+  };
+
   return (
     <ScrollView flex={1} backgroundColor="#040b1c">
       <Box>
@@ -342,12 +349,12 @@ const PublicUserProfile = () => {
               <StatBox
                 label="Following"
                 value={user.following_count}
-                onPress={() => setShowFollowingModal(true)}
+                onPress={() => handleStatPress('Following')}
               />
               <StatBox
                 label="Followers"
                 value={followerCount}
-                onPress={() => setShowFollowersModal(true)}
+                onPress={() => handleStatPress('Followers')}
               />
             </HStack>
           </Box>

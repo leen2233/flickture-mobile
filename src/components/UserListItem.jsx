@@ -1,19 +1,33 @@
 import React from 'react';
 import {Box, HStack, VStack, Text, Image, Button} from '@gluestack-ui/themed';
+import {useNavigation} from '@react-navigation/native';
 
 const UserListItem = ({user, isFollowing, onToggleFollow}) => {
+  const navigation = useNavigation();
+
   return (
-    <Box
-      width="100%"
+    <Button
+      width="93%"
+      height={80}
       backgroundColor="#151527"
       padding={16}
       marginBottom={8}
       borderRadius={12}
       borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)">
+      borderColor="rgba(255, 255, 255, 0.1)"
+      margin={'auto'}
+      onPress={() => {
+        navigation.navigate('PublicProfile', {
+          username: user.username,
+        });
+      }}>
       <HStack space="md" alignItems="center">
         <Image
-          source={{uri: user.avatar}}
+          source={{
+            uri: user.avatar
+              ? user.avatar
+              : 'https://flickture.leen2233.me/default-avatar.png',
+          }}
           alt={user.username}
           style={{
             width: 50,
@@ -23,25 +37,25 @@ const UserListItem = ({user, isFollowing, onToggleFollow}) => {
         />
         <VStack flex={1}>
           <Text color="white" fontSize={16} fontWeight="600">
-            {user.firstName} {user.lastName}
+            {user.full_name}
           </Text>
           <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
             @{user.username}
           </Text>
         </VStack>
-        <Button
+        {/* <Button
           variant={isFollowing ? 'outline' : 'solid'}
           backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}
           borderColor="#dc3f72"
           borderWidth={1}
           size="sm"
-          onPress={() => onToggleFollow(user.id)}>
+          onPress={() => onToggleFollow(user.username)}>
           <Text color="white" fontSize={14}>
             {isFollowing ? 'Following' : 'Follow'}
           </Text>
-        </Button>
+        </Button> */}
       </HStack>
-    </Box>
+    </Button>
   );
 };
 
