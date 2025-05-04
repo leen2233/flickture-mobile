@@ -25,6 +25,7 @@ import ImagePlaceholder from '../components/ImagePlaceholder';
 import {Flame} from 'lucide-react-native';
 import api from '../lib/api';
 import {useNavigation} from '@react-navigation/native';
+import BottomTabs from '../components/BottomTabs';
 
 const SearchSuggestions = ({
   recentSearches,
@@ -639,6 +640,7 @@ const SearchScreen = () => {
           )}
         </ScrollView>
       )}
+      <BottomTabs currentRoute="SearchTab" />
     </Box>
   );
 };

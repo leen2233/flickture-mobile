@@ -24,6 +24,7 @@ import {useNavigation} from '@react-navigation/native';
 import api from '../lib/api'; // Fixed import statement
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import {StyleSheet} from 'react-native';
+import BottomTabs from '../components/BottomTabs';
 
 // List item with hover effect and modern styling
 const ListItem = ({list, onPress}) => {
@@ -468,6 +469,7 @@ const ListsScreen = () => {
           </Box>
         )}
       </ScrollView>
+      <BottomTabs currentRoute="ListsTab" />
     </Box>
   );
 };

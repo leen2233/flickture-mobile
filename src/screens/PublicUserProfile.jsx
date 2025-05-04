@@ -18,12 +18,12 @@ import {
   Clock,
   BookMarked,
   Users,
+  ArrowLeft,
 } from 'lucide-react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axiosClient from '../lib/api';
-import MovieStatsModal from './MovieWatchlistScreen';
-import FollowersList from '../components/FollowersList';
 import {useAuth} from '../context/AuthContext';
+import BottomTabs from '../components/BottomTabs';
 
 const StatBox = ({label, value, onPress}) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{flex: 1}}>
@@ -210,30 +210,6 @@ const PublicUserProfile = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Center flex={1} backgroundColor="#040b1c">
-        <Text color="white">Loading profile...</Text>
-      </Center>
-    );
-  }
-
-  if (error) {
-    return (
-      <Center flex={1} backgroundColor="#040b1c">
-        <Text color="white">{error}</Text>
-      </Center>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Center flex={1} backgroundColor="#040b1c">
-        <Text color="white">User not found</Text>
-      </Center>
-    );
-  }
-
   const handleStatPress = type => {
     navigation.navigate('FollowingList', {
       username: user.username,
@@ -241,151 +217,187 @@ const PublicUserProfile = () => {
     });
   };
 
+  const handleSeeAll = () => {
+    navigation.navigate('MovieWatchlist', {
+      username: user.username,
+    });
+  };
+
   return (
-    <ScrollView flex={1} backgroundColor="#040b1c">
-      <Box>
-        <Box>
-          <Image
-            source={{
-              uri:
-                user.banner_image ||
-                'https://flickture.leen2233.me/default-banner.png',
-            }}
-            alt="Profile Banner"
-            width="100%"
-            height={240}
-          />
-          {currentUser && currentUser.username !== user.username && (
-            <HStack
-              position="absolute"
-              top={16}
-              right={16}
-              space="sm"
-              backgroundColor="rgba(4, 11, 28, 0.6)"
-              padding={8}
-              borderRadius={12}>
-              <Button
-                onPress={handleFollow}
-                variant={isFollowing ? 'outline' : 'solid'}
-                borderColor="#dc3f72"
-                backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}>
-                <HStack space="sm" alignItems="center">
-                  <Users size={16} color="#fff" />
-                  <Text color="white">
-                    {isFollowing ? 'Following' : 'Follow'}
-                  </Text>
-                </HStack>
-              </Button>
-            </HStack>
-          )}
-          <Box
-            position="absolute"
-            bottom={-50}
-            left="50%"
-            style={{transform: [{translateX: -50}]}}>
-            <Image
-              source={{
-                uri:
-                  user.avatar ||
-                  'https://flickture.leen2233.me/default-avatar.png',
-              }}
-              alt="Profile"
-              width={100}
-              height={100}
-              borderRadius={50}
-              borderWidth={4}
-              borderColor="#040b1c"
-            />
-          </Box>
-        </Box>
-
-        <Box
-          padding={16}
-          backgroundColor="#040b1c"
-          style={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            marginTop: -20,
-          }}>
-          <Center marginTop={-60} marginBottom={12}>
-            <Image
-              source={{
-                uri: user.avatar
-                  ? user.avatar
-                  : 'https://flickture.leen2233.me/default-avatar.png',
-              }}
-              alt="Profile Picture"
-              width={100}
-              height={100}
-              borderRadius={50}
-              borderWidth={4}
-              borderColor="#040b1c"
-              marginBottom={0}
-            />
-            <VStack space="xs" alignItems="center">
-              <Text color="white" fontSize={24} fontWeight="600">
-                {user.full_name}
-              </Text>
-              <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
-                @{user.username}
-              </Text>
-              <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
-                {user.about}
-              </Text>
-            </VStack>
+    <Box flex={1} backgroundColor="#040b1c">
+      <ScrollView>
+        {isLoading && (
+          <Center flex={1} backgroundColor="#040b1c">
+            <Text color="white">Loading profile...</Text>
           </Center>
+        )}
 
-          <Box
-            backgroundColor="#151527"
-            borderRadius={12}
-            padding={12}
-            marginBottom={24}>
-            <HStack justifyContent="space-between">
-              <StatBox
-                label="Movies"
-                value={user.movies_watched}
-                onPress={() => setShowWatchedModal(true)}
+        {error && (
+          <Center flex={1} backgroundColor="#040b1c">
+            <Text color="white">{error}</Text>
+          </Center>
+        )}
+
+        {!user && !isLoading && !error && (
+          <Center flex={1} backgroundColor="#040b1c">
+            <Text color="white">User not found</Text>
+          </Center>
+        )}
+        {!isLoading && !error && user && (
+          <Box>
+            <Box>
+              <Image
+                source={{
+                  uri:
+                    user.banner_image ||
+                    'https://flickture.leen2233.me/default-banner.png',
+                }}
+                alt="Profile Banner"
+                width="100%"
+                height={240}
               />
-              <StatBox
-                label="Following"
-                value={user.following_count}
-                onPress={() => handleStatPress('Following')}
+              {currentUser && currentUser.username !== user.username && (
+                <HStack
+                  position="absolute"
+                  top={16}
+                  width="100%"
+                  alignItems="center"
+                  display="flex"
+                  justifyContent="space-between"
+                  backgroundColor="rgba(4, 11, 28, 0.6)"
+                  padding={8}
+                  paddingHorizontal={20}
+                  borderRadius={12}>
+                  <ArrowLeft
+                    color="white"
+                    size={24}
+                    onPress={() => navigation.goBack()}
+                  />
+                  <Button
+                    onPress={handleFollow}
+                    variant={isFollowing ? 'outline' : 'solid'}
+                    borderColor="#dc3f72"
+                    backgroundColor={isFollowing ? 'transparent' : '#dc3f72'}>
+                    <HStack space="sm" alignItems="center">
+                      <Users size={16} color="#fff" />
+                      <Text color="white">
+                        {isFollowing ? 'Following' : 'Follow'}
+                      </Text>
+                    </HStack>
+                  </Button>
+                </HStack>
+              )}
+              <Box
+                position="absolute"
+                bottom={-50}
+                left="50%"
+                style={{transform: [{translateX: -50}]}}>
+                <Image
+                  source={{
+                    uri:
+                      user.avatar ||
+                      'https://flickture.leen2233.me/default-avatar.png',
+                  }}
+                  alt="Profile"
+                  width={100}
+                  height={100}
+                  borderRadius={50}
+                  borderWidth={4}
+                  borderColor="#040b1c"
+                />
+              </Box>
+            </Box>
+
+            <Box
+              padding={16}
+              backgroundColor="#040b1c"
+              style={{
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                marginTop: -20,
+              }}>
+              <Center marginTop={-60} marginBottom={12}>
+                <Image
+                  source={{
+                    uri: user.avatar
+                      ? user.avatar
+                      : 'https://flickture.leen2233.me/default-avatar.png',
+                  }}
+                  alt="Profile Picture"
+                  width={100}
+                  height={100}
+                  borderRadius={50}
+                  borderWidth={4}
+                  borderColor="#040b1c"
+                  marginBottom={0}
+                />
+                <VStack space="xs" alignItems="center">
+                  <Text color="white" fontSize={24} fontWeight="600">
+                    {user.full_name}
+                  </Text>
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
+                    @{user.username}
+                  </Text>
+                  <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
+                    {user.about}
+                  </Text>
+                </VStack>
+              </Center>
+
+              <Box
+                backgroundColor="#151527"
+                borderRadius={12}
+                padding={12}
+                marginBottom={24}>
+                <HStack justifyContent="space-between">
+                  <StatBox
+                    label="Movies"
+                    value={user.movies_watched}
+                    onPress={handleSeeAll}
+                  />
+                  <StatBox
+                    label="Following"
+                    value={user.following_count}
+                    onPress={() => handleStatPress('Following')}
+                  />
+                  <StatBox
+                    label="Followers"
+                    value={followerCount}
+                    onPress={() => handleStatPress('Followers')}
+                  />
+                </HStack>
+              </Box>
+
+              <MovieList
+                title="Recently Watched"
+                movies={user.recently_watched}
+                count={user.movies_watched}
+                type="recently-watched"
+                icon={Clock}
+                emptyMessage="No movies watched yet"
               />
-              <StatBox
-                label="Followers"
-                value={followerCount}
-                onPress={() => handleStatPress('Followers')}
+              <MovieList
+                title="Want to Watch"
+                movies={user.watchlist}
+                count={user.watchlist?.length}
+                type="want-to-watch"
+                icon={BookMarked}
+                emptyMessage="Watchlist is empty"
               />
-            </HStack>
+              <MovieList
+                title="Favorites"
+                movies={user.favorites}
+                count={user.favorites?.length}
+                type="favorites"
+                icon={Heart}
+                emptyMessage="No favorite movies yet"
+              />
+            </Box>
           </Box>
-
-          <MovieList
-            title="Recently Watched"
-            movies={user.recently_watched}
-            count={user.movies_watched}
-            type="recently-watched"
-            icon={Clock}
-            emptyMessage="No movies watched yet"
-          />
-          <MovieList
-            title="Want to Watch"
-            movies={user.watchlist}
-            count={user.watchlist?.length}
-            type="want-to-watch"
-            icon={BookMarked}
-            emptyMessage="Watchlist is empty"
-          />
-          <MovieList
-            title="Favorites"
-            movies={user.favorites}
-            count={user.favorites?.length}
-            type="favorites"
-            icon={Heart}
-            emptyMessage="No favorite movies yet"
-          />
-        </Box>
-      </Box>
-    </ScrollView>
+        )}
+      </ScrollView>
+      <BottomTabs />
+    </Box>
   );
 };
 

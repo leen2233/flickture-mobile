@@ -10,7 +10,7 @@ import {
   HStack,
   Spinner,
 } from '@gluestack-ui/themed';
-import {Search, ArrowLeft} from 'lucide-react-native';
+import {Search, ArrowLeft, Film} from 'lucide-react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import UserListItem from '../components/UserListItem';
 import axiosClient from '../lib/api';
@@ -114,6 +114,14 @@ const FollowingListScreen = () => {
           onChangeText={setSearchQuery}
         />
       </Input>
+      {users.length === 0 && !isLoading && (
+        <Box padding={16} marginTop={30} alignItems="center">
+          <Film size={24} color="rgba(255, 255, 255, 0.5)" />
+          <Text color="rgba(255, 255, 255, 0.5)" marginTop={8}>
+            No {type === 'followers' ? 'followers' : 'following'} users found
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 

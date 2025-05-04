@@ -16,8 +16,15 @@ import {
   Input,
   InputField,
 } from '@gluestack-ui/themed';
-import {X, BookmarkPlus, Heart, Plus, Search} from 'lucide-react-native';
-import {useNavigation} from '@react-navigation/native';
+import {
+  X,
+  BookmarkPlus,
+  Heart,
+  Plus,
+  Search,
+  ArrowLeft,
+} from 'lucide-react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import axiosClient from '../lib/api';
 
 const formatTimeAgo = date => {
@@ -71,6 +78,8 @@ const FilterButton = ({label, isActive, onPress, icon}) => (
 
 const MovieWatchlistScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const {username} = route.params;
   const [searchQuery, setSearchQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +106,12 @@ const MovieWatchlistScreen = () => {
         params.is_favorite = favoriteFilter === 'favorite';
       }
 
-      const response = await axiosClient.get('/auth/me/watchlist/', {params});
+      const response = await axiosClient.get(
+        `/auth/user/${username}/watchlist/`,
+        {
+          params,
+        },
+      );
 
       if (pageNum === 1) {
         setMovies(response.data.results);
@@ -109,6 +123,7 @@ const MovieWatchlistScreen = () => {
       setHasMore(response.data.next !== null);
     } catch (error) {
       console.error('Failed to fetch movies:', error);
+      console.log(error.response);
     } finally {
       setIsLoading(false);
     }
@@ -236,6 +251,11 @@ const MovieWatchlistScreen = () => {
         borderBottomWidth={1}
         borderBottomColor="rgba(255, 255, 255, 0.1)">
         <HStack alignItems="center" space="sm">
+          <ArrowLeft
+            color="white"
+            size={24}
+            onPress={() => navigation.goBack()}
+          />
           <Text color="white" fontSize={24} fontWeight="600">
             Movies
           </Text>

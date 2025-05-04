@@ -64,6 +64,10 @@ function App() {
               <Stack.Screen
                 name="PublicProfile"
                 component={PublicUserProfile}
+                options={{
+                  animation: 'slide_from_bottom',
+                  headerShown: false,
+                }}
               />
               <Stack.Screen
                 name="MovieWatchlist"

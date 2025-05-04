@@ -28,6 +28,7 @@ import MovieListModal from '../components/MovieListModal';
 import UserListModal from '../components/UserListModal';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import {useAuth} from '../context/AuthContext';
+import BottomTabs from '../components/BottomTabs';
 
 const StatBox = ({label, value, onPress}) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{flex: 1}}>
@@ -192,7 +193,9 @@ const ProfileScreen = () => {
   };
 
   const handleSeeAll = () => {
-    navigation.navigate('MovieWatchlist');
+    navigation.navigate('MovieWatchlist', {
+      username: user.username,
+    });
   };
 
   useEffect(() => {
@@ -200,153 +203,156 @@ const ProfileScreen = () => {
   }, [movieModalVisible]);
 
   return (
-    <ScrollView flex={1} backgroundColor="#040b1c" marginBottom={30}>
-      <Box>
-        {/* Banner with overlaid buttons */}
+    <Box flex={1} backgroundColor="#040b1c">
+      <ScrollView flex={1} backgroundColor="#040b1c" marginBottom={30}>
         <Box>
-          <Image
-            source={{
-              uri: user?.banner_image || 'https://picsum.photos/1600/900',
-            }}
-            alt="Profile Banner"
-            width="100%"
-            height={240}
-          />
-          {/* Buttons overlaid on banner */}
-          <HStack
-            position="absolute"
-            top={16}
-            right={16}
-            space="sm"
-            backgroundColor="rgba(4, 11, 28, 0.6)"
-            padding={8}
-            borderRadius={12}>
-            <Pressable
-              onPress={() => navigation.navigate('EditProfile')}
-              flexDirection="row"
-              alignItems="center"
-              paddingHorizontal={12}
-              paddingVertical={8}
-              borderRadius={8}
-              borderWidth={1}
-              width={50}
-              justifyContent="center"
-              borderColor="#dc3f72">
-              <Edit2 color="#dc3f72" size={16} />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation.navigate('Settings')}
-              flexDirection="row"
-              alignItems="center"
-              paddingHorizontal={12}
-              paddingVertical={8}
-              borderRadius={8}
-              borderWidth={1}
-              width={50}
-              justifyContent="center"
-              borderColor="#dc3f72">
-              <Settings color="#dc3f72" size={16} />
-            </Pressable>
-          </HStack>
-        </Box>
-
-        {/* Rest of content */}
-        <Box
-          padding={16}
-          backgroundColor="#040b1c"
-          style={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            marginTop: -20,
-          }}>
-          {/* Avatar and Info */}
-          <Center marginTop={-60} marginBottom={12}>
+          {/* Banner with overlaid buttons */}
+          <Box>
             <Image
               source={{
-                uri: user.avatar
-                  ? user.avatar
-                  : 'https://flickture.leen2233.me/default-avatar.png',
+                uri: user?.banner_image || 'https://picsum.photos/1600/900',
               }}
-              alt="Profile Picture"
-              width={100}
-              height={100}
-              borderRadius={50}
-              borderWidth={4}
-              borderColor="#040b1c"
-              marginBottom={0}
+              alt="Profile Banner"
+              width="100%"
+              height={240}
             />
-            <VStack space="xs" alignItems="center">
-              <Text color="white" fontSize={24} fontWeight="600">
-                {user.full_name}
-              </Text>
-              <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
-                @{user.username}
-              </Text>
-              <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
-                {user.about}
-              </Text>
-            </VStack>
-          </Center>
-
-          {/* Stats */}
-          <Box
-            backgroundColor="#151527"
-            borderRadius={12}
-            padding={12}
-            marginBottom={24}>
-            <HStack justifyContent="space-between">
-              <StatBox
-                label="Movies"
-                value={user.movies_watched}
-                onPress={handleSeeAll}
-              />
-              <StatBox
-                label="Following"
-                value={user.following_count}
-                onPress={() => handleStatPress('Following')}
-              />
-              <StatBox
-                label="Followers"
-                value={user.follower_count}
-                onPress={() => handleStatPress('Followers')}
-              />
+            {/* Buttons overlaid on banner */}
+            <HStack
+              position="absolute"
+              top={16}
+              right={16}
+              space="sm"
+              backgroundColor="rgba(4, 11, 28, 0.6)"
+              padding={8}
+              borderRadius={12}>
+              <Pressable
+                onPress={() => navigation.navigate('EditProfile')}
+                flexDirection="row"
+                alignItems="center"
+                paddingHorizontal={12}
+                paddingVertical={8}
+                borderRadius={8}
+                borderWidth={1}
+                width={50}
+                justifyContent="center"
+                borderColor="#dc3f72">
+                <Edit2 color="#dc3f72" size={16} />
+              </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate('Settings')}
+                flexDirection="row"
+                alignItems="center"
+                paddingHorizontal={12}
+                paddingVertical={8}
+                borderRadius={8}
+                borderWidth={1}
+                width={50}
+                justifyContent="center"
+                borderColor="#dc3f72">
+                <Settings color="#dc3f72" size={16} />
+              </Pressable>
             </HStack>
           </Box>
 
-          {/* Movie Lists */}
-          {user.recently_watched && (
+          {/* Rest of content */}
+          <Box
+            padding={16}
+            backgroundColor="#040b1c"
+            style={{
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              marginTop: -20,
+            }}>
+            {/* Avatar and Info */}
+            <Center marginTop={-60} marginBottom={12}>
+              <Image
+                source={{
+                  uri: user.avatar
+                    ? user.avatar
+                    : 'https://flickture.leen2233.me/default-avatar.png',
+                }}
+                alt="Profile Picture"
+                width={100}
+                height={100}
+                borderRadius={50}
+                borderWidth={4}
+                borderColor="#040b1c"
+                marginBottom={0}
+              />
+              <VStack space="xs" alignItems="center">
+                <Text color="white" fontSize={24} fontWeight="600">
+                  {user.full_name}
+                </Text>
+                <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
+                  @{user.username}
+                </Text>
+                <Text color="rgba(255, 255, 255, 0.7)" fontSize={16}>
+                  {user.about}
+                </Text>
+              </VStack>
+            </Center>
+
+            {/* Stats */}
+            <Box
+              backgroundColor="#151527"
+              borderRadius={12}
+              padding={12}
+              marginBottom={24}>
+              <HStack justifyContent="space-between">
+                <StatBox
+                  label="Movies"
+                  value={user.movies_watched}
+                  onPress={handleSeeAll}
+                />
+                <StatBox
+                  label="Following"
+                  value={user.following_count}
+                  onPress={() => handleStatPress('Following')}
+                />
+                <StatBox
+                  label="Followers"
+                  value={user.follower_count}
+                  onPress={() => handleStatPress('Followers')}
+                />
+              </HStack>
+            </Box>
+
+            {/* Movie Lists */}
+            {user.recently_watched && (
+              <MovieList
+                icon={<Clock color={'#d33f72'} size={20} />}
+                title="Recently Watched"
+                count={user.movies_watched}
+                items={user.recently_watched}
+                onSeeAll={() => {
+                  handleSeeAll();
+                }}
+              />
+            )}
+
             <MovieList
-              icon={<Clock color={'#d33f72'} size={20} />}
-              title="Recently Watched"
-              count={user.movies_watched}
-              items={user.recently_watched}
+              icon={<BookMarked color={'#d33f72'} size={20} />}
+              title="Want to Watch"
+              count={user.watchlist_count}
+              items={user.watchlist}
               onSeeAll={() => {
                 handleSeeAll();
               }}
             />
-          )}
-
-          <MovieList
-            icon={<BookMarked color={'#d33f72'} size={20} />}
-            title="Want to Watch"
-            count={user.watchlist_count}
-            items={user.watchlist}
-            onSeeAll={() => {
-              handleSeeAll();
-            }}
-          />
-          <MovieList
-            icon={<Heart color={'#d33f72'} size={20} />}
-            title="Favorites"
-            count={user.favorites_count}
-            items={user.favorites}
-            onSeeAll={() => {
-              handleSeeAll();
-            }}
-          />
+            <MovieList
+              icon={<Heart color={'#d33f72'} size={20} />}
+              title="Favorites"
+              count={user.favorites_count}
+              items={user.favorites}
+              onSeeAll={() => {
+                handleSeeAll();
+              }}
+            />
+          </Box>
         </Box>
-      </Box>
-    </ScrollView>
+      </ScrollView>
+      <BottomTabs currentRoute="ProfileTab" />
+    </Box>
   );
 };
 

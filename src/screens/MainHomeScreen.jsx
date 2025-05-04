@@ -27,6 +27,7 @@ import {useNavigation} from '@react-navigation/native';
 import api from '../lib/api';
 import {useAuth} from '../context/AuthContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import BottomTabs from '../components/BottomTabs';
 
 const formatTimestamp = timestamp => {
   const date = new Date(timestamp);
@@ -179,7 +180,9 @@ const ActivityCard = ({activity, onMoviePress}) => {
         <HStack space="sm" alignItems="center" justifyContent="space-between">
           <Pressable
             onPress={() =>
-              navigation.navigate('PublicProfile', {username: activity.user.username})
+              navigation.navigate('PublicProfile', {
+                username: activity.user.username,
+              })
             }>
             <HStack space="sm" alignItems="center" flex={1}>
               <Box width={32} height={32}>
@@ -199,7 +202,6 @@ const ActivityCard = ({activity, onMoviePress}) => {
               <Text color="white" fontSize={14} fontWeight="600">
                 {activity.user.name}
               </Text>
-
               <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
                 {formatTimestamp(activity.timestamp)}
               </Text>
@@ -463,6 +465,7 @@ const MainHomeScreen = () => {
           <EmptyFeedMessage isFollowing={activeTab === 'following'} />
         )}
       </ScrollView>
+      <BottomTabs currentRoute="HomeTab" />
     </Box>
   );
 };
