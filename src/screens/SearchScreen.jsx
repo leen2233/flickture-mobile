@@ -380,6 +380,7 @@ const SearchScreen = () => {
         const response = await api.get('/genres/');
         const genresData = response.data.results.map(genre => ({
           id: genre.id,
+          tmdb_id: genre.tmdb_id,
           name: genre.name,
           color: getRandomColor(genre.id),
         }));
@@ -582,6 +583,10 @@ const SearchScreen = () => {
                       <Pressable
                         key={genre.id}
                         onPress={() => {
+                          navigation.navigate('GenreMovies', {
+                            genreId: genre.tmdb_id,
+                            genreName: genre.name,
+                          });
                           setSelectedGenre(genre.name);
                           handleUnfocus();
                           Keyboard.dismiss();

@@ -45,7 +45,7 @@ const TabButton = ({icon: IconComponent, label, selected, onPress}) => (
 const BottomTabs = ({currentRoute = ''}) => {
   const navigation = useNavigation();
 
-  const handleNavigation = (screenName) => {
+  const handleNavigation = screenName => {
     // Navigate to Home first (which contains the tab navigator)
     navigation.navigate('Home', {
       screen: screenName,

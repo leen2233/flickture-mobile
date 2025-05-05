@@ -23,6 +23,7 @@ import CreateListScreen from './src/screens/CreateListScreen';
 import PublicUserProfile from './src/screens/PublicUserProfile';
 import MovieWatchlistScreen from './src/screens/MovieWatchlistScreen';
 import FollowingListScreen from './src/screens/FollowingListScreen';
+import GenreMoviesScreen from './src/screens/GenreMoviesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,13 @@ function App() {
               <Stack.Screen
                 name="FollowingList"
                 component={FollowingListScreen}
+              />
+              <Stack.Screen
+                name="GenreMovies"
+                component={GenreMoviesScreen}
+                options={{
+                  animation: 'slide_from_right',
+                }}
               />
             </Stack.Navigator>
           </NavigationContainer>
