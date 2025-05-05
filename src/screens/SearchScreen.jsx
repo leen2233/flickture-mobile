@@ -27,56 +27,6 @@ import api from '../lib/api';
 import {useNavigation} from '@react-navigation/native';
 import BottomTabs from '../components/BottomTabs';
 
-const SearchSuggestions = ({
-  recentSearches,
-  searchQuery,
-  onSelectSearch,
-  onRemoveSearch,
-  onSearchSubmit,
-}) => {
-  const filteredSearches = recentSearches
-    .filter(search => search.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(0, 5);
-
-  if (filteredSearches.length === 0) return null;
-
-  const handleSelectSearch = search => {
-    onSelectSearch(search);
-    onSearchSubmit(search);
-  };
-
-  return (
-    <Box backgroundColor="#151527" borderRadius="$lg" mt="$2" py="$2">
-      <VStack space="sm">
-        {filteredSearches.map(search => (
-          <Pressable
-            key={search}
-            onPress={() => handleSelectSearch(search)}
-            px="$4"
-            py="$2">
-            <HStack justifyContent="space-between" alignItems="center">
-              <HStack space="sm" alignItems="center" flex={1}>
-                <Icon as={Clock} size="sm" color="rgba(255, 255, 255, 0.5)" />
-                <Text color="#ffffff" fontSize={16} numberOfLines={1}>
-                  {search}
-                </Text>
-              </HStack>
-              <Pressable
-                onPress={e => {
-                  e.stopPropagation();
-                  onRemoveSearch(search);
-                }}
-                p="$2">
-                <Icon as={X} size="sm" color="rgba(255, 255, 255, 0.5)" />
-              </Pressable>
-            </HStack>
-          </Pressable>
-        ))}
-      </VStack>
-    </Box>
-  );
-};
-
 const SearchResults = ({results}) => {
   const [loadedImages, setLoadedImages] = useState({});
   const navigation = useNavigation();
@@ -353,15 +303,7 @@ const MovieRow = ({navigation, icon, title, movies}) => {
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [recentSearches, setRecentSearches] = useState([
-    'Inception',
-    'The Matrix',
-    'Leonardo DiCaprio',
-    'Christopher Nolan',
-    'Sci-Fi movies',
-  ]);
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [genres, setGenres] = useState([]);
@@ -382,7 +324,6 @@ const SearchScreen = () => {
           id: genre.id,
           tmdb_id: genre.tmdb_id,
           name: genre.name,
-          color: getRandomColor(genre.id),
         }));
         setGenres(genresData);
       } catch (error) {
@@ -435,16 +376,6 @@ const SearchScreen = () => {
 
   const handleSearch = query => {
     setSearchQuery(query);
-    if (query.trim() !== '') {
-      setRecentSearches(prev => {
-        const newSearches = prev.filter(item => item !== query);
-        return [query, ...newSearches].slice(0, 10);
-      });
-    }
-  };
-
-  const removeRecentSearch = searchTerm => {
-    setRecentSearches(prev => prev.filter(item => item !== searchTerm));
   };
 
   const handleUnfocus = () => {
@@ -464,14 +395,6 @@ const SearchScreen = () => {
           `/movies/search/multi/?query=${encodeURIComponent(queryToSearch)}`,
         );
         setSearchResults(response.data.results);
-
-        // Update recent searches
-        if (queryToSearch.trim() !== '') {
-          setRecentSearches(prev => {
-            const newSearches = prev.filter(item => item !== queryToSearch);
-            return [queryToSearch, ...newSearches].slice(0, 10);
-          });
-        }
       } catch (error) {
         console.error('Error searching:', error);
         // You might want to show an error toast here
@@ -544,25 +467,6 @@ const SearchScreen = () => {
             </Pressable>
           )}
         </Input>
-
-        {isInputFocused && (
-          <Box
-            position="absolute"
-            top="100%"
-            left="$4"
-            right="$4"
-            zIndex={1000}>
-            <SearchSuggestions
-              recentSearches={recentSearches}
-              searchQuery={searchQuery}
-              onSelectSearch={search => {
-                setSearchQuery(search);
-              }}
-              onRemoveSearch={removeRecentSearch}
-              onSearchSubmit={handleSearchSubmit}
-            />
-          </Box>
-        )}
       </Box>
 
       {!isInputFocused && (
@@ -587,16 +491,11 @@ const SearchScreen = () => {
                             genreId: genre.tmdb_id,
                             genreName: genre.name,
                           });
-                          setSelectedGenre(genre.name);
                           handleUnfocus();
                           Keyboard.dismiss();
                         }}>
                         <Box
-                          backgroundColor={
-                            selectedGenre === genre.name
-                              ? genre.color
-                              : '#151527'
-                          }
+                          backgroundColor={'#151527'}
                           borderRadius="$lg"
                           px="$4"
                           py="$2"

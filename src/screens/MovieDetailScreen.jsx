@@ -1020,6 +1020,43 @@ https://flickture.leen2233.me/${movieData.type}/${movieData.tmdb_id}`,
             )}
           </VStack>
 
+          {/* TV Show Seasons Info */}
+          {movieData.type === 'tv' && movieData.season_number > 0 && (
+            <VStack space="md" marginBottom={24}>
+              <Text color="white" fontSize={20} fontWeight="600">
+                Seasons
+              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('SeasonDetail', {
+                    tmdbId: movieData.tmdb_id,
+                    type: movieData.type,
+                  })
+                }
+                style={styles.seasonInfoContainer}>
+                <HStack
+                  space="md"
+                  padding={16}
+                  backgroundColor="#151527"
+                  borderRadius={12}
+                  alignItems="center"
+                  justifyContent="space-between">
+                  <VStack>
+                    <Text color="white" fontSize={16} fontWeight="600">
+                      {movieData.season_number} Season
+                      {movieData.season_number > 1 ? 's' : ''}
+                    </Text>
+                    <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
+                      {movieData.episode_number} Episode
+                      {movieData.episode_number > 1 ? 's' : ''}
+                    </Text>
+                  </VStack>
+                  <ChevronRight color="white" size={20} />
+                </HStack>
+              </TouchableOpacity>
+            </VStack>
+          )}
+
           {/* Overview */}
           {movieData.plot && (
             <VStack space="md" marginBottom={24}>
@@ -1134,6 +1171,9 @@ const styles = StyleSheet.create({
   },
   hiddenImage: {
     opacity: 0,
+  },
+  seasonInfoContainer: {
+    overflow: 'hidden',
   },
 });
 

@@ -24,6 +24,7 @@ import PublicUserProfile from './src/screens/PublicUserProfile';
 import MovieWatchlistScreen from './src/screens/MovieWatchlistScreen';
 import FollowingListScreen from './src/screens/FollowingListScreen';
 import GenreMoviesScreen from './src/screens/GenreMoviesScreen';
+import SeasonDetail from './src/screens/SeasonDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -85,6 +86,7 @@ function App() {
                   animation: 'slide_from_right',
                 }}
               />
+              <Stack.Screen name="SeasonDetail" component={SeasonDetail} />
             </Stack.Navigator>
           </NavigationContainer>
         </AuthProvider>
