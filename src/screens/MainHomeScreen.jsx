@@ -21,6 +21,7 @@ import {
   UserPlus,
   Sparkles,
   Clock,
+  Play,
 } from 'lucide-react-native';
 import {StyleSheet, ActivityIndicator} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
@@ -163,6 +164,15 @@ const ActivityCard = ({activity, onMoviePress}) => {
             </Text>
           </HStack>
         );
+      case 'new_episode':
+        return (
+          <HStack space="xs" alignItems="center">
+            <Play size={14} color="#9c27b0" />
+            <Text color="#9c27b0" fontSize={12}>
+              New Episode
+            </Text>
+          </HStack>
+        );
       default:
         return null;
     }
@@ -185,23 +195,29 @@ const ActivityCard = ({activity, onMoviePress}) => {
               })
             }>
             <HStack space="sm" alignItems="center" flex={1}>
-              <Box width={32} height={32}>
-                {!isUserImageLoaded && (
-                  <ImagePlaceholder width={32} height={32} />
-                )}
-                <Image
-                  source={{uri: activity.user.avatar}}
-                  alt={activity.user.name}
-                  width={32}
-                  height={32}
-                  borderRadius={16}
-                  onLoad={() => setIsUserImageLoaded(true)}
-                  style={[!isUserImageLoaded && styles.hiddenImage]}
-                />
-              </Box>
-              <Text color="white" fontSize={14} fontWeight="600">
-                {activity.user.name}
-              </Text>
+              {activity.user && activity.user.avatar && (
+                <Box width={32} height={32}>
+                  {!isUserImageLoaded && (
+                    <ImagePlaceholder width={32} height={32} />
+                  )}
+
+                  <Image
+                    source={{uri: activity.user.avatar}}
+                    alt={activity.user.name}
+                    width={32}
+                    height={32}
+                    borderRadius={16}
+                    onLoad={() => setIsUserImageLoaded(true)}
+                    style={[!isUserImageLoaded && styles.hiddenImage]}
+                  />
+                </Box>
+              )}
+              {activity.user && activity.user.name && (
+                <Text color="white" fontSize={14} fontWeight="600">
+                  {activity.user.name}
+                </Text>
+              )}
+
               <Text color="rgba(255, 255, 255, 0.5)" fontSize={12}>
                 {formatTimestamp(activity.timestamp)}
               </Text>
@@ -230,6 +246,13 @@ const ActivityCard = ({activity, onMoviePress}) => {
           <MoviePreview
             movie={activity.movie}
             onPress={() => onMoviePress(activity.movie)}
+          />
+        )}
+
+        {activity.type === 'new_episode' && (
+          <MoviePreview
+            movie={activity.show}
+            onPress={() => onMoviePress(activity.show)}
           />
         )}
 

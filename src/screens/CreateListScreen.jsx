@@ -54,7 +54,7 @@ const MovieItem = ({movie, onRemove}) => {
         <Box width={60} height={90}>
           {!isImageLoaded && <ImagePlaceholder width={60} height={90} />}
           <Image
-            source={{uri: movie.poster}}
+            source={{uri: movie.poster_preview_url}}
             alt={movie.title}
             width={60}
             height={90}
@@ -124,18 +124,17 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
   }, [searchQuery]);
 
   const handleSelect = movie => {
-    // Convert the movie object to match the expected format
     const formattedMovie = {
       id: movie.tmdb_id,
       tmdb_id: movie.tmdb_id,
       type: movie.type,
       title: movie.title,
       year: movie.year,
-      poster: movie.poster_preview_url,
+      poster_preview_url: movie.poster_preview_url,
       rating: movie.rating,
     };
     onSelect(formattedMovie);
-    setSearchQuery(''); // Clear search query
+    setSearchQuery('');
     onClose();
   };
 
@@ -211,7 +210,6 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
       onRequestClose={onClose}>
       <View style={styles.searchModalContainer} pointerEvents="box-none">
         <View style={styles.searchModalContent} pointerEvents="box-none">
-          {/* Header */}
           <HStack
             justifyContent="space-between"
             alignItems="center"
@@ -224,7 +222,6 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
             </TouchableOpacity>
           </HStack>
 
-          {/* Search Input */}
           <Box
             backgroundColor="#151527"
             borderRadius={12}
@@ -248,7 +245,6 @@ const SearchMovieModal = ({visible, onClose, onSelect, selectedMovies}) => {
             </Input>
           </Box>
 
-          {/* Results */}
           <ScrollView
             style={styles.searchResults}
             keyboardShouldPersistTaps="handled">
@@ -288,31 +284,31 @@ const CreateListScreen = ({navigation, route}) => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
-  const [activeImageType, setActiveImageType] = useState(null); // 'backdrop' or 'thumbnail'
+  const [activeImageType, setActiveImageType] = useState(null);
   const [errors, setErrors] = useState({});
   const [showSearchModal, setShowSearchModal] = useState(false);
   const {showSuccess, showError} = useToast();
 
-  // Handle initial movie from navigation
+  const isEditMode = route.params?.editMode;
+  const listData = route.params?.list;
+
   useEffect(() => {
-    if (route.params?.movie) {
-      const initialMovie = route.params.movie;
-      setMovies([
-        {
-          id: initialMovie.tmdb_id,
-          tmdb_id: initialMovie.tmdb_id,
-          type: initialMovie.type,
-          title: initialMovie.title,
-          year: initialMovie.year,
-          poster:
-            initialMovie.poster ||
-            initialMovie.poster_url ||
-            initialMovie.poster_preview_url,
-          rating: initialMovie.rating,
-        },
-      ]);
+    if (isEditMode && listData) {
+      setName(listData.name);
+      setDescription(listData.description);
+      // Don't require image selection in edit mode if images already exist
+      if (listData.backdrop) {
+        setErrors(prev => ({...prev, backdrop: ''}));
+      }
+      if (listData.thumbnail) {
+        setErrors(prev => ({...prev, thumbnail: ''}));
+      }
+      console.log(listData.movies[0]);
+      setBackdrop(listData.backdrop);
+      setThumbnail(listData.thumbnail);
+      setMovies(listData.movies || []);
     }
-  }, [route.params?.movie]);
+  }, [isEditMode, listData]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -325,12 +321,14 @@ const CreateListScreen = ({navigation, route}) => {
       newErrors.description = 'Description is required';
     }
 
-    if (!thumbnail) {
-      newErrors.thumbnail = 'Please select a thumbnail image';
-    }
-
-    if (!backdrop) {
-      newErrors.backdrop = 'Please select a backdrop image';
+    // Only require images in create mode or if they were changed in edit mode
+    if (!isEditMode) {
+      if (!thumbnail) {
+        newErrors.thumbnail = 'Please select a thumbnail image';
+      }
+      if (!backdrop) {
+        newErrors.backdrop = 'Please select a backdrop image';
+      }
     }
 
     if (movies.length === 0) {
@@ -352,48 +350,56 @@ const CreateListScreen = ({navigation, route}) => {
       formData.append('name', name);
       formData.append('description', description);
 
-      // Handle image files
-      if (thumbnail) {
+      // Only append images if they're new (start with file://) or if we're creating a new list
+      if (thumbnail && (!isEditMode || thumbnail.startsWith('file://'))) {
         formData.append('thumbnail', {
           uri: thumbnail,
           type: 'image/jpeg',
           name: 'thumbnail.jpg',
         });
-      } else {
-        formData.append('thumbnail', '');
       }
 
-      if (backdrop) {
+      if (backdrop && (!isEditMode || backdrop.startsWith('file://'))) {
         formData.append('backdrop', {
           uri: backdrop,
           type: 'image/jpeg',
           name: 'backdrop.jpg',
         });
-      } else {
-        formData.append('backdrop', '');
       }
 
-      // Handle movies
       const movieIds = movies.map(movie => ({
         tmdb_id: movie.tmdb_id,
         type: movie.type,
       }));
       formData.append('movie_ids', JSON.stringify(movieIds));
 
-      const response = await api.post('/lists/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      let response;
+      if (isEditMode) {
+        response = await api.patch(`/lists/${listData.id}/`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        showSuccess('List updated successfully!');
+      } else {
+        response = await api.post('/lists/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        showSuccess('List created successfully!');
+      }
 
-      showSuccess('List created successfully!');
       navigation.replace('ListDetails', {
         listId: response.data.id,
         listName: response.data.name,
       });
     } catch (err) {
-      console.error('Error creating list:', err);
-      showError('Failed to create list. Please try again.');
+      console.error(
+        isEditMode ? 'Error updating list:' : 'Error creating list:',
+        err,
+      );
+      showError(isEditMode ? 'Failed to update list' : 'Failed to create list');
     } finally {
       setIsLoading(false);
     }
@@ -437,7 +443,6 @@ const CreateListScreen = ({navigation, route}) => {
         cropping: true,
         cropperCircleOverlay: false,
         mediaType: 'photo',
-        // Theme customization
         cropperToolbarTitle:
           activeImageType === 'thumbnail'
             ? 'Crop List Thumbnail'
@@ -494,7 +499,6 @@ const CreateListScreen = ({navigation, route}) => {
     <>
       <ScrollView flex={1} backgroundColor="#040b1c">
         <Box>
-          {/* Backdrop Section */}
           <Box position="relative" height={240}>
             {backdrop ? (
               <Image
@@ -529,7 +533,6 @@ const CreateListScreen = ({navigation, route}) => {
               <Camera color="#dc3f72" size={20} />
             </Pressable>
 
-            {/* Back Button */}
             <Pressable
               position="absolute"
               top={16}
@@ -540,9 +543,19 @@ const CreateListScreen = ({navigation, route}) => {
               onPress={() => navigation.goBack()}>
               <ArrowLeft color="white" size={24} />
             </Pressable>
+            <Text
+              position="absolute"
+              top={Platform.OS === 'ios' ? 60 : 24}
+              left={0}
+              right={0}
+              textAlign="center"
+              color="white"
+              fontSize={18}
+              fontWeight="600">
+              {isEditMode ? 'Edit List' : 'Create List'}
+            </Text>
           </Box>
 
-          {/* Content */}
           <Box
             padding={16}
             backgroundColor="#040b1c"
@@ -551,7 +564,6 @@ const CreateListScreen = ({navigation, route}) => {
               borderTopRightRadius: 20,
               marginTop: -20,
             }}>
-            {/* Thumbnail Section */}
             <Center marginTop={-50} marginBottom={24}>
               <Box position="relative">
                 {thumbnail ? (
@@ -592,7 +604,6 @@ const CreateListScreen = ({navigation, route}) => {
               </Box>
             </Center>
 
-            {/* Form */}
             <VStack space="xl">
               <FormInput
                 value={name}
@@ -622,7 +633,6 @@ const CreateListScreen = ({navigation, route}) => {
                 marginTop={4}
               />
 
-              {/* Movies Section */}
               <VStack space="md" marginTop={8}>
                 <Text color="white" fontSize={16} fontWeight="600">
                   Movies
@@ -650,19 +660,17 @@ const CreateListScreen = ({navigation, route}) => {
                 )}
               </VStack>
 
-              {/* Create Button */}
               <PrimaryButton
                 onPress={handleCreate}
                 isLoading={isLoading}
                 marginTop={16}>
-                Create List
+                {isEditMode ? 'Update List' : 'Create List'}
               </PrimaryButton>
             </VStack>
           </Box>
         </Box>
       </ScrollView>
 
-      {/* Image Picker Modal */}
       <Modal
         visible={showImagePicker}
         transparent={true}
@@ -706,7 +714,6 @@ const CreateListScreen = ({navigation, route}) => {
         </TouchableOpacity>
       </Modal>
 
-      {/* Search Movie Modal */}
       <SearchMovieModal
         visible={showSearchModal}
         onClose={() => setShowSearchModal(false)}

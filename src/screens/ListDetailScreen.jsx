@@ -19,6 +19,9 @@ import {
   Check,
   Clock,
   Star,
+  Trash,
+  Trash2,
+  Edit2,
 } from 'lucide-react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {
@@ -29,10 +32,13 @@ import {
   StyleSheet,
   Share,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import sampleData from '../data/sample.json';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import api from '../lib/api';
+import {useAuth} from '../context/AuthContext';
+import {useToast} from '../context/ToastContext';
 
 const TouchableItem = ({onPress, children, style}) => {
   if (Platform.OS === 'android') {
@@ -263,8 +269,11 @@ const ListDetailScreen = () => {
   const {listId} = route.params;
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [list, setList] = useState(null);
   const [movies, setMovies] = useState([]);
+  const {user} = useAuth();
+  const {showError, showSuccess} = useToast();
 
   useEffect(() => {
     const loadData = async () => {
@@ -306,9 +315,54 @@ const ListDetailScreen = () => {
     }
   };
 
+  const handleDelete = async () => {
+    Alert.alert(
+      'Delete List',
+      'Are you sure you want to delete this list?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await api.delete(`/lists/${listId}/`);
+              showSuccess('List deleted successfully');
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error deleting list:', error);
+              showError('Failed to delete list');
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  const handleEdit = () => {
+    navigation.navigate('CreateList', {
+      editMode: true,
+      list: {
+        ...list,
+        movies: movies.map(movie => ({
+          ...movie,
+          id: movie.tmdb_id,
+        })),
+      },
+    });
+  };
+
   if (isLoading || !list) {
     return <ListDetailSkeleton />;
   }
+
+  const isCreator = user && user.id === list.creator_id;
 
   return (
     <Box flex={1} backgroundColor="#040b1c">
@@ -337,17 +391,33 @@ const ListDetailScreen = () => {
             <Button variant="link" onPress={() => navigation.goBack()}>
               <ButtonIcon as={ArrowLeft} color="white" />
             </Button>
-            <Button
-              variant="link"
-              onPress={() => {
-                Share.share({
-                  message: `Check out "${list.name}" on Flickture!
-https://flickture.leen2233.me/lists/${list.id}`,
-                  url: `https://flickture.leen2233.me/lists/${list.id}`,
-                });
-              }}>
-              <ButtonIcon as={Share2} color="white" />
-            </Button>
+            {isCreator && (
+              <HStack gap={10}>
+                <Button style={styles.editButton} onPress={handleEdit}>
+                  <Edit2 color="white" size={18} />
+                </Button>
+                <Button
+                  style={styles.deleteButton}
+                  onPress={handleDelete}
+                  disabled={isDeleting}>
+                  {isDeleting ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Trash2 color="white" size={18} />
+                  )}
+                </Button>
+                <Button
+                  variant="link"
+                  onPress={() => {
+                    Share.share({
+                      message: `Check out "${list.name}" on Flickture!\nhttps://flickture.leen2233.me/lists/${list.id}`,
+                      url: `https://flickture.leen2233.me/lists/${list.id}`,
+                    });
+                  }}>
+                  <ButtonIcon as={Share2} color="white" />
+                </Button>
+              </HStack>
+            )}
           </HStack>
         </Box>
 
@@ -498,6 +568,25 @@ const styles = StyleSheet.create({
   },
   hiddenImage: {
     opacity: 0,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(244, 67, 54, 0.3)',
+    borderColor: 'rgba(244, 67, 54, 0.5)',
+    borderWidth: 1,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+
+  editButton: {
+    backgroundColor: 'rgba(220, 63, 114, 0.4)',
+    borderColor: 'rgba(220, 63, 114, 0.7)',
+    borderWidth: 1,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
 });
 
