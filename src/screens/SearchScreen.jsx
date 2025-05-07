@@ -360,20 +360,6 @@ const SearchScreen = () => {
     fetchMovieLists();
   }, []);
 
-  const getRandomColor = id => {
-    const colors = [
-      '#FF6B6B',
-      '#4ECDC4',
-      '#45B7D1',
-      '#96CEB4',
-      '#FF9999',
-      '#9D50BB',
-      '#FFB6C1',
-      '#87CEEB',
-    ];
-    return colors[id % colors.length];
-  };
-
   const handleSearch = query => {
     setSearchQuery(query);
   };
@@ -417,7 +403,7 @@ const SearchScreen = () => {
   const inputRef = useRef(null);
 
   return (
-    <Box flex={1} backgroundColor="#040b1c">
+    <Box flex={1} backgroundColor="#040b1c" paddingBottom={40}>
       {isInputFocused && (
         <Pressable
           position="absolute"

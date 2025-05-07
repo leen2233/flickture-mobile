@@ -165,7 +165,12 @@ const MovieCard = ({movie}) => {
   return (
     <Pressable
       key={movie.id}
-      onPress={() => navigation.navigate('MovieDetail', {movie})}
+      onPress={() =>
+        navigation.navigate('MovieDetail', {
+          tmdbId: movie.tmdb_id,
+          type: movie.type,
+        })
+      }
       style={styles.movieCard}>
       <Box width="100%" height={200}>
         {!isImageLoaded && <ImagePlaceholder width="100%" height={200} />}

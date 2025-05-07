@@ -26,6 +26,7 @@ import {
   ChevronUp,
   Send,
   Filter,
+  Trash2,
 } from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -139,11 +140,12 @@ const CommentItem = ({
   movieId,
   fetchComments,
   scrollToInput,
+  is_owner,
 }) => {
   const [isLiked, setIsLiked] = React.useState(initialLiked);
   const [likes, setLikes] = React.useState(initialLikes);
   const [isLiking, setIsLiking] = React.useState(false);
-  ``;
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const [showResponses, setShowResponses] = React.useState(false);
   const [showMainInput, setShowMainInput] = React.useState(false);
   const [responseText, setResponseText] = React.useState('');
@@ -173,6 +175,22 @@ const CommentItem = ({
       // You might want to show an error toast here
     } finally {
       setIsLiking(false);
+    }
+  };
+
+  const handleDeleteComment = async () => {
+    if (isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      await api.delete(`/movies/${tmdbId}/${type}/comments/${id}/`);
+      // After successful deletion, refresh the comments list
+      fetchComments(1);
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -291,6 +309,22 @@ const CommentItem = ({
             </Text>
           </HStack>
         </VStack>
+
+        {/* Delete button shown only if is_owner is true */}
+        {is_owner && (
+          <Button
+            variant="ghost"
+            backgroundColor="#cf4c4c"
+            borderRadius={12}
+            onPress={handleDeleteComment}
+            disabled={isDeleting}>
+            {isDeleting ? (
+              <Spinner color="white" size="small" />
+            ) : (
+              <Trash2 size={20} color="white" />
+            )}
+          </Button>
+        )}
       </HStack>
       <Text color="rgba(255, 255, 255, 0.7)" fontSize={14}>
         {content}
@@ -528,7 +562,7 @@ const CommentItem = ({
   );
 };
 
-const MovieHeader = ({movie}) => {
+const MovieHeader = ({movie, showCommentInput, setShowCommentInput}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const navigation = useNavigation();
   return (
@@ -570,17 +604,31 @@ const MovieHeader = ({movie}) => {
           padding={16}
           paddingTop={Platform.OS === 'ios' ? 60 : 20}
           space="md"
-          alignItems="center">
+          alignItems="center"
+          justifyContent="space-between">
+          <HStack space="md" alignItems="center">
+            <Button
+              variant="link"
+              onPress={() => navigation.goBack()}
+              padding={0}
+              margin={0}>
+              <ButtonIcon as={ArrowLeft} color="white" />
+            </Button>
+            <Text color="white" fontSize={20} fontWeight="600">
+              Comments & Reviews
+            </Text>
+          </HStack>
           <Button
-            variant="link"
-            onPress={() => navigation.goBack()}
-            padding={0}
-            margin={0}>
-            <ButtonIcon as={ArrowLeft} color="white" />
+            variant="solid"
+            backgroundColor="#dc3f72"
+            borderRadius={20}
+            onPress={() => setShowCommentInput(true)}
+            paddingHorizontal={12}
+            height={36}>
+            <ButtonText color="white" fontSize={14}>
+              Add Comment
+            </ButtonText>
           </Button>
-          <Text color="white" fontSize={20} fontWeight="600">
-            Comments & Reviews
-          </Text>
         </HStack>
 
         {/* Movie Info */}
@@ -819,7 +867,6 @@ const InitialLoadingState = () => (
 );
 
 const CommentsScreen = ({route}) => {
-  const navigation = useNavigation();
   const {tmdbId, type, movie} = route.params;
   const [selectedRating, setSelectedRating] = React.useState(0);
   const [sortBy, setSortBy] = React.useState('date');
@@ -830,21 +877,42 @@ const CommentsScreen = ({route}) => {
   const [hasMore, setHasMore] = React.useState(true);
   const scrollViewRef = React.useRef(null);
 
-  // We'll fetch this from API too in a real implementation
-  const moviee = {
-    id: 1,
-    title: 'Inception',
-    originalTitle: 'Inception',
-    poster: 'https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg',
-    year: 2010,
-    rating: 8.8,
-    duration: '148 min',
-    overview:
-      "Cobb, a skilled thief who commits corporate espionage by infiltrating the subconscious of his targets is offered a chance to regain his old life as payment for a task considered to be impossible: inception, the implantation of another person's idea into a target's subconscious.",
-    comments: 324,
-  };
-
   const [allComments, setAllComments] = React.useState([]);
+  const [showCommentInput, setShowCommentInput] = React.useState(false);
+  const [commentText, setCommentText] = React.useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = React.useState(false);
+
+  React.useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setShowCommentInput(false);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  const handleSubmitComment = async () => {
+    if (!commentText.trim() || isSubmittingComment) return;
+
+    setIsSubmittingComment(true);
+    try {
+      await api.post(`/movies/${tmdbId}/${type}/comments/`, {
+        content: commentText.trim(),
+        movie: movie.id,
+      });
+      setCommentText('');
+      setShowCommentInput(false);
+      fetchComments(1); // Refresh comments list
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
 
   const fetchComments = React.useCallback(
     async (pageNum = 1) => {
@@ -905,9 +973,6 @@ const CommentsScreen = ({route}) => {
     [fetchComments, isLoading, hasMore, page],
   );
 
-  // No need for filteredAndSortedComments since API handles filtering and sorting
-  const comments = allComments;
-
   const scrollToInput = (yOffset = 300) => {
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({
@@ -932,7 +997,11 @@ const CommentsScreen = ({route}) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{paddingBottom: 20}}>
-          <MovieHeader movie={movie} />
+          <MovieHeader
+            movie={movie}
+            showCommentInput={showCommentInput}
+            setShowCommentInput={setShowCommentInput}
+          />
           <FilterSection
             selectedRating={selectedRating}
             setSelectedRating={setSelectedRating}
@@ -946,7 +1015,7 @@ const CommentsScreen = ({route}) => {
             <InitialLoadingState />
           ) : (
             <VStack space="sm">
-              {comments.map(comment => (
+              {allComments.map(comment => (
                 <React.Fragment key={comment.id}>
                   <CommentItem
                     {...comment}
@@ -970,6 +1039,52 @@ const CommentsScreen = ({route}) => {
             </VStack>
           )}
         </ScrollView>
+
+        {showCommentInput && (
+          <Box
+            position="absolute"
+            bottom={0}
+            left={0}
+            right={0}
+            backgroundColor="#151527"
+            padding={16}>
+            <HStack space="sm" alignItems="center">
+              <Input
+                flex={1}
+                variant="rounded"
+                size="md"
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+                borderWidth={0}>
+                <InputField
+                  autoFocus={true}
+                  color="white"
+                  placeholder="Write your comment..."
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  value={commentText}
+                  onChangeText={setCommentText}
+                  onSubmitEditing={handleSubmitComment}
+                />
+              </Input>
+              <Button
+                variant="solid"
+                backgroundColor={
+                  commentText.trim() ? '#dc3f72' : 'rgba(255, 255, 255, 0.1)'
+                }
+                borderRadius={20}
+                onPress={handleSubmitComment}
+                disabled={!commentText.trim() || isSubmittingComment}
+                padding={8}
+                width={44}
+                height={44}>
+                {isSubmittingComment ? (
+                  <Spinner color="white" size="small" />
+                ) : (
+                  <Send size={20} color="white" />
+                )}
+              </Button>
+            </HStack>
+          </Box>
+        )}
       </Box>
     </KeyboardAvoidingView>
   );
