@@ -682,12 +682,14 @@ const MovieDetailScreen = ({route}) => {
 
     try {
       console.log('[MovieDetail] Sending rating request');
-      const response = await api.post(`/ratings/`, {
-        tmdb_id: route.params.tmdbId,
-        type: movieData.type,
-        rating: rating,
-        comment: comment,
-      });
+      const response = await api.post(
+        `/movies/${movieData.tmdb_id}/${movieData.type}/comments/`,
+        {
+          movie: movieData.id,
+          rating: rating,
+          content: comment,
+        },
+      );
       console.log('[MovieDetail] Rating submission response:', response.data);
 
       setMovieData(prev => ({

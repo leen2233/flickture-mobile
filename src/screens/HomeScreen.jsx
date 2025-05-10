@@ -17,17 +17,17 @@ const HomeScreen = () => {
         headerShown: false,
       })}>
       <Tab.Screen
-        name="HomeTab"
-        component={MainHomeScreen}
+        name="DiscoverTab"
+        component={SearchScreen}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Discover',
         }}
       />
       <Tab.Screen
-        name="SearchTab"
-        component={SearchScreen}
+        name="FeedTab"
+        component={MainHomeScreen}
         options={{
-          tabBarLabel: 'Search',
+          tabBarLabel: 'Feed',
         }}
       />
       <Tab.Screen

@@ -488,7 +488,7 @@ const MainHomeScreen = () => {
           <EmptyFeedMessage isFollowing={activeTab === 'following'} />
         )}
       </ScrollView>
-      <BottomTabs currentRoute="HomeTab" />
+      <BottomTabs currentRoute="FeedTab" />
     </Box>
   );
 };

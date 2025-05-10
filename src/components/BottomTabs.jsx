@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Box, Text, Icon, Pressable} from '@gluestack-ui/themed';
-import {Home, Search, User, List} from 'lucide-react-native';
+import {Home, Search, User, List, Compass, Rss} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
 
 const TabButton = ({icon: IconComponent, label, selected, onPress}) => (
@@ -10,6 +10,7 @@ const TabButton = ({icon: IconComponent, label, selected, onPress}) => (
       minHeight: 50,
       marginHorizontal: 8,
     }}
+    borderRadius={15}
     onPress={onPress}>
     <Box
       backgroundColor={selected ? '#dc3f72' : 'transparent'}
@@ -45,6 +46,10 @@ const TabButton = ({icon: IconComponent, label, selected, onPress}) => (
 const BottomTabs = ({currentRoute = ''}) => {
   const navigation = useNavigation();
 
+  useEffect(() => {
+    console.log(currentRoute);
+  }, [currentRoute]);
+
   const handleNavigation = screenName => {
     // Navigate to Home first (which contains the tab navigator)
     navigation.navigate('Home', {
@@ -73,16 +78,16 @@ const BottomTabs = ({currentRoute = ''}) => {
         flexDirection: 'row',
       }}>
       <TabButton
-        icon={Home}
-        label="Home"
-        selected={currentRoute === 'HomeTab'}
-        onPress={() => handleNavigation('HomeTab')}
+        icon={Compass}
+        label="Discover"
+        selected={currentRoute === 'DiscoverTab'}
+        onPress={() => handleNavigation('DiscoverTab')}
       />
       <TabButton
-        icon={Search}
-        label="Search"
-        selected={currentRoute === 'SearchTab'}
-        onPress={() => handleNavigation('SearchTab')}
+        icon={Rss}
+        label="Feed"
+        selected={currentRoute === 'FeedTab'}
+        onPress={() => handleNavigation('FeedTab')}
       />
       <TabButton
         icon={List}

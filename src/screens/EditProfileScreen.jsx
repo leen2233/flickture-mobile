@@ -54,7 +54,7 @@ const EditProfileScreen = ({navigation}) => {
         user.avatar || 'https://flickture.leen2233.me/default-avatar.png',
       );
       setBanner(
-        user.banner_image || 'https://flickture.leen2233.me/default-avatar.png',
+        user.banner_image || 'https://flickture.leen2233.me/default-banner.png',
       );
     }
   }, [user]);

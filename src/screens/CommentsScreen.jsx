@@ -314,14 +314,16 @@ const CommentItem = ({
         {is_owner && (
           <Button
             variant="ghost"
-            backgroundColor="#cf4c4c"
+            backgroundColor="transparent"
+            borderColor={'#cf4c4c'}
+            borderWidth={1}
             borderRadius={12}
             onPress={handleDeleteComment}
             disabled={isDeleting}>
             {isDeleting ? (
-              <Spinner color="white" size="small" />
+              <Spinner color="#cf4c4c" size="small" />
             ) : (
-              <Trash2 size={20} color="white" />
+              <Trash2 size={20} color="#cf4c4c" />
             )}
           </Button>
         )}

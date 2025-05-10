@@ -530,7 +530,7 @@ const SearchScreen = () => {
           )}
         </ScrollView>
       )}
-      <BottomTabs currentRoute="SearchTab" />
+      <BottomTabs currentRoute="DiscoverTab" />
     </Box>
   );
 };

@@ -2,6 +2,14 @@
 
 Flickture is a feature-rich React Native mobile application that provides a seamless experience for movie enthusiasts to discover, track, and engage with movies. Built with modern technologies for both iOS and Android platforms.
 
+## Showcase
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+    <img src="showcase/discover.png" width="30%" alt="Discover Screen">
+    <img src="showcase/movie_detail.png" width="30%" alt="Movie Detail Screen">
+    <img src="showcase/profile.png" width="30%" alt="Profile Screen">
+</div>
+
 ## Links
 
 Web version: https://flickture.leen2233.me

@@ -210,7 +210,9 @@ const ProfileScreen = () => {
           <Box>
             <Image
               source={{
-                uri: user?.banner_image || 'https://picsum.photos/1600/900',
+                uri:
+                  user?.banner_image ||
+                  'https://flickture.leen2233.me/default-banner.png',
               }}
               alt="Profile Banner"
               width="100%"

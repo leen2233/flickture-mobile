@@ -21,11 +21,6 @@ jobs:
       - name: Build Android Release
         run: |
           cd android && ./gradlew assembleRelease
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: app-release.apk
-      #     path: android/app/build/outputs/apk/release/
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:

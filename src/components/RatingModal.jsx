@@ -70,13 +70,6 @@ const RatingModal = ({visible, onClose, onSubmit}) => {
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}>
-              <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
               style={[styles.button, styles.skipButton]}
               onPress={handleSkip}>
               <Text style={[styles.buttonText, styles.skipButtonText]}>
