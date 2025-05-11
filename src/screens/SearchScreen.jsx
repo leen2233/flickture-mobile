@@ -1,4 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuth} from '../context/AuthContext';
 import {
   Box,
   Text,
@@ -315,6 +317,37 @@ const SearchScreen = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
+  const {fetchUser} = useAuth();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        navigation.replace('Login');
+        return;
+      }
+
+      try {
+        const userFetched = await fetchUser();
+        if (!userFetched) {
+          throw new Error('Failed to fetch user');
+        }
+      } catch (error) {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
+          navigation.replace('Login', {
+            message: 'Login expired, please login again',
+          });
+        } else {
+          navigation.replace('Login');
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchGenres = async () => {

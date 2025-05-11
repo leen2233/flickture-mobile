@@ -35,13 +35,13 @@ function App() {
         <AuthProvider>
           <NavigationContainer>
             <Stack.Navigator
-              initialRouteName="Login"
+              initialRouteName="Home"
               screenOptions={{
                 headerShown: false,
               }}>
+              <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
-              <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="Verify" component={VerifyScreen} />
               <Stack.Screen name="EditProfile" component={EditProfileScreen} />
               <Stack.Screen name="MovieList" component={MovieListScreen} />

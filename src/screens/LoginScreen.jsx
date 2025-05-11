@@ -11,36 +11,21 @@ import {
 import {PrimaryButton, FormInput} from '../elements';
 import {useAuth} from '../context/AuthContext';
 import {useToast} from '../context/ToastContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({navigation, route}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-
-  const {login, loading, user, fetchUser} = useAuth();
-  const {showSuccess} = useToast();
+  const {login, loading} = useAuth();
+  const {showSuccess, showError} = useToast();
 
   useEffect(() => {
-    const checkUser = async () => {
-      if (user) {
-        console.log('user found');
-        navigation.replace('Home');
-      }
-      console.log('checking user');
-      console.log(await AsyncStorage.getItem('token'), 'checked');
-      if (await AsyncStorage.getItem('token')) {
-        console.log('token found');
-        if (await fetchUser()) {
-          console.log('user found');
-          navigation.replace('Home');
-        }
-      }
-    };
-
-    checkUser();
-  }, []);
+    // Show message if redirected from MainHomeScreen
+    if (route.params?.message) {
+      showError(route.params.message);
+    }
+  }, [route.params]);
 
   const validateForm = () => {
     const newErrors = {};

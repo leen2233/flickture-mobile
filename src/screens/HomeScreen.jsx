@@ -10,6 +10,7 @@ const Tab = createBottomTabNavigator();
 const HomeScreen = () => {
   return (
     <Tab.Navigator
+      initialRouteName="DiscoverTab"
       screenOptions={({route}) => ({
         tabBarStyle: {
           display: 'none', // Hide the default tab bar

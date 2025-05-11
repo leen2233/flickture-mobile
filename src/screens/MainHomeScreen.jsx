@@ -25,6 +25,7 @@ import {
 } from 'lucide-react-native';
 import {StyleSheet, ActivityIndicator} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../lib/api';
 import {useAuth} from '../context/AuthContext';
 import ImagePlaceholder from '../components/ImagePlaceholder';
@@ -335,8 +336,38 @@ const MainHomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const {user} = useAuth();
+  const {user, fetchUser} = useAuth();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        navigation.replace('Login');
+        return;
+      }
+
+      try {
+        const userFetched = await fetchUser();
+        if (!userFetched) {
+          throw new Error('Failed to fetch user');
+        }
+      } catch (error) {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
+          navigation.replace('Login', {
+            message: 'Login expired, please login again',
+          });
+        } else {
+          navigation.replace('Login');
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const fetchActivities = async (pageNum = 1) => {
     if (loading || (!hasMore && pageNum > 1)) return;

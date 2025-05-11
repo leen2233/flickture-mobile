@@ -61,7 +61,6 @@ export const AuthProvider = ({children}) => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('token');
-      setUser(null);
     } catch (error) {
       showError('Logout failed');
     }
