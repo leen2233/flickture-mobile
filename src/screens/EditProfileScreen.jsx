@@ -2,13 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {
   Box,
   Center,
-  HStack,
   VStack,
   Text,
   Image,
   Pressable,
   ScrollView,
-  FormControl,
 } from '@gluestack-ui/themed';
 import {
   Modal,
@@ -18,10 +16,8 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import {Camera, ArrowLeft, Calendar} from 'lucide-react-native';
-import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import {Camera, ArrowLeft} from 'lucide-react-native';
 import {PrimaryButton, FormInput, FormTextArea} from '../elements';
-import sampleData from '../data/sample.json';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useToast} from '../context/ToastContext';
 import {useAuth} from '../context/AuthContext';
@@ -247,7 +243,11 @@ const EditProfileScreen = ({navigation}) => {
           showError('Camera permission denied');
           return;
         }
-        result = await ImageCropPicker.openCamera(cropperOptions);
+        result = await ImageCropPicker.openCamera({cropping: false});
+        croppedImage = await ImageCropPicker.openCropper({
+          ...cropperOptions,
+          path: result.path,
+        });
       } else {
         // result = await ImageCropPicker.openPicker(cropperOptions);
         result = await ImageCropPicker.openPicker({

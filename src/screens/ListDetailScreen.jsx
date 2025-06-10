@@ -362,8 +362,6 @@ const ListDetailScreen = () => {
     return <ListDetailSkeleton />;
   }
 
-  const isCreator = user && user.id === list.creator_id;
-
   return (
     <Box flex={1} backgroundColor="#040b1c">
       <ScrollView flex={1}>
@@ -391,7 +389,7 @@ const ListDetailScreen = () => {
             <Button variant="link" onPress={() => navigation.goBack()}>
               <ButtonIcon as={ArrowLeft} color="white" />
             </Button>
-            {isCreator && (
+            {list.is_creator && (
               <HStack gap={10}>
                 <Button style={styles.editButton} onPress={handleEdit}>
                   <Edit2 color="white" size={18} />
