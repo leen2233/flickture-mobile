@@ -34,30 +34,6 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const login = async (username, password) => {
-    try {
-      setLoading(true);
-      const response = await api.post('/auth/login/', {
-        login: username,
-        password: password,
-      });
-      console.log('Login response:', response.data);
-      const {token} = response.data;
-      console.log('Token:', token);
-      await AsyncStorage.setItem('token', token);
-      await fetchUser();
-      console.log('setted');
-      return true;
-    } catch (error) {
-      console.error('Login error:', error);
-      console.log(error.response);
-      showError(error.response?.data?.message || 'Login failed');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('token');
@@ -72,7 +48,7 @@ export const AuthProvider = ({children}) => {
 
   return (
     <AuthContext.Provider
-      value={{user, loading, login, logout, fetchUser, updateUser}}>
+      value={{user, loading, logout, fetchUser, updateUser}}>
       {children}
     </AuthContext.Provider>
   );

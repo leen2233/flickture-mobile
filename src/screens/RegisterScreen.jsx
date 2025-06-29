@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Box,
@@ -7,10 +7,15 @@ import {
   VStack,
   Text,
   Pressable,
+  HStack,
+  Spinner,
+  Image,
 } from '@gluestack-ui/themed';
 import {PrimaryButton, FormInput} from '../elements';
 import {useAuth} from '../context/AuthContext';
 import api from '../lib/api';
+import {useToast} from '../context/ToastContext';
+import {RefreshCcw} from 'lucide-react-native';
 
 const RegisterScreen = ({navigation}) => {
   const {fetchUser} = useAuth();
@@ -19,10 +24,40 @@ const RegisterScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [captchaKey, setCaptchaKey] = useState('');
+  const [captchaImage, setCaptchaImage] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const {showError} = useToast();
+
+  useEffect(() => {
+    loadCaptcha();
+  }, []);
+
+  const loadCaptcha = async () => {
+    setCaptchaLoading(true);
+    try {
+      const response = await api.get('/auth/captcha');
+      const {captcha_key, captcha_image} = response.data;
+      setCaptchaKey(captcha_key);
+      setCaptchaImage(captcha_image);
+      setCaptchaInput('');
+      setErrors(prev => {
+        return {...prev, captcha_input: '', captcha_key: ''};
+      });
+    } catch (error) {
+      console.error('Failed to load CAPTCHA:', error);
+      showError('Failed to load CAPTCHA');
+    } finally {
+      setCaptchaLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -53,6 +88,14 @@ const RegisterScreen = ({navigation}) => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    if (!captchaInput) {
+      newErrors.captcha_input = 'Please enter the CAPTCHA';
+    }
+
+    if (!captchaKey) {
+      newErrors.captcha_key = 'CAPTCHA key is missing';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -69,6 +112,8 @@ const RegisterScreen = ({navigation}) => {
         email,
         password,
         full_name: name,
+        captcha_input: captchaInput,
+        captcha_key: captchaKey,
       });
 
       const {token} = response.data;
@@ -85,7 +130,35 @@ const RegisterScreen = ({navigation}) => {
       if (serverErrors.email) {
         newErrors.email = serverErrors.email[0];
       }
+
+      // Handle CAPTCHA-specific errors
+      if (serverErrors.captcha_input) {
+        newErrors.captcha_input = Array.isArray(serverErrors.captcha_input)
+          ? serverErrors.captcha_input[0]
+          : serverErrors.captcha_input;
+      }
+
+      if (serverErrors.captcha_key) {
+        newErrors.captcha_key = Array.isArray(serverErrors.captcha_key)
+          ? serverErrors.captcha_key[0]
+          : serverErrors.captcha_key;
+      }
+
+      if (serverErrors.error) {
+        showError(serverErrors.error);
+      } else if (!newErrors.captcha_input && !newErrors.captcha_key) {
+        showError('Failed to login. Please try again.');
+      }
+
       setErrors(newErrors);
+
+      if (
+        newErrors.captcha_input ||
+        newErrors.captcha_key ||
+        serverErrors.error
+      ) {
+        loadCaptcha();
+      }
     } finally {
       setIsLoading(false);
     }
@@ -169,9 +242,81 @@ const RegisterScreen = ({navigation}) => {
           isPassword={true}
           showPassword={showConfirmPassword}
           setShowPassword={setShowConfirmPassword}
-          marginBottom={20}
           error={errors.confirmPassword}
         />
+
+        {/* CAPTCHA Section */}
+        <HStack
+          space="md"
+          alignItems="center"
+          justifyContent="space-between"
+          marginBottom={20}>
+          <Box flex={5}>
+            <FormInput
+              value={captchaInput}
+              onChangeText={text => {
+                setCaptchaInput(text);
+                if (errors.captcha_input) {
+                  setErrors(prev => ({...prev, captcha_input: ''}));
+                }
+              }}
+              placeholder="Enter CAPTCHA"
+              keyboardType="default"
+              autoCapitalize="characters"
+              error={errors.captcha_input}
+              // marginBottom={16}
+            />
+          </Box>
+          <Box flex={2}>
+            {captchaLoading ? (
+              <Box
+                height={45}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+                borderRadius={8}
+                alignItems="center"
+                justifyContent="center">
+                <Spinner color="#dc3f72" />
+              </Box>
+            ) : captchaImage ? (
+              <Image
+                source={{uri: captchaImage}}
+                alt="CAPTCHA"
+                width="100%"
+                height={45}
+                borderRadius={8}
+                resizeMode="contain"
+                backgroundColor="rgba(255, 255, 255, 0.9)"
+              />
+            ) : (
+              <Box
+                height={60}
+                backgroundColor="rgba(255, 255, 255, 0.1)"
+                borderRadius={8}
+                alignItems="center"
+                justifyContent="center">
+                <Text size="sm" color="rgba(255, 255, 255, 0.7)">
+                  Failed to load CAPTCHA
+                </Text>
+              </Box>
+            )}
+          </Box>
+
+          <Pressable
+            onPress={loadCaptcha}
+            disabled={captchaLoading}
+            backgroundColor="rgba(255, 255, 255, 0.1)"
+            borderRadius={8}
+            $active={{
+              opacity: 0.7,
+            }}
+            $disabled={{
+              opacity: 0.5,
+            }}>
+            <Text fontSize={18}>
+              <RefreshCcw color={'white'} />
+            </Text>
+          </Pressable>
+        </HStack>
 
         <PrimaryButton onPress={handleRegister} isLoading={isLoading}>
           Sign Up
